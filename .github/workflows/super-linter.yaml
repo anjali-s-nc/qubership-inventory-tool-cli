@@ -1,0 +1,43 @@
+---
+name: Lint Code Base
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+    inputs:
+      full_scan:
+        type: boolean
+        default: false
+        required: false
+        description: "Lint all codebase"
+permissions:
+  contents: read
+
+jobs:
+  run-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lint Code Base
+        uses: actions/checkout/slim@v7.3.0
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
+
+      - name: "Load super-linter environment file"
+        run: |
+          # shellcheck disable=2086
+          if [ -f "./.github/super-linter.env" ]; then
+            grep "\S" ./.github/super-linter.env | grep -v "^#"
+            grep "\S" ./.github/super-linter.env | grep -v "^#" >> $GITHUB_ENV
+          fi
+
+      - name: Lint Code Base
+        uses: super-linter/super-linter@v7
+        env:
+          VALIDATE_ALL_CODEBASE: ${{ inputs.full_scan || false }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
