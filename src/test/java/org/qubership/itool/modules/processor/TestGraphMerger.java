@@ -56,9 +56,31 @@ import static org.qubership.itool.modules.processor.MergerApi.P_IS_APPLICATION;
 import static org.qubership.itool.modules.processor.MergerApi.P_IS_NAMESPACE;
 import static org.qubership.itool.modules.processor.MergerApi.P_NAMESPACE_NAME;
 
+import io.vertx.core.Vertx;
+import org.qubership.itool.modules.graph.GraphFactory;
+import org.qubership.itool.modules.graph.DefaultGraphFactory;
+import org.qubership.itool.modules.graph.DefaultGraphReportFactory;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestGraphMerger {
+
+    private Vertx vertx;
+    private GraphFactory graphFactory;
+
+    @BeforeAll
+    public void setup() {
+        vertx = Vertx.vertx();
+        graphFactory = new DefaultGraphFactory(new DefaultGraphReportFactory());
+    }
+
+    @AfterAll
+    public void cleanup() {
+        vertx.close();
+    }
+
+    protected GraphMerger createMerger() {
+        return new GraphMerger(vertx, graphFactory);
+    }
 
     @Disabled
     @Test
@@ -200,7 +222,7 @@ public class TestGraphMerger {
         targetDesc.put(P_APP_NAME, "AppName");
         targetDesc.put(P_APP_VERSION, "AppVersion");
 
-        try (GraphMerger merger = new GraphMerger()) {
+        try (GraphMerger merger = createMerger()) {
             merger.prepareGraphForMerging(graph, targetDesc);
 
             merger.mergeGraph(graph1, desc1, graph, targetDesc, false);
@@ -625,7 +647,7 @@ public class TestGraphMerger {
         graph.setReport(report);
         JsonObject targetDesc = new JsonObject();
 
-        try (GraphMerger merger = new GraphMerger()) {
+        try (GraphMerger merger = createMerger()) {
             merger.prepareGraphForMerging(graph, targetDesc);
 
             merger.mergeGraph(graph1, desc1, graph, targetDesc, false);
@@ -862,15 +884,13 @@ public class TestGraphMerger {
         GraphReport report = new GraphReportImpl();
         graph.setReport(report);
 
-        GraphMerger merger = new GraphMerger();
-        merger.prepareGraphForMerging(graph, targetDesc);
+        try (GraphMerger merger = createMerger()) {
+            merger.prepareGraphForMerging(graph, targetDesc);
+            merger.mergeGraph(graph1, desc1, graph, targetDesc,false);
+            merger.mergeGraph(graph2, desc2, graph, targetDesc,false);
+            merger.finalizeGraphAfterMerging(graph, targetDesc);
+        }
 
-        merger.mergeGraph(graph1, desc1, graph, targetDesc, false);
-        merger.mergeGraph(graph2, desc2, graph, targetDesc, false);
-
-        merger.finalizeGraphAfterMerging(graph, targetDesc);
-
-        merger.close();
         return graph;
     }
 
@@ -880,7 +900,7 @@ public class TestGraphMerger {
         GraphReport report = new GraphReportImpl();
         graph.setReport(report);
 
-        try (GraphMerger merger = new GraphMerger()) {
+        try (GraphMerger merger = createMerger()) {
             merger.prepareGraphForMerging(graph, targetDesc);
 
             merger.mergeGraph(graph1, desc1, graph, targetDesc, false);

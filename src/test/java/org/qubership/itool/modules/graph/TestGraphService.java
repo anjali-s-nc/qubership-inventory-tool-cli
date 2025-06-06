@@ -17,15 +17,8 @@
 package org.qubership.itool.modules.graph;
 
 import com.google.common.cache.CacheStats;
-import org.qubership.itool.modules.graph.Graph;
-import org.qubership.itool.modules.graph.GraphClassifier;
-import org.qubership.itool.modules.graph.GraphClassifierBuilderImpl;
-import org.qubership.itool.modules.graph.GraphImpl;
-import org.qubership.itool.modules.graph.GraphManager;
-import org.qubership.itool.modules.graph.GraphServiceImpl;
+import io.vertx.core.Vertx;
 import org.qubership.itool.modules.report.GraphReport;
-import org.qubership.itool.modules.report.GraphReportImpl;
-
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,10 +28,25 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestGraphService {
 
     private GraphServiceImpl graphService;
+    private Vertx vertx;
+    private GraphFactory graphFactory;
+    private GraphReportFactory graphReportFactory;
+
+    @BeforeAll
+    public void setupAll() {
+        vertx = Vertx.vertx();
+        graphFactory = new DefaultGraphFactory(new DefaultGraphReportFactory());
+        graphReportFactory = new DefaultGraphReportFactory();
+    }
+
+    @AfterAll
+    public void cleanupAll() {
+        vertx.close();
+    }
 
     @BeforeEach
     public void setup() {
-        GraphManager graphManager = new GraphManager(null, null, false) {
+        GraphManager graphManager = new GraphManager(vertx, null, false, graphFactory, graphReportFactory) {
 
             @Override
             public CacheStats getCacheStatistics() {
@@ -47,9 +55,9 @@ public class TestGraphService {
 
             @Override
             public Graph buildGraphByClassifier(GraphClassifier classifier) {
-                Graph graph = new GraphImpl();
+                Graph graph = graphFactory.createGraph();
                 if (classifier.isWithReport()) {
-                    GraphReport report = new GraphReportImpl();
+                    GraphReport report = graphReportFactory.createGraphReport();
                     graph.setReport(report);
                 }
                 return graph;

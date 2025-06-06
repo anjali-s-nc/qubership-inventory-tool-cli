@@ -60,6 +60,9 @@ import static org.qubership.itool.modules.graph.Graph.CURRENT_GRAPH_MODEL_VERSIO
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.utils.JsonUtils.readJsonFile;
 
+import com.google.inject.Inject;
+import org.qubership.itool.modules.graph.GraphFactory;
+
 /**
  * <p>Merges graphs.
  *
@@ -88,17 +91,12 @@ public class GraphMerger implements MergerApi, Closeable {
 
     private boolean useDeepCopy;
 
-    /** Use this constructor <b>only</b> if there is no {@link Vertx} instance available */
-    public GraphMerger() {
-        this(null, false);
-    }
+    private final GraphFactory graphFactory;
+    
 
-    public GraphMerger(Vertx vertx) {
-        this(vertx, false);
-    }
-
-    public GraphMerger(Vertx vertx, boolean failFast) {
-        this.failFast = failFast;
+    @Inject
+    public GraphMerger(Vertx vertx, GraphFactory graphFactory) {
+        this.failFast = false;
         if (vertx == null) {
             this.vertx = Vertx.vertx();
             ownVertx = true;
@@ -106,6 +104,7 @@ public class GraphMerger implements MergerApi, Closeable {
             this.vertx = vertx;
             ownVertx = false;
         }
+        this.graphFactory = graphFactory;
     }
 
     @Override
@@ -130,8 +129,7 @@ public class GraphMerger implements MergerApi, Closeable {
     @Override
     public JsonObject mergeComponentDumps(Path sourceDirectory, JsonObject targetDesc)
             throws IOException, InvalidGraphException {
-        Graph graph = new GraphImpl();
-        graph.setReport(new GraphReportImpl());
+        Graph graph = graphFactory.createGraph();
 
         prepareGraphForMerging(graph, targetDesc);
         walkAndMerge(sourceDirectory, graph, targetDesc);
@@ -143,8 +141,7 @@ public class GraphMerger implements MergerApi, Closeable {
     @Override
     public JsonObject mergeDumps(List<DumpAndMetainfo> sourceDumps, JsonObject targetDesc)
             throws InvalidGraphException {
-        Graph graph = new GraphImpl();
-        graph.setReport(new GraphReportImpl());
+        Graph graph = graphFactory.createGraph();
 
         prepareGraphForMerging(graph, targetDesc);
         for (DumpAndMetainfo source: sourceDumps) {

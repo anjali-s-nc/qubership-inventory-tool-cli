@@ -37,7 +37,11 @@ import java.util.stream.Collectors;
 
 import static org.qubership.itool.modules.processor.MergerApi.*;
 
+import com.google.inject.Inject;
 
+/**
+ * Manager for graph operations.
+ */
 public class GraphManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(GraphManager.class);
@@ -50,9 +54,12 @@ public class GraphManager {
 
     private final GraphFetcher graphFetcher;
 
+    private final GraphFactory graphFactory;
+    private final GraphReportFactory graphReportFactory;
 
-    public GraphManager(Vertx vertx, GraphFetcher fetcher, boolean failFast) {
-        this(vertx, fetcher, defaultClassifierCacheBuilder(), failFast);
+    @Inject
+    public GraphManager(Vertx vertx, GraphFetcher fetcher, boolean failFast, GraphFactory graphFactory, GraphReportFactory graphReportFactory) {
+        this(vertx, fetcher, defaultClassifierCacheBuilder(), failFast, graphFactory, graphReportFactory);
     }
 
     @SuppressWarnings("rawtypes")
@@ -65,10 +72,12 @@ public class GraphManager {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public GraphManager(Vertx vertx, GraphFetcher fetcher,
-            CacheBuilder classifierCacheBuilder, boolean failFast) {
+            CacheBuilder classifierCacheBuilder, boolean failFast, GraphFactory graphFactory, GraphReportFactory graphReportFactory) {
         this.vertx = vertx;
         this.graphFetcher = fetcher;
         this.failFast = failFast;
+        this.graphFactory = graphFactory;
+        this.graphReportFactory = graphReportFactory;
 
         this.graphClassifierCache = classifierCacheBuilder
             .recordStats()
@@ -115,7 +124,7 @@ public class GraphManager {
 
         if (!failFast || unprocessedAppIds.isEmpty()) {
             // Make merger throw exception for invalid graphs and catch them below
-            try (GraphMerger merger = new GraphMerger(vertx, true)) {
+            try (GraphMerger merger = new GraphMerger(vertx, graphFactory)) {
                 JsonObject targetInfo = new JsonObject();
 
                 merger.prepareGraphForMerging(graph, targetInfo);
@@ -170,7 +179,6 @@ public class GraphManager {
     public void evictCache() {
         this.graphClassifierCache.invalidateAll();
     }
-
 
     // ========================================================================
 
