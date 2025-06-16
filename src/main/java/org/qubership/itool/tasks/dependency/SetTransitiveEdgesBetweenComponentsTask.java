@@ -16,6 +16,9 @@
 
 package org.qubership.itool.tasks.dependency;
 
+import javax.annotation.Resource;
+
+import org.qubership.itool.modules.graph.GraphReportFactory;
 import org.qubership.itool.modules.processor.tasks.CreateTransitiveHttpDependenciesTask;
 import org.qubership.itool.modules.processor.tasks.CreateTransitiveQueueDependenciesTask;
 import org.qubership.itool.modules.processor.tasks.RecreateDomainsStructureTask;
@@ -31,6 +34,9 @@ import io.vertx.core.Promise;
  */
 public class SetTransitiveEdgesBetweenComponentsTask extends FlowTask {
 
+    @Resource
+    GraphReportFactory graphReportFactory;
+
     protected Logger LOG = LoggerFactory.getLogger(SetTransitiveEdgesBetweenComponentsTask.class);
 
     @Override
@@ -38,7 +44,7 @@ public class SetTransitiveEdgesBetweenComponentsTask extends FlowTask {
         // For flows including graph merging, a similar sequence of tasks is performed by GraphMerger
         new CreateTransitiveQueueDependenciesTask().processAsync(vertx, graph)
         .compose(v -> new CreateTransitiveHttpDependenciesTask().processAsync(vertx, graph))
-        .compose(v -> new RecreateDomainsStructureTask().processAsync(vertx, graph))
+        .compose(v -> new RecreateDomainsStructureTask(graphReportFactory).processAsync(vertx, graph))
         .onComplete(res -> taskCompleted(taskPromise));
     }
 

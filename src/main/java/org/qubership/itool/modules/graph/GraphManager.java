@@ -21,8 +21,7 @@ import org.qubership.itool.modules.artifactory.AppVersionDescriptor;
 import org.qubership.itool.modules.artifactory.FailureStage;
 import org.qubership.itool.modules.artifactory.GraphSnapshot;
 import org.qubership.itool.modules.processor.GraphMerger;
-import org.qubership.itool.modules.report.GraphReportImpl;
-
+import org.qubership.itool.modules.processor.GraphMergerFactory;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
@@ -56,10 +55,11 @@ public class GraphManager {
 
     private final GraphFactory graphFactory;
     private final GraphReportFactory graphReportFactory;
+    private final GraphMergerFactory graphMergerFactory;
 
     @Inject
-    public GraphManager(Vertx vertx, GraphFetcher fetcher, boolean failFast, GraphFactory graphFactory, GraphReportFactory graphReportFactory) {
-        this(vertx, fetcher, defaultClassifierCacheBuilder(), failFast, graphFactory, graphReportFactory);
+    public GraphManager(Vertx vertx, GraphFetcher fetcher, boolean failFast, GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory) {
+        this(vertx, fetcher, defaultClassifierCacheBuilder(), failFast, graphFactory, graphReportFactory, graphMergerFactory);
     }
 
     @SuppressWarnings("rawtypes")
@@ -72,12 +72,13 @@ public class GraphManager {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public GraphManager(Vertx vertx, GraphFetcher fetcher,
-            CacheBuilder classifierCacheBuilder, boolean failFast, GraphFactory graphFactory, GraphReportFactory graphReportFactory) {
+            CacheBuilder classifierCacheBuilder, boolean failFast, GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory) {
         this.vertx = vertx;
         this.graphFetcher = fetcher;
         this.failFast = failFast;
         this.graphFactory = graphFactory;
         this.graphReportFactory = graphReportFactory;
+        this.graphMergerFactory = graphMergerFactory;
 
         this.graphClassifierCache = classifierCacheBuilder
             .recordStats()
@@ -94,7 +95,9 @@ public class GraphManager {
 
         GraphSnapshot graphSnapshot = graphFetcher.fetchGraphDumpByClassifier(classifier);
         if (graphSnapshot != null && graphSnapshot.getGraphDump() != null) {
-            return GraphDumpSupport.restoreFromJson(graphSnapshot.getGraphDump());
+            Graph graph = graphFactory.createGraph();
+            GraphDumpSupport.restoreFromJson(graph, graphSnapshot.getGraphDump());
+            return graph;
         }
 
         List<AppVersionDescriptor> allAppVersionIds = ListUtils.emptyIfNull(
@@ -117,14 +120,14 @@ public class GraphManager {
             }
         }
 
-        Graph graph = new GraphImpl();
+        Graph graph = graphFactory.createGraph();
         if (classifier.isWithReport()) {
-            graph.setReport(new GraphReportImpl());
+            graph.setReport(graphReportFactory.createGraphReport());
         }
 
         if (!failFast || unprocessedAppIds.isEmpty()) {
             // Make merger throw exception for invalid graphs and catch them below
-            try (GraphMerger merger = new GraphMerger(vertx, graphFactory)) {
+            try (GraphMerger merger = graphMergerFactory.createMerger()) {
                 JsonObject targetInfo = new JsonObject();
 
                 merger.prepareGraphForMerging(graph, targetInfo);

@@ -58,7 +58,6 @@ import java.util.*;
 import static org.qubership.itool.modules.diagram.providers.DiagramProvider.*;
 import org.qubership.itool.modules.graph.GraphFactory;
 import org.qubership.itool.modules.graph.GraphReportFactory;
-import org.qubership.itool.modules.processor.GraphMerger;
 import org.qubership.itool.modules.processor.GraphMergerFactory;
 
 public class FlowContextImpl implements FlowContext {

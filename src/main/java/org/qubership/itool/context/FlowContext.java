@@ -23,6 +23,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphClassifier;
+import org.qubership.itool.modules.graph.GraphFactory;
 import org.qubership.itool.modules.report.GraphReport;
 
 public interface FlowContext {
@@ -38,6 +39,8 @@ public interface FlowContext {
     Map<Class<?>, Object> getResources();
 
     Graph getGraph();
+
+    GraphFactory getGraphFactory();
 
     GraphReport getReport();
 

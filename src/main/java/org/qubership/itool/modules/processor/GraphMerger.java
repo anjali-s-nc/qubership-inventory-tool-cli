@@ -18,7 +18,7 @@ package org.qubership.itool.modules.processor;
 
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDumpSupport;
-import org.qubership.itool.modules.graph.GraphImpl;
+import org.qubership.itool.modules.graph.GraphReportFactory;
 import org.qubership.itool.modules.processor.matchers.CompoundVertexMatcher;
 import org.qubership.itool.modules.processor.matchers.FileMatcher;
 import org.qubership.itool.modules.processor.matchers.MatcherById;
@@ -36,7 +36,6 @@ import org.qubership.itool.modules.processor.tasks.PatchVertexDnsNamesNormalizat
 import org.qubership.itool.modules.processor.tasks.RecreateDomainsStructureTask;
 import org.qubership.itool.modules.processor.tasks.RecreateHttpDependenciesTask;
 import org.qubership.itool.modules.report.GraphReport;
-import org.qubership.itool.modules.report.GraphReportImpl;
 import org.qubership.itool.utils.FutureUtils;
 
 import io.vertx.core.Future;
@@ -61,6 +60,7 @@ import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.utils.JsonUtils.readJsonFile;
 
 import com.google.inject.Inject;
+
 import org.qubership.itool.modules.graph.GraphFactory;
 
 /**
@@ -92,10 +92,11 @@ public class GraphMerger implements MergerApi, Closeable {
     private boolean useDeepCopy;
 
     private final GraphFactory graphFactory;
+    private final GraphReportFactory graphReportFactory;
     
 
     @Inject
-    public GraphMerger(Vertx vertx, GraphFactory graphFactory) {
+    public GraphMerger(Vertx vertx, GraphFactory graphFactory, GraphReportFactory graphReportFactory) {
         this.failFast = false;
         if (vertx == null) {
             this.vertx = Vertx.vertx();
@@ -105,6 +106,7 @@ public class GraphMerger implements MergerApi, Closeable {
             ownVertx = false;
         }
         this.graphFactory = graphFactory;
+        this.graphReportFactory = graphReportFactory;
     }
 
     @Override
@@ -171,7 +173,7 @@ public class GraphMerger implements MergerApi, Closeable {
                 .compose(new RecreateHttpDependenciesTask().thenProcessAsync(vertx, targetGraph))
                 .compose(new CreateTransitiveQueueDependenciesTask().thenProcessAsync(vertx, targetGraph))
                 .compose(new CreateTransitiveHttpDependenciesTask().thenProcessAsync(vertx, targetGraph))
-                .compose(new RecreateDomainsStructureTask().thenProcessAsync(vertx, targetGraph))
+                .compose(new RecreateDomainsStructureTask(graphReportFactory).thenProcessAsync(vertx, targetGraph))
                 ;
         FutureUtils.blockForResultOrException(theJob);
 
@@ -232,9 +234,10 @@ public class GraphMerger implements MergerApi, Closeable {
     public void mergeDump(JsonObject dump, JsonObject sourceDesc,
             Graph targetGraph, JsonObject targetDesc)
     {
-        Graph sourceGraph;
+        Graph sourceGraph = graphFactory.createGraph();
         try {
-            sourceGraph = Objects.requireNonNull( GraphDumpSupport.restoreFromJson(dump) );
+            GraphDumpSupport.restoreFromJson(sourceGraph, dump);
+            Objects.requireNonNull(sourceGraph); 
         } catch (NullPointerException e) {  // Something crucial was missing
             excHappenned(e, InvalidGraphException.descToName(sourceDesc), sourceDesc, targetGraph);
             return;

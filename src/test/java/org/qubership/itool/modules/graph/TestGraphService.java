@@ -19,6 +19,7 @@ package org.qubership.itool.modules.graph;
 import com.google.common.cache.CacheStats;
 import io.vertx.core.Vertx;
 import org.qubership.itool.modules.report.GraphReport;
+import org.qubership.itool.modules.report.GraphReportImpl;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,8 +36,8 @@ public class TestGraphService {
     @BeforeAll
     public void setupAll() {
         vertx = Vertx.vertx();
-        graphFactory = new DefaultGraphFactory(new DefaultGraphReportFactory());
-        graphReportFactory = new DefaultGraphReportFactory();
+        graphReportFactory = new DefaultGraphReportFactory(() -> new GraphReportImpl());
+        graphFactory = new DefaultGraphFactory(graphReportFactory, () -> new GraphImpl());
     }
 
     @AfterAll
@@ -46,7 +47,7 @@ public class TestGraphService {
 
     @BeforeEach
     public void setup() {
-        GraphManager graphManager = new GraphManager(vertx, null, false, graphFactory, graphReportFactory) {
+        GraphManager graphManager = new GraphManager(vertx, null, false, graphFactory, graphReportFactory, null) {
 
             @Override
             public CacheStats getCacheStatistics() {
