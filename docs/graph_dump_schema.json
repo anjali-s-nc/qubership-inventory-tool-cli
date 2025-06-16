@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "modelVersion": {
+      "type": "integer"
+    },
+    "report": {
+      "type": "object",
+      "properties": {
+        "modelVersion": {
+          "type": "integer"
+        },
+        "records": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "required": [
+        "modelVersion",
+        "records"
+      ]
+    },
+    "graph": {
+      "type": "object",
+      "properties": {
+        "modelVersion": {
+          "type": "integer"
+        },
+        "edgeGeneratorCounter": {
+          "type": "integer"
+        },
+        "root": {
+          "type": "object"
+        },
+        "vertexList": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "edgeList":{
+          "type": "array",
+          "items": [
+            {
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "required": [
+        "modelVersion",
+        "edgeGeneratorCounter",
+        "vertexList",
+        "edgeList",
+        "root"
+      ]
+    }
+  },
+  "required": [
+    "modelVersion",
+    "report",
+    "graph"
+  ]
+}
