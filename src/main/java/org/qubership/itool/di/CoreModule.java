@@ -22,10 +22,6 @@ import com.google.inject.Singleton;
 
 import io.vertx.core.Vertx;
 
-import org.qubership.itool.modules.processor.DefaultGraphMergerFactory;
-import org.qubership.itool.modules.processor.GraphMerger;
-import org.qubership.itool.modules.processor.GraphMergerFactory;
-import org.qubership.itool.modules.processor.MergerApi;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.modules.report.GraphReportImpl;
 import org.qubership.itool.modules.graph.GraphReportFactory;

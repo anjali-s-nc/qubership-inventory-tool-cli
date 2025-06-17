@@ -82,34 +82,24 @@ public class FlowContextImpl implements FlowContext {
 
     @Inject
     public FlowContextImpl(GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory) {
-        this.graphFactory = graphFactory;
-        this.graphReportFactory = graphReportFactory;
-        this.graphMergerFactory = graphMergerFactory;
-        
-        this.report = graphReportFactory.createGraphReport();
-        this.graph = graphFactory.createGraph();
-        this.graph.setReport(report);
-        this.graphService = null;
+        this(graphFactory, graphReportFactory, graphMergerFactory, graphFactory.createGraph(), null);
     }
 
     public FlowContextImpl(GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory, Graph graph) {
+        this(graphFactory, graphReportFactory, graphMergerFactory, graph, null);
+    }
+
+    public FlowContextImpl(GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory, GraphService graphService) {
+        this(graphFactory, graphReportFactory, graphMergerFactory, graphFactory.createGraph(), graphService);
+    }
+
+    private FlowContextImpl(GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory, Graph graph, GraphService graphService) {
         this.graphFactory = graphFactory;
         this.graphReportFactory = graphReportFactory;
         this.graphMergerFactory = graphMergerFactory;
         
         this.graph = graph;
         this.report = graph.getReport();
-        this.graphService = null;
-    }
-
-    public FlowContextImpl(GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory, GraphService graphService) {
-        this.graphFactory = graphFactory;
-        this.graphReportFactory = graphReportFactory;
-        this.graphMergerFactory = graphMergerFactory;
-        
-        this.report = graphReportFactory.createGraphReport();
-        this.graph = graphFactory.createGraph();
-        this.graph.setReport(report);
         this.graphService = graphService;
 
         if (graphService != null) {

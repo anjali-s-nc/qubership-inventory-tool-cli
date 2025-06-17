@@ -15,12 +15,9 @@ import org.qubership.itool.modules.processor.GraphMergerFactory;
  */
 public class CliModule extends AbstractModule {
 
-    /**
-     * Default FlowContext with CLI-specific implementation.
-     */
-    @Provides
-    @Singleton
-    protected FlowContext provideFlowContext(GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory) {
-        return new FlowContextImpl(graphFactory, graphReportFactory, graphMergerFactory);
+    @Override
+    protected void configure() {
+        bind(FlowContext.class).to(FlowContextImpl.class);
     }
+
 } 
