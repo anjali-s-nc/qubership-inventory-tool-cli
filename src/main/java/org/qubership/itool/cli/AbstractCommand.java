@@ -17,6 +17,7 @@
 package org.qubership.itool.cli;
 
 import com.google.inject.Module;
+import com.google.inject.util.Modules;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -124,13 +125,27 @@ public abstract class AbstractCommand extends ClasspathHandler {
 
     /**
      * Create the modules for dependency injection.
-     * Override this method to add custom modules for your application.
      * 
      * @param vertx The Vertx instance
      * @return Array of modules to use for dependency injection
      */
-    protected Module[] createModules(Vertx vertx) {
+    private Module[] createModules(Vertx vertx) {
+        Module overrideModule = createOverrideModule(vertx);
+        if (overrideModule != null) {
+            return new Module[] { Modules.override(new QubershipModule(vertx)).with(overrideModule) };
+        }
         return new Module[] { new QubershipModule(vertx) };
+    }
+
+    /**
+     * Create the module for dependency injection.
+     * Override this method to add custom module for your application.
+     * 
+     * @param vertx The Vertx instance
+     * @return Module to use for dependency injection
+     */
+    protected Module createOverrideModule(Vertx vertx) {
+        return null;
     }
 
     protected void flowFinished(FlowMainVerticle main, AsyncResult<?> flowResult) {

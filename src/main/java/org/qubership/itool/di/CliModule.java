@@ -3,7 +3,6 @@ package org.qubership.itool.di;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import io.vertx.core.Vertx;
 import org.qubership.itool.context.FlowContext;
 import org.qubership.itool.context.FlowContextImpl;
 import org.qubership.itool.modules.graph.GraphFactory;
