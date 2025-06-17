@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.annotation.Resource;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 
 import java.io.File;
 import java.io.IOException;

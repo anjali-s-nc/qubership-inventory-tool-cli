@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 import static org.qubership.itool.modules.processor.MergerApi.*;
 
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * Manager for graph operations.

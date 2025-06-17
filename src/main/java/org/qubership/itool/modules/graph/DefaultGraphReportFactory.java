@@ -16,9 +16,9 @@
 
 package org.qubership.itool.modules.graph;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import jakarta.inject.Inject;
 import org.qubership.itool.modules.report.GraphReport;
 
 /**

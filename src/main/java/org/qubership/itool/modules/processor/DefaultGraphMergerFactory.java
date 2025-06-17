@@ -20,7 +20,7 @@ import io.vertx.core.Vertx;
 import org.qubership.itool.modules.graph.GraphFactory;
 import org.qubership.itool.modules.graph.GraphReportFactory;
 
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 
 
 /**

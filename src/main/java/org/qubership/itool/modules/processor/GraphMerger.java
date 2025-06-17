@@ -59,7 +59,7 @@ import static org.qubership.itool.modules.graph.Graph.CURRENT_GRAPH_MODEL_VERSIO
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.utils.JsonUtils.readJsonFile;
 
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.qubership.itool.modules.graph.GraphFactory;
 
