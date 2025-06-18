@@ -17,7 +17,6 @@
 package org.qubership.itool.di;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
 import com.google.inject.Singleton;
 
 import io.vertx.core.Vertx;
@@ -50,14 +49,6 @@ public class CoreModule extends AbstractModule {
         bind(GraphReportFactory.class).to(DefaultGraphReportFactory.class).in(Singleton.class);
         bind(GraphReport.class).to(GraphReportImpl.class);
         bind(Graph.class).to(GraphImpl.class);
-    }
-
-    /**
-     * Provides the Vertx instance for the application.
-     */
-    @Provides
-    @Singleton
-    public Vertx provideVertx() {
-        return vertx;
+        bind(Vertx.class).toInstance(vertx);
     }
 } 
