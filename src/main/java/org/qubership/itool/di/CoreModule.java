@@ -17,17 +17,13 @@
 package org.qubership.itool.di;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
-
+import com.google.inject.Provides;
 import io.vertx.core.Vertx;
+import jakarta.inject.Provider;
 
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.modules.report.GraphReportImpl;
-import org.qubership.itool.modules.graph.GraphReportFactory;
-import org.qubership.itool.modules.graph.DefaultGraphReportFactory;
 import org.qubership.itool.modules.graph.Graph;
-import org.qubership.itool.modules.graph.DefaultGraphFactory;
-import org.qubership.itool.modules.graph.GraphFactory;
 import org.qubership.itool.modules.graph.GraphImpl;
 
 /**
@@ -45,10 +41,14 @@ public class CoreModule extends AbstractModule {
     @Override
     protected void configure() {
         // Bind core factories
-        bind(GraphFactory.class).to(DefaultGraphFactory.class).in(Singleton.class);
-        bind(GraphReportFactory.class).to(DefaultGraphReportFactory.class).in(Singleton.class);
         bind(GraphReport.class).to(GraphReportImpl.class);
-        bind(Graph.class).to(GraphImpl.class);
         bind(Vertx.class).toInstance(vertx);
+    }
+
+    @Provides
+    public Graph provideGraph(Provider<GraphReport> graphReportProvider) {
+        Graph graph = new GraphImpl();
+        graph.setReport(graphReportProvider.get());
+        return graph;
     }
 } 

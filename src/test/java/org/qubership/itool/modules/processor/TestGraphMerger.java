@@ -31,6 +31,7 @@ import org.qubership.itool.utils.JsonUtils;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import jakarta.inject.Provider;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -56,25 +57,23 @@ import static org.qubership.itool.modules.processor.MergerApi.P_IS_NAMESPACE;
 import static org.qubership.itool.modules.processor.MergerApi.P_NAMESPACE_NAME;
 
 import io.vertx.core.Vertx;
-import org.qubership.itool.modules.graph.GraphFactory;
 import org.qubership.itool.modules.graph.GraphImpl;
-import org.qubership.itool.modules.graph.DefaultGraphFactory;
-import org.qubership.itool.modules.graph.DefaultGraphReportFactory;
-import org.qubership.itool.modules.graph.GraphReportFactory;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestGraphMerger {
 
     private Vertx vertx;
-    private GraphFactory graphFactory;
-    private DefaultGraphMergerFactory graphMergerFactory;
+    private Provider<Graph> graphProvider;
+    private Provider<GraphReport> graphReportProvider;
+    private Provider<MergerApi> graphMergerProvider;
+
     
     @BeforeAll
     public void setup() {
         vertx = Vertx.vertx();
-        GraphReportFactory graphReportFactory = new DefaultGraphReportFactory(() -> new GraphReportImpl());
-        graphFactory = new DefaultGraphFactory(graphReportFactory, () -> new GraphImpl());
-        graphMergerFactory = new DefaultGraphMergerFactory(vertx, graphFactory, graphReportFactory);
+        graphReportProvider = () -> new GraphReportImpl();
+        graphProvider = () -> new GraphImpl();
+        graphMergerProvider = () -> new GraphMerger(vertx, graphProvider, graphReportProvider);
     }
 
     @AfterAll
@@ -222,7 +221,7 @@ public class TestGraphMerger {
         targetDesc.put(P_APP_NAME, "AppName");
         targetDesc.put(P_APP_VERSION, "AppVersion");
 
-        try (GraphMerger merger = graphMergerFactory.createMerger()) {
+        try (MergerApi merger = graphMergerProvider.get()) {
             merger.prepareGraphForMerging(graph, targetDesc);
 
             merger.mergeGraph(graph1, desc1, graph, targetDesc, false);
@@ -647,7 +646,7 @@ public class TestGraphMerger {
         graph.setReport(report);
         JsonObject targetDesc = new JsonObject();
 
-        try (GraphMerger merger = graphMergerFactory.createMerger()) {
+        try (MergerApi merger = graphMergerProvider.get()) {
             merger.prepareGraphForMerging(graph, targetDesc);
 
             merger.mergeGraph(graph1, desc1, graph, targetDesc, false);
@@ -884,7 +883,7 @@ public class TestGraphMerger {
         GraphReport report = new GraphReportImpl();
         graph.setReport(report);
 
-        try (GraphMerger merger = graphMergerFactory.createMerger()) {
+        try (MergerApi merger = graphMergerProvider.get()) {
             merger.prepareGraphForMerging(graph, targetDesc);
             merger.mergeGraph(graph1, desc1, graph, targetDesc,false);
             merger.mergeGraph(graph2, desc2, graph, targetDesc,false);
@@ -900,7 +899,7 @@ public class TestGraphMerger {
         GraphReport report = new GraphReportImpl();
         graph.setReport(report);
 
-        try (GraphMerger merger = graphMergerFactory.createMerger()) {
+        try (MergerApi merger = graphMergerProvider.get()) {
             merger.prepareGraphForMerging(graph, targetDesc);
 
             merger.mergeGraph(graph1, desc1, graph, targetDesc, false);
@@ -927,7 +926,7 @@ public class TestGraphMerger {
     protected Graph loadGraphResource(String location) throws Exception {
         JsonObject dumpFile = JsonUtils.readJsonResource(getClass(), location);
         assertNotNull(dumpFile, "Dump file " + location + " must be non-null");
-        Graph graph = graphFactory.createGraph();
+        Graph graph = graphProvider.get();
         GraphDumpSupport.restoreFromJson(graph, dumpFile);
         return graph;
     }

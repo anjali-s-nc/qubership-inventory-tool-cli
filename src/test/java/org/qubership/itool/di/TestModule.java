@@ -4,9 +4,11 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import io.vertx.core.Vertx;
+import jakarta.inject.Provider;
+
 import org.qubership.itool.context.FlowContext;
-import org.qubership.itool.modules.graph.GraphReportFactory;
 import org.qubership.itool.modules.processor.GraphMerger;
+import org.qubership.itool.modules.report.GraphReport;
 
 /**
  * Test module that demonstrates how to override core services with test implementations.
@@ -15,14 +17,14 @@ import org.qubership.itool.modules.processor.GraphMerger;
 public class TestModule extends AbstractModule {
     private final GraphMerger mockGraphMerger;
     private final FlowContext mockFlowContext;
-    private final GraphReportFactory customGraphReportFactory;
+    private final GraphReport customGraphReport;
 
     public TestModule(GraphMerger mockGraphMerger,
                      FlowContext mockFlowContext,
-                     GraphReportFactory customGraphReportFactory) {
+                     GraphReport customGraphReport) {
         this.mockGraphMerger = mockGraphMerger;
         this.mockFlowContext = mockFlowContext;
-        this.customGraphReportFactory = customGraphReportFactory;
+        this.customGraphReport = customGraphReport;
     }
 
     @Override
@@ -30,7 +32,7 @@ public class TestModule extends AbstractModule {
         // Override existing bindings with mocks and custom implementations
         bind(GraphMerger.class).toInstance(mockGraphMerger);
         bind(FlowContext.class).toInstance(mockFlowContext);
-        bind(GraphReportFactory.class).toInstance(customGraphReportFactory);
+        bind(GraphReport.class).toInstance(customGraphReport);
     }
 
     /**
@@ -39,14 +41,14 @@ public class TestModule extends AbstractModule {
      * @param vertx The Vertx instance
      * @param mockGraphMerger The mock GraphMerger
      * @param mockFlowContext The mock FlowContext
-     * @param customGraphReportFactory Custom GraphReportFactory implementation
+     * @param customGraphReport Custom GraphReport implementation
      * @return A module that can be used with ApplicationContext
      */
     public static Module createOverrideModule(Vertx vertx, 
                                             GraphMerger mockGraphMerger,
                                             FlowContext mockFlowContext,
-                                            GraphReportFactory customGraphReportFactory) {
+                                            GraphReport customGraphReport) {
         return Modules.override(new QubershipModule(vertx))
-                     .with(new TestModule(mockGraphMerger, mockFlowContext, customGraphReportFactory));
+                     .with(new TestModule(mockGraphMerger, mockFlowContext, customGraphReport));
     }
 } 

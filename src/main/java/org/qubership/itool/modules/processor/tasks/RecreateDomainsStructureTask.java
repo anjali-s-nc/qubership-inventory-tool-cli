@@ -18,12 +18,12 @@ package org.qubership.itool.modules.processor.tasks;
 
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDataConstants;
-import org.qubership.itool.modules.graph.GraphReportFactory;
 import org.qubership.itool.modules.processor.InvalidGraphException;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.utils.JsonUtils;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import jakarta.inject.Provider;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,8 +38,8 @@ public class RecreateDomainsStructureTask implements GraphProcessorTask {
 
     private GraphReport graphReport;
 
-    public RecreateDomainsStructureTask(GraphReportFactory graphReportFactory){
-        this.graphReport = graphReportFactory.createGraphReport();
+    public RecreateDomainsStructureTask(Provider<GraphReport> graphReportProvider){
+        this.graphReport = graphReportProvider.get();
     }
 
     static final Logger LOG = LoggerFactory.getLogger(RecreateDomainsStructureTask.class);

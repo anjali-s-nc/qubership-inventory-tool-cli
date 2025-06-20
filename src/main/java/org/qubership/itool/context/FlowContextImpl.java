@@ -48,17 +48,23 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.annotation.Resource;
 import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
 
 import static org.qubership.itool.modules.diagram.providers.DiagramProvider.*;
-import org.qubership.itool.modules.graph.GraphFactory;
-import org.qubership.itool.modules.graph.GraphReportFactory;
-import org.qubership.itool.modules.processor.GraphMergerFactory;
+import org.qubership.itool.modules.processor.MergerApi;
 
 public class FlowContextImpl implements FlowContext {
     private static final Logger LOG = LoggerFactory.getLogger(FlowContextImpl.class);
@@ -68,50 +74,28 @@ public class FlowContextImpl implements FlowContext {
     private final String flowInstanceId = UUID.randomUUID().toString();
 
     private final Map<Class<?>, Object> resources = new HashMap<>();
-    private final Graph graph;
-    private final GraphService graphService;
+    private Graph graph;
+    private GraphService graphService;
     private GraphClassifier graphClassifier;
     private GraphReport report;
     private JsonObject config;
     private ClassLoader taskClassLoader;
     private Vertx vertx;
     private boolean breakRequested;
-    private final GraphFactory graphFactory;
-    private final GraphReportFactory graphReportFactory;
-    private final GraphMergerFactory graphMergerFactory;
+    private final Provider<Graph> graphProvider;
+    private final Provider<GraphReport> graphReportProvider;
+    private final Provider<MergerApi> graphMergerProvider;
+
+    private final Map<Class<?>, Provider<?>> providerRegistry = new HashMap<>();
 
     @Inject
-    public FlowContextImpl(GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory) {
-        this(graphFactory, graphReportFactory, graphMergerFactory, graphFactory.createGraph(), null);
-    }
+    public FlowContextImpl(Provider<Graph> graphProvider, Provider<GraphReport> graphReportProvider, Provider<MergerApi> graphMergerProvider) {
+        this.graphProvider = graphProvider;
+        this.graphReportProvider = graphReportProvider;
+        this.graphMergerProvider = graphMergerProvider;
 
-    public FlowContextImpl(GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory, Graph graph) {
-        this(graphFactory, graphReportFactory, graphMergerFactory, graph, null);
-    }
-
-    public FlowContextImpl(GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory, GraphService graphService) {
-        this(graphFactory, graphReportFactory, graphMergerFactory, graphFactory.createGraph(), graphService);
-    }
-
-    private FlowContextImpl(GraphFactory graphFactory, GraphReportFactory graphReportFactory, GraphMergerFactory graphMergerFactory, Graph graph, GraphService graphService) {
-        this.graphFactory = graphFactory;
-        this.graphReportFactory = graphReportFactory;
-        this.graphMergerFactory = graphMergerFactory;
-        
-        this.graph = graph;
+        this.graph = graphProvider.get();
         this.report = graph.getReport();
-        this.graphService = graphService;
-
-        if (graphService != null) {
-            graphClassifier = new GraphClassifierBuilderImpl()
-                .setId("flow-" + flowInstanceId)
-                .setWithReport(true)
-                .build();
-            graphService.putGraph(graphClassifier, this.graph);
-            LOG.info("[fiid={}]: Graph @{} created for {}", flowInstanceId, System.identityHashCode(graph), graphClassifier);
-        } else {
-            LOG.info("[fiid={}]: Graph @{} created, not attached to graph service", flowInstanceId, System.identityHashCode(graph));
-        }
     }
 
     @Override
@@ -157,10 +141,10 @@ public class FlowContextImpl implements FlowContext {
             resources.put(GraphClassifier.class, graphClassifier);
         }
 
-        // Add graph-related resources
-        this.resources.put(GraphFactory.class, this.graphFactory);
-        this.resources.put(GraphReportFactory.class, this.graphReportFactory);
-        this.resources.put(GraphMergerFactory.class, this.graphMergerFactory);
+        // Register providers
+        registerProvider(Graph.class, this.graphProvider);
+        registerProvider(GraphReport.class, this.graphReportProvider);
+        registerProvider(MergerApi.class, this.graphMergerProvider);
     }
 
     @Override
@@ -187,13 +171,29 @@ public class FlowContextImpl implements FlowContext {
     }
 
     @Override
-    public Graph getGraph() {
-        return graph;
+    public void setGraph(Graph graph) {
+        this.graph = graph;
     }
 
-    @Override 
-    public GraphFactory getGraphFactory() {
-        return graphFactory;
+    @Override
+    public void setGraphService(GraphService graphService) {
+        this.graphService = graphService;
+        if (graphService != null) {
+            graphClassifier = new GraphClassifierBuilderImpl()
+                .setId("flow-" + flowInstanceId)
+                .setWithReport(true)
+                .build();
+            graphService.putGraph(graphClassifier, this.graph);
+            LOG.info("[fiid={}]: Graph @{} created for {}", flowInstanceId, System.identityHashCode(graph), graphClassifier);
+        } else {
+            LOG.info("[fiid={}]: Graph @{} created, not attached to graph service", flowInstanceId, System.identityHashCode(graph));
+        }
+
+    }
+
+    @Override
+    public Graph getGraph() {
+        return graph;
     }
 
     @Override
@@ -208,14 +208,34 @@ public class FlowContextImpl implements FlowContext {
                 continue;
             }
 
-            Object resource = this.resources.get(field.getType());
+            Class<?> fieldType = field.getType();
+            Object resource = null;
+
+            // Handle Provider<T> types
+            if (Provider.class.isAssignableFrom(fieldType)) {
+                // Extract the generic type parameter
+                try {
+                    ParameterizedType paramType = 
+                        (ParameterizedType) field.getGenericType();
+                    Class<?> providerType = (Class<?>) paramType.getActualTypeArguments()[0];
+                    
+                    // Get provider from registry
+                    resource = getProvider(providerType);
+                } catch (Exception e) {
+                    LOG.warn("Could not determine provider type for field {} in {}", field.getName(), obj.getClass().getName());
+                }
+            } else {
+                // Handle regular types
+                resource = this.resources.get(fieldType);
+            }
+
             if (resource != null) {
                 setFieldValue(obj, field, resource);
                 LOG.trace("Field {} of {} was updated with value {}", field.getName(), obj, resource);
-            } else if (this.resources.containsKey(field.getType()) && field.getDeclaredAnnotation(Nullable.class) != null) {
-                LOG.warn("No resource provided for " + field.getType() + " in " + obj.getClass().getName());
+            } else if (field.getDeclaredAnnotation(Nullable.class) != null) {
+                LOG.warn("No resource provided for " + fieldType + " in " + obj.getClass().getName());
             } else {
-                throw new IllegalArgumentException("Resource not found for " + field.getType() + " in " + obj.getClass().getName());
+                throw new IllegalArgumentException("Resource not found for " + fieldType + " in " + obj.getClass().getName());
             }
         }
     }
@@ -290,5 +310,23 @@ public class FlowContextImpl implements FlowContext {
         return graphClassifier;
     }
 
+    /**
+     * Provider registration helper method
+     * @param type - type of the provider
+     * @param provider - provider for the given type
+     */
+    private <T> void registerProvider(Class<T> type, Provider<T> provider) {
+        providerRegistry.put(type, provider);
+    }
 
+    /**
+     * Get provider for the given type on demand
+     * @param type - type of the provider
+     * @return provider for the given type
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> Provider<T> getProvider(Class<T> type) {
+        return (Provider<T>) providerRegistry.get(type);
+    }
 }

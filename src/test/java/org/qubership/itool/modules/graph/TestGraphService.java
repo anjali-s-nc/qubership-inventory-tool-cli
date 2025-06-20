@@ -18,6 +18,13 @@ package org.qubership.itool.modules.graph;
 
 import com.google.common.cache.CacheStats;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
+import jakarta.inject.Provider;
+
+import com.google.inject.Module;
+
+import org.qubership.itool.di.ApplicationContext;
+import org.qubership.itool.di.QubershipModule;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.modules.report.GraphReportImpl;
 import org.junit.jupiter.api.*;
@@ -30,14 +37,12 @@ public class TestGraphService {
 
     private GraphServiceImpl graphService;
     private Vertx vertx;
-    private GraphFactory graphFactory;
-    private GraphReportFactory graphReportFactory;
+    private Provider<GraphReport> graphReportProvider;
 
     @BeforeAll
     public void setupAll() {
         vertx = Vertx.vertx();
-        graphReportFactory = new DefaultGraphReportFactory(() -> new GraphReportImpl());
-        graphFactory = new DefaultGraphFactory(graphReportFactory, () -> new GraphImpl());
+        graphReportProvider = () -> new GraphReportImpl();
     }
 
     @AfterAll
@@ -47,7 +52,12 @@ public class TestGraphService {
 
     @BeforeEach
     public void setup() {
-        GraphManager graphManager = new GraphManager(vertx, null, false, graphFactory, graphReportFactory, null) {
+
+        JsonObject config = new JsonObject();
+        ApplicationContext appContext = new ApplicationContext(vertx, config, new Module[] {new QubershipModule(vertx)});
+        Provider<Graph> graphProvider = appContext.getInjector().getProvider(Graph.class);
+
+        GraphManager graphManager = new GraphManager(vertx, null, false, graphProvider, graphReportProvider, null) {
 
             @Override
             public CacheStats getCacheStatistics() {
@@ -56,9 +66,9 @@ public class TestGraphService {
 
             @Override
             public Graph buildGraphByClassifier(GraphClassifier classifier) {
-                Graph graph = graphFactory.createGraph();
+                Graph graph = graphProvider.get();
                 if (classifier.isWithReport()) {
-                    GraphReport report = graphReportFactory.createGraphReport();
+                    GraphReport report = graphReportProvider.get();
                     graph.setReport(report);
                 }
                 return graph;

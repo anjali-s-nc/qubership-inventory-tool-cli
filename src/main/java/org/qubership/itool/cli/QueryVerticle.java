@@ -127,7 +127,7 @@ public class QueryVerticle extends FlowMainVerticle {
                     p.fail("Empty data");
                 }
 
-                Graph graph = flowContext.getGraphFactory().createGraph();
+                Graph graph = flowContext.getProvider(Graph.class).get();
                 if (content.startsWith("[")) {
                     loadFromJsonArray(file, graph, p, content);
                 } else {

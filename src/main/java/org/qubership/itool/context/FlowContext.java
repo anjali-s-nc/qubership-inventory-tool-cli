@@ -21,9 +21,11 @@ import java.util.Map;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import jakarta.inject.Provider;
+
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphClassifier;
-import org.qubership.itool.modules.graph.GraphFactory;
+import org.qubership.itool.modules.graph.GraphService;
 import org.qubership.itool.modules.report.GraphReport;
 
 public interface FlowContext {
@@ -39,8 +41,6 @@ public interface FlowContext {
     Map<Class<?>, Object> getResources();
 
     Graph getGraph();
-
-    GraphFactory getGraphFactory();
 
     GraphReport getReport();
 
@@ -68,5 +68,11 @@ public interface FlowContext {
     GraphClassifier getGraphClassifier();
 
     void setTaskClassLoader(ClassLoader taskClassLoader);
+
+    <T> Provider<T> getProvider(Class<T> type);
+
+    void setGraphService(GraphService graphService);
+    
+    void setGraph(Graph graph);
 
 }

@@ -18,11 +18,10 @@ package org.qubership.itool.tasks.ci;
 
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
+import jakarta.inject.Provider;
 
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDataConstants;
-import org.qubership.itool.modules.processor.GraphMerger;
-import org.qubership.itool.modules.processor.GraphMergerFactory;
 import org.qubership.itool.modules.processor.MergerApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,7 @@ public class MergeGraphsVerticle extends FlowTask {
     protected static Logger LOGGER = LoggerFactory.getLogger(MergeGraphsVerticle.class);
 
     @Resource
-    private GraphMergerFactory graphMergerFactory;
+    private Provider<MergerApi> graphMergerProvider;
 
     @Override
     protected String[] features() {
@@ -47,7 +46,7 @@ public class MergeGraphsVerticle extends FlowTask {
     @Override
     protected void taskStart(Promise<?> taskPromise) {
         vertx.executeBlocking(promise -> {
-            try (GraphMerger merger = graphMergerFactory.createMerger()) {
+            try (MergerApi merger = graphMergerProvider.get()) {
                 JsonObject targetDesc = new JsonObject()
                     .put(MergerApi.P_IS_APPLICATION, true)
                     .put(MergerApi.P_APP_NAME, config().getString(CiConstants.P_APP_NAME, GraphDataConstants.UNKNOWN))

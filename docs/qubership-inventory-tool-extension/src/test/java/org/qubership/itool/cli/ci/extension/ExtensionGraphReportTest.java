@@ -8,11 +8,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.qubership.itool.di.QubershipModule;
-import org.qubership.itool.modules.graph.GraphReportFactory;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.di.ApplicationContext;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
+import jakarta.inject.Provider;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,8 +37,7 @@ class ExtensionGraphReportTest {
     @Test
     void testReportFunctionality() {
         // Get report instance from application context
-        GraphReportFactory factory = context.getInstance(GraphReportFactory.class);
-        GraphReport report = factory.createGraphReport();
+        GraphReport report = context.getInstance(GraphReport.class);
 
         // Add some test data
         JsonObject record = new JsonObject()
