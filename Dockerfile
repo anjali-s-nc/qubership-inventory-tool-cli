@@ -1,6 +1,9 @@
 FROM eclipse-temurin:21-alpine
 
-MAINTAINER qubership.org
+LABEL maintainer="qubership.org"
+LABEL org.opencontainers.image.authors="qubership.org"
+LABEL org.opencontainers.image.description="Qubership Inventory Tool CLI"
+LABEL org.opencontainers.image.source="https://github.com/netcracker/qubership-inventory-tool-cli"
 
 RUN mkdir /app
 COPY target/qubership-inventory-tool-cli-*-fat.jar /app/inventory-tool.jar
