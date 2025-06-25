@@ -33,6 +33,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
 import jakarta.inject.Provider;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,7 +68,6 @@ public class TestGraphMerger {
     private Provider<GraphReport> graphReportProvider;
     private Provider<MergerApi> graphMergerProvider;
 
-    
     @BeforeAll
     public void setup() {
         vertx = Vertx.vertx();
@@ -888,6 +888,8 @@ public class TestGraphMerger {
             merger.mergeGraph(graph1, desc1, graph, targetDesc,false);
             merger.mergeGraph(graph2, desc2, graph, targetDesc,false);
             merger.finalizeGraphAfterMerging(graph, targetDesc);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         return graph;
@@ -906,6 +908,8 @@ public class TestGraphMerger {
             merger.mergeGraph(graph2, desc2, graph, targetDesc, false);
 
             merger.finalizeGraphAfterMerging(graph, targetDesc);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         List<JsonObject> domains = graph.traversal().V().hasType("domain").toList();

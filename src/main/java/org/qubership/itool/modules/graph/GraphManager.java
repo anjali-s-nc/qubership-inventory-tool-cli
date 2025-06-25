@@ -16,7 +16,11 @@
 
 package org.qubership.itool.modules.graph;
 
-import com.google.common.cache.*;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.CacheStats;
+import com.google.common.cache.LoadingCache;
+
 import org.qubership.itool.modules.artifactory.AppVersionDescriptor;
 import org.qubership.itool.modules.artifactory.FailureStage;
 import org.qubership.itool.modules.artifactory.GraphSnapshot;
@@ -32,14 +36,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static org.qubership.itool.modules.processor.MergerApi.*;
+import static org.qubership.itool.modules.processor.MergerApi.P_IS_APPLICATION;
+import static org.qubership.itool.modules.processor.MergerApi.P_APP_NAME;
+import static org.qubership.itool.modules.processor.MergerApi.P_APP_VERSION;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
+
+import java.io.IOException;
 
 /**
  * Manager for graph operations.
@@ -154,6 +165,8 @@ public class GraphManager {
                 }
 
                 merger.finalizeGraphAfterMerging(graph, targetInfo);
+            } catch (IOException e) {
+                LOG.error("Failed to close merger", e);
             }
         }
 
