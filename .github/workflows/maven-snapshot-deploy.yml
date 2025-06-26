@@ -16,6 +16,12 @@ on:
       - "docs/**"
       - "README.md"
       - ".github/**"
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
   workflow_dispatch: {}
 permissions:
   packages: write # Required for GitHub packages deployment. For maven central deployment it can be ommited
