@@ -3,7 +3,7 @@
 # Please read the documentation on how to configure pom.xml for the deployment to work properly:
 # https://github.com/netcracker/qubership-workflow-hub/blob/main/docs/maven-publish-pom-preparation_doc.md
 
-name: Maven Deploy Snapshot
+name: Maven Build
 
 on:
   push:
@@ -27,7 +27,7 @@ permissions:
   packages: write # Required for GitHub packages deployment. For maven central deployment it can be ommited
   contents: read
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
