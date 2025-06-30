@@ -5,7 +5,7 @@ This guide explains how to extend the Qubership Inventory Tool CLI with custom f
 ## Table of Contents
 1. [Project Structure](#1-project-structure)
 2. [Extension Components](#2-extension-components)
-3. [Using Application Context](#3-using-application-context)
+3. [Using Application Context](#3-using-application-context-directly)
 4. [Extension Points](#4-extension-points)
 5. [Example: Creating a Custom Command](#5-example-creating-a-custom-command)
 6. [Resources](#6-resources)
@@ -15,7 +15,7 @@ This guide explains how to extend the Qubership Inventory Tool CLI with custom f
 
 A minimal extension project (for CLI case) should follow this structure:
 
-```
+```bash
 qubership-inventory-tool-extension/
 ├── src/
 │   ├── main/
@@ -90,7 +90,7 @@ public class ExtensionCommandFactory implements CommandFactory {
 ```
 
 Register the factory in `src/main/resources/META-INF/services/io.vertx.core.spi.VerticleFactory`:
-```
+```java
 org.qubership.itool.extension.ExtensionCommandFactory
 ```
 
@@ -110,21 +110,20 @@ public class ExtensionReportFactory implements GraphReportFactory {
 
 ## 3. Using Application Context directly
 
-The `ApplicationContext` is a crucial component for managing dependency injection and configuration in your extension. It provides a way to access and manage your custom implementations while maintaining the core functionality. 
+The `ApplicationContext` is a crucial component for managing dependency injection and configuration in your extension. It provides a way to access and manage your custom implementations while maintaining the core functionality.
 
 To make sure to get correct instances of classes make sure to never use `new` keyword. Always use factories and instances of classes provided by ApplicationContext.
 
 ### 3.1. Creating Application Context
 
 ```java
-    
 // Create application context with our extension module
 ApplicationContext context = new ApplicationContext(
-    Vertx.vertx(), 
-    config, 
+    Vertx.vertx(),
+    config,
     new Module[] {
         Modules.override(new QubershipModule(Vertx.vertx()))
-               .with(new ExtensionModule()) 
+               .with(new ExtensionModule())
     }
 );
 ```
@@ -199,7 +198,7 @@ public class CustomCommandFactory implements CommandFactory {
 ```
 
 3. Register the factory in `src/main/resources/META-INF/services/io.vertx.core.spi.VerticleFactory`:
-```
+```java
 org.qubership.itool.extension.CustomCommandFactory
 ```
 
@@ -228,7 +227,7 @@ This will create a fat JAR file in the `target` directory.
 After building, you can run the example using the following command from the `target` directory:
 
 ```bash
-java -jar qubership-inventory-tool-extension-3.0.4-SNAPSHOT-fat.jar ci-assembly -appname test --inputDir test-data
+java -jar qubership-inventory-tool-extension-*-fat.jar ci-assembly -appname test --inputDir test-data
 ```
 
 This command will:
