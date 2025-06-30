@@ -24,6 +24,15 @@ import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDumpSupport;
 import org.qubership.itool.modules.gremlin2.graph.__;
 import org.qubership.itool.modules.processor.tasks.CreateAppVertexTask;
+import org.qubership.itool.modules.processor.tasks.CreateTransitiveHttpDependenciesTask;
+import org.qubership.itool.modules.processor.tasks.CreateTransitiveQueueDependenciesTask;
+import org.qubership.itool.modules.processor.tasks.PatchIsMicroserviceFieldTask;
+import org.qubership.itool.modules.processor.tasks.PatchMockedComponentsNormalizationTask;
+import org.qubership.itool.modules.processor.tasks.PatchVertexDnsNamesNormalizationTask;
+import org.qubership.itool.modules.processor.tasks.PatchLanguagesNormalizationTask;
+import org.qubership.itool.modules.processor.tasks.RecreateDomainsStructureTask;
+import org.qubership.itool.modules.processor.tasks.RecreateHttpDependenciesTask;
+import org.qubership.itool.modules.processor.tasks.GraphProcessorTask;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.modules.report.GraphReportImpl;
 import org.qubership.itool.utils.JsonUtils;
@@ -35,6 +44,7 @@ import jakarta.inject.Provider;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,21 +69,24 @@ import static org.qubership.itool.modules.processor.MergerApi.P_NAMESPACE_NAME;
 
 import io.vertx.core.Vertx;
 import org.qubership.itool.modules.graph.GraphImpl;
+import org.qubership.itool.di.ApplicationContext;
+import org.qubership.itool.di.QubershipModule;
+import com.google.inject.Module;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestGraphMerger {
 
     private Vertx vertx;
     private Provider<Graph> graphProvider;
-    private Provider<GraphReport> graphReportProvider;
     private Provider<MergerApi> graphMergerProvider;
 
     @BeforeAll
     public void setup() {
         vertx = Vertx.vertx();
-        graphReportProvider = () -> new GraphReportImpl();
-        graphProvider = () -> new GraphImpl();
-        graphMergerProvider = () -> new GraphMerger(vertx, graphProvider, graphReportProvider);
+        JsonObject config = new JsonObject();
+        ApplicationContext context = new ApplicationContext(vertx, config, new Module[] {new QubershipModule(vertx)});
+        graphMergerProvider = () -> context.getInstance(GraphMerger.class);
+        graphProvider = () -> context.getInstance(Graph.class);
     }
 
     @AfterAll
