@@ -37,7 +37,7 @@
     </distributionManagement>
 
     <properties>
-        <revision>3.0.4-SNAPSHOT</revision>
+        <revision>4.0.0</revision>
         <main.verticle>org.qubership.itool.cli.ci.CiExecVerticle</main.verticle>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
@@ -555,4 +555,3 @@
         </repository>
     </repositories>
 </project>
-
