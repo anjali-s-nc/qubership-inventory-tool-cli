@@ -41,12 +41,27 @@ import static org.qubership.itool.modules.gremlin2.P.*;
  * If several non-mock vertices from source graph match the same mock vertex in target graph,
  * merging may fail, but such case is not checked here.
  */
-public class TargetMocksMatcher extends CompoundVertexMatcher {
+public class TargetMocksMatcher implements VertexMatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(TargetMocksMatcher.class);
 
-    public TargetMocksMatcher(Graph targetGraph) {
-        super(getMatchersForTargetGraph(targetGraph));
+    private List<VertexMatcher> compiledMatchers;
+
+    @Override
+    public JsonObject findExistingVertex(Graph sourceGraph, JsonObject newVertex, Graph targetGraph) {
+        // Lazy initialization of compiled matchers
+        if (compiledMatchers == null) {
+            compiledMatchers = getMatchersForTargetGraph(targetGraph);
+        }
+
+        // Try each compiled matcher
+        for (VertexMatcher matcher : compiledMatchers) {
+            JsonObject existing = matcher.findExistingVertex(sourceGraph, newVertex, targetGraph);
+            if (existing != null) {
+                return existing;
+            }
+        }
+        return null;
     }
 
     public static List<VertexMatcher> getMatchersForTargetGraph(Graph targetGraph) {

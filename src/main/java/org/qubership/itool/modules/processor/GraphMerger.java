@@ -25,15 +25,7 @@ import org.qubership.itool.modules.processor.matchers.SourceMocksMatcher;
 import org.qubership.itool.modules.processor.matchers.TargetMocksMatcher;
 import org.qubership.itool.modules.processor.matchers.VertexMatcher;
 import org.qubership.itool.modules.processor.tasks.CreateAppVertexTask;
-import org.qubership.itool.modules.processor.tasks.CreateTransitiveHttpDependenciesTask;
-import org.qubership.itool.modules.processor.tasks.CreateTransitiveQueueDependenciesTask;
 import org.qubership.itool.modules.processor.tasks.PatchAppVertexTask;
-import org.qubership.itool.modules.processor.tasks.PatchIsMicroserviceFieldTask;
-import org.qubership.itool.modules.processor.tasks.PatchLanguagesNormalizationTask;
-import org.qubership.itool.modules.processor.tasks.PatchMockedComponentsNormalizationTask;
-import org.qubership.itool.modules.processor.tasks.PatchVertexDnsNamesNormalizationTask;
-import org.qubership.itool.modules.processor.tasks.RecreateDomainsStructureTask;
-import org.qubership.itool.modules.processor.tasks.RecreateHttpDependenciesTask;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.utils.FutureUtils;
 
@@ -46,7 +38,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,6 +51,12 @@ import static org.qubership.itool.utils.JsonUtils.readJsonFile;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
+import org.qubership.itool.di.NormalizationTasks;
+import org.qubership.itool.di.FinalizationTasks;
+import org.qubership.itool.modules.processor.tasks.GraphProcessorTask;
+
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * <p>Merges graphs.
@@ -90,11 +87,19 @@ public class GraphMerger implements MergerApi {
     private boolean useDeepCopy;
 
     private final Provider<Graph> graphProvider;
-    private final Provider<GraphReport> graphReportProvider;
-    
+    private final Provider<List<GraphProcessorTask>> normalizationTasks;
+    private final Provider<List<GraphProcessorTask>> finalizationTasks;
+    private final Function<JsonObject, CreateAppVertexTask> createAppVertexTaskFactory;
+    private final Function<JsonObject, PatchAppVertexTask> patchAppVertexTaskFactory;
+    private final Provider<CompoundVertexMatcher> compoundMatcherProvider;
 
     @Inject
-    public GraphMerger(Vertx vertx, Provider<Graph> graphProvider, Provider<GraphReport> graphReportProvider) {
+    public GraphMerger(Vertx vertx, Provider<Graph> graphProvider,
+                      @NormalizationTasks Provider<List<GraphProcessorTask>> normalizationTasks,
+                      @FinalizationTasks Provider<List<GraphProcessorTask>> finalizationTasks,
+                      Function<JsonObject, CreateAppVertexTask> createAppVertexTaskFactory,
+                      Function<JsonObject, PatchAppVertexTask> patchAppVertexTaskFactory,
+                      Provider<CompoundVertexMatcher> compoundMatcherProvider) {
         this.failFast = false;
         if (vertx == null) {
             this.vertx = Vertx.vertx();
@@ -104,7 +109,11 @@ public class GraphMerger implements MergerApi {
             ownVertx = false;
         }
         this.graphProvider = graphProvider;
-        this.graphReportProvider = graphReportProvider;
+        this.normalizationTasks = normalizationTasks;
+        this.finalizationTasks = finalizationTasks;
+        this.createAppVertexTaskFactory = createAppVertexTaskFactory;
+        this.patchAppVertexTaskFactory = patchAppVertexTaskFactory;
+        this.compoundMatcherProvider = compoundMatcherProvider;
     }
 
     @Override
@@ -167,13 +176,16 @@ public class GraphMerger implements MergerApi {
 
     @Override
     public void finalizeGraphAfterMerging(Graph targetGraph, JsonObject targetDesc) {
-        Future<Void> theJob = Future.<Void>succeededFuture()
-                .compose(new CreateAppVertexTask(targetDesc).thenProcessAsync(vertx, targetGraph))
-                .compose(new RecreateHttpDependenciesTask().thenProcessAsync(vertx, targetGraph))
-                .compose(new CreateTransitiveQueueDependenciesTask().thenProcessAsync(vertx, targetGraph))
-                .compose(new CreateTransitiveHttpDependenciesTask().thenProcessAsync(vertx, targetGraph))
-                .compose(new RecreateDomainsStructureTask(graphReportProvider).thenProcessAsync(vertx, targetGraph))
-                ;
+        Future<Void> theJob = Future.<Void>succeededFuture();
+
+        // Create app vertex first
+        theJob.compose(createAppVertexTaskFactory.apply(targetDesc).thenProcessAsync(vertx, targetGraph));
+
+        // Execute finalization tasks in order using the injected factories
+        for (GraphProcessorTask task : finalizationTasks.get()) {
+            theJob = theJob.compose(task.thenProcessAsync(vertx, targetGraph));
+        }
+
         FutureUtils.blockForResultOrException(theJob);
 
         // After the merge we should always have the latest model version
@@ -238,7 +250,7 @@ public class GraphMerger implements MergerApi {
         Graph sourceGraph = graphProvider.get();
         try {
             GraphDumpSupport.restoreFromJson(sourceGraph, dump);
-            Objects.requireNonNull(sourceGraph); 
+            Objects.requireNonNull(sourceGraph);
         } catch (NullPointerException e) {  // Something crucial was missing
             excHappenned(e, InvalidGraphException.descToName(sourceDesc), sourceDesc, targetGraph);
             return;
@@ -247,7 +259,8 @@ public class GraphMerger implements MergerApi {
         mergeGraph(sourceGraph, sourceDesc, targetGraph, targetDesc, useDeepCopy);
     }
 
-    /** Merge another {@link Graph} instance into target graph. The method is designed to
+    /**
+     * Merge another {@link Graph} instance into target graph. The method is designed to
      * be called several times in a row. Calling order matters, parallel
      * merging not supported.
      *
@@ -290,12 +303,13 @@ public class GraphMerger implements MergerApi {
     }
 
     protected void normalizeGraph(Graph graph) {
-        Future<Void> theJob = Future.<Void>succeededFuture()
-                .compose(new PatchIsMicroserviceFieldTask().thenProcessAsync(vertx, graph))
-                .compose(new PatchMockedComponentsNormalizationTask().thenProcessAsync(vertx, graph))
-                .compose(new PatchVertexDnsNamesNormalizationTask().thenProcessAsync(vertx, graph))
-                .compose(new PatchLanguagesNormalizationTask().thenProcessAsync(vertx, graph))
-                ;
+        Future<Void> theJob = Future.<Void>succeededFuture();
+
+        // Chain all normalization tasks
+        for (GraphProcessorTask task : normalizationTasks.get()) {
+            theJob = theJob.compose(task.thenProcessAsync(vertx, graph));
+        }
+
         FutureUtils.blockForResultOrException(theJob);
     }
 
@@ -348,12 +362,7 @@ public class GraphMerger implements MergerApi {
     }
 
     protected VertexMatcher createMatcher(Graph sourceGraph, Graph targetGraph) {
-        return new CompoundVertexMatcher(
-            new MatcherById(),  // Shall be the first in list
-            new TargetMocksMatcher(targetGraph),
-            new SourceMocksMatcher(),
-            new FileMatcher(targetGraph)
-        );
+        return compoundMatcherProvider.get();
     }
 
     protected void mergeReport(GraphReport sourceReport, GraphReport targetReport, boolean deepCopy) {
@@ -438,7 +447,8 @@ public class GraphMerger implements MergerApi {
         return false;
     }
 
-    /** Fixup conflicts for vertices matched by vertex matchers.
+    /**
+     * Fixup conflicts for vertices matched by vertex matchers.
      * Find or create a new vertex in target graph to relocate into it.
      * This method is called when match was found, but it is conflicting.
      * Method body must be aligned with {@link #conflictingVertices(JsonObject, JsonObject)}.
@@ -565,7 +575,7 @@ public class GraphMerger implements MergerApi {
         // Support of old source artifacts without Application vertex
         if (existingApps.isEmpty()) {
             getLogger().warn("Patching the INPUT graph {} that contained no app vertex", sourceDesc);
-            new CreateAppVertexTask(sourceDesc).process(sourceGraph);
+            createAppVertexTaskFactory.apply(sourceDesc).process(sourceGraph);
             if (report != null) {
                 report.mergingError(sourceDesc, "Source application graph contained no application vertex. Patched.");
             }
@@ -573,7 +583,7 @@ public class GraphMerger implements MergerApi {
         }
 
         // Patch source Applications with unknown version if version is already known
-        new PatchAppVertexTask(sourceDesc).process(sourceGraph);
+        patchAppVertexTaskFactory.apply(sourceDesc).process(sourceGraph);
     }
 
     //------------------------------------------------------

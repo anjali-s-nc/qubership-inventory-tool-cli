@@ -28,17 +28,17 @@ import static org.qubership.itool.modules.graph.Graph.*;
 
 public class FileMatcher implements VertexMatcher {
 
-    final Map<String, JsonObject> fileLinkToVertex;
-
-    public FileMatcher(Graph targetGraph) {
-        fileLinkToVertex = targetGraph.traversal().V().hasType("file", "directory").toList()
-            .stream()
-            .filter(f -> f.getString("fileLink") != null)
-            .collect(Collectors.toMap(f -> f.getString("fileLink"), Function.identity(), (f1, f2) -> f1));
-    }
+    private Map<String, JsonObject> fileLinkToVertex;
 
     @Override
     public JsonObject findExistingVertex(Graph sourceGraph, JsonObject newVertex, Graph targetGraph) {
+        if (fileLinkToVertex == null) {
+            fileLinkToVertex = targetGraph.traversal().V().hasType("file", "directory").toList()
+                .stream()
+                .filter(f -> f.getString("fileLink") != null)
+                .collect(Collectors.toMap(f -> f.getString("fileLink"), Function.identity(), (f1, f2) -> f1));
+        }
+
         String type = newVertex.getString(F_TYPE);
         if (! "file".equals(type) && ! "directory".equals(type)) {
             return null;
