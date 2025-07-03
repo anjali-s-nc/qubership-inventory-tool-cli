@@ -18,6 +18,7 @@ package org.qubership.itool.di;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 
 import io.vertx.core.json.JsonObject;
@@ -25,8 +26,10 @@ import jakarta.inject.Provider;
 import org.qubership.itool.modules.processor.GraphMerger;
 import org.qubership.itool.modules.processor.MergerApi;
 import org.qubership.itool.modules.processor.matchers.CompoundVertexMatcher;
+import org.qubership.itool.modules.processor.matchers.DefaultMockFieldExtractor;
 import org.qubership.itool.modules.processor.matchers.FileMatcher;
 import org.qubership.itool.modules.processor.matchers.MatcherById;
+import org.qubership.itool.modules.processor.matchers.MockFieldExtractor;
 import org.qubership.itool.modules.processor.matchers.SourceMocksMatcher;
 import org.qubership.itool.modules.processor.matchers.TargetMocksMatcher;
 import org.qubership.itool.modules.processor.tasks.GraphProcessorTask;
@@ -40,7 +43,6 @@ import org.qubership.itool.modules.processor.tasks.RecreateHttpDependenciesTask;
 import org.qubership.itool.modules.processor.tasks.CreateTransitiveQueueDependenciesTask;
 import org.qubership.itool.modules.processor.tasks.CreateTransitiveHttpDependenciesTask;
 import org.qubership.itool.modules.processor.tasks.RecreateDomainsStructureTask;
-import org.qubership.itool.modules.report.GraphReport;
 
 import java.util.List;
 import java.util.function.Function;
@@ -54,8 +56,20 @@ public class MergerModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        // Bind the interface to implementation
+        // Main merger class
         bind(MergerApi.class).to(GraphMerger.class);
+
+        // Helper classes
+        bind(MockFieldExtractor.class).to(DefaultMockFieldExtractor.class).in(Scopes.SINGLETON);
+
+        // Concrete classes
+        bind(CreateTransitiveQueueDependenciesTask.class);
+        bind(CreateTransitiveHttpDependenciesTask.class);
+        bind(RecreateHttpDependenciesTask.class);
+        bind(RecreateDomainsStructureTask.class);
+
+        bind(TargetMocksMatcher.class);
+        bind(SourceMocksMatcher.class);
     }
 
     /**
@@ -85,12 +99,15 @@ public class MergerModule extends AbstractModule {
     @Provides
     @FinalizationTasks
     public List<GraphProcessorTask> provideFinalizationTasks(
-            Provider<GraphReport> graphReportProvider) {
+            Provider<CreateTransitiveQueueDependenciesTask> createTransitiveQueueDependenciesTaskProvider,
+            Provider<CreateTransitiveHttpDependenciesTask> createTransitiveHttpDependenciesTaskProvider,
+            Provider<RecreateDomainsStructureTask> recreateDomainsStructureTaskProvider,
+            Provider<RecreateHttpDependenciesTask> recreateHttpDependenciesTaskProvider) {
         return List.of(
-            new RecreateHttpDependenciesTask(),
-            new CreateTransitiveQueueDependenciesTask(),
-            new CreateTransitiveHttpDependenciesTask(),
-            new RecreateDomainsStructureTask(graphReportProvider)
+            recreateHttpDependenciesTaskProvider.get(),
+            createTransitiveQueueDependenciesTaskProvider.get(),
+            createTransitiveHttpDependenciesTaskProvider.get(),
+            recreateDomainsStructureTaskProvider.get()
         );
     }
 
@@ -98,14 +115,16 @@ public class MergerModule extends AbstractModule {
      * Provides a compound vertex matcher with the default matchers in the correct order.
      * The order is important as matchers are tried in sequence.
      *
+     * @param targetMocksMatcher The target mocks matcher
+     * @param sourceMocksMatcher The source mocks matcher
      * @return CompoundVertexMatcher with all matchers in the correct order
      */
     @Provides
-    public CompoundVertexMatcher provideCompoundVertexMatcher() {
+    public CompoundVertexMatcher provideCompoundVertexMatcher(TargetMocksMatcher targetMocksMatcher, SourceMocksMatcher sourceMocksMatcher) {
         return new CompoundVertexMatcher(
             new MatcherById(),  // Shall be the first in list
-            new TargetMocksMatcher(),
-            new SourceMocksMatcher(),
+            targetMocksMatcher,
+            sourceMocksMatcher,
             new FileMatcher()
         );
     }
