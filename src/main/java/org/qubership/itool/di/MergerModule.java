@@ -20,6 +20,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Provider;
@@ -79,7 +80,7 @@ public class MergerModule extends AbstractModule {
      * @return A list of normalization tasks in execution order
      */
     @Provides
-    @NormalizationTasks
+    @Named("normalization.tasks")
     public List<GraphProcessorTask> provideNormalizationTasksList() {
         return List.of(
             new PatchIsMicroserviceFieldTask(),
@@ -100,7 +101,7 @@ public class MergerModule extends AbstractModule {
      * @return A list of finalization tasks in execution order
      */
     @Provides
-    @FinalizationTasks
+    @Named("finalization.tasks")
     public List<GraphProcessorTask> provideFinalizationTasks(
             Provider<CreateTransitiveQueueDependenciesTask> createTransitiveQueueDependenciesTaskProvider,
             Provider<CreateTransitiveHttpDependenciesTask> createTransitiveHttpDependenciesTaskProvider,

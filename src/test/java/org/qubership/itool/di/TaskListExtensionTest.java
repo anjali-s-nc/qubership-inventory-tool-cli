@@ -21,11 +21,13 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import com.google.inject.util.Modules;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import jakarta.inject.Named;
 import jakarta.inject.Provider;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -69,7 +71,7 @@ class TaskListExtensionTest {
             }
 
             @Provides
-            @NormalizationTasks
+            @Named("normalization.tasks")
             public List<GraphProcessorTask> provideExtendedNormalizationTasks(
                     Provider<PatchIsMicroserviceFieldTask> patchIsMicroserviceFieldTaskProvider,
                     Provider<PatchMockedComponentsNormalizationTask> patchMockedComponentsNormalizationTaskProvider,
@@ -92,7 +94,7 @@ class TaskListExtensionTest {
 
         // Get the normalization tasks using the injector directly
         List<GraphProcessorTask> normalizationTasks = context.getInjector().getInstance(
-            Key.get(new TypeLiteral<List<GraphProcessorTask>>() {}, NormalizationTasks.class)
+            Key.get(new TypeLiteral<List<GraphProcessorTask>>() {}, Names.named("normalization.tasks"))
         );
 
         // Verify we have the expected tasks in the correct order

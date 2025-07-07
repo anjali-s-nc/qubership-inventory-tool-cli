@@ -39,7 +39,12 @@ public class ApplicationContext {
             logger.info("Module {}: {}", i, modules[i].getClass().getSimpleName());
         }
         
-        this.injector = Guice.createInjector(modules);
+        // Add ConfigModule to provide application configuration
+        Module[] allModules = new Module[modules.length + 1];
+        allModules[0] = new ConfigModule(config);
+        System.arraycopy(modules, 0, allModules, 1, modules.length);
+        
+        this.injector = Guice.createInjector(allModules);
         
         // Log successful creation
         logger.info("ApplicationContext created successfully");

@@ -47,8 +47,7 @@ import static org.qubership.itool.utils.JsonUtils.readJsonFile;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
-import org.qubership.itool.di.NormalizationTasks;
-import org.qubership.itool.di.FinalizationTasks;
+import com.google.inject.name.Named;
 import org.qubership.itool.modules.processor.tasks.GraphProcessorTask;
 
 import java.util.List;
@@ -91,8 +90,8 @@ public class GraphMerger implements MergerApi {
 
     @Inject
     public GraphMerger(Vertx vertx, Provider<Graph> graphProvider,
-                      @NormalizationTasks Provider<List<GraphProcessorTask>> normalizationTasks,
-                      @FinalizationTasks Provider<List<GraphProcessorTask>> finalizationTasks,
+                      @Named("normalization.tasks") Provider<List<GraphProcessorTask>> normalizationTasks,
+                      @Named("finalization.tasks") Provider<List<GraphProcessorTask>> finalizationTasks,
                       Function<JsonObject, CreateAppVertexTask> createAppVertexTaskFactory,
                       Function<JsonObject, PatchAppVertexTask> patchAppVertexTaskFactory,
                       Provider<CompoundVertexMatcher> compoundMatcherProvider) {

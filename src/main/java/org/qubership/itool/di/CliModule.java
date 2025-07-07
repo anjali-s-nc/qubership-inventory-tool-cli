@@ -2,7 +2,6 @@ package org.qubership.itool.di;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
-
 import org.qubership.itool.context.FlowContext;
 import org.qubership.itool.context.FlowContextImpl;
 
@@ -16,5 +15,4 @@ public class CliModule extends AbstractModule {
     protected void configure() {
         bind(FlowContext.class).to(FlowContextImpl.class).in(Singleton.class);
     }
-
-} 
+}
