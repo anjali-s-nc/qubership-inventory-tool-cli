@@ -18,17 +18,9 @@ package org.qubership.itool.context;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.client.WebClient;
-
-import org.qubership.itool.modules.confluence.ConfluenceClient;
-import org.qubership.itool.modules.confluence.ConfluenceClientBuilder;
-import org.qubership.itool.modules.git.GitAdapter;
-import org.qubership.itool.modules.git.GitAdapterBuilder;
-import org.qubership.itool.modules.git.GitFileRetriever;
-import org.qubership.itool.modules.git.GitFileRetrieverBuilder;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphClassifier;
-import org.qubership.itool.modules.graph.GraphClassifierBuilderImpl;
+import org.qubership.itool.modules.graph.GraphClassifierBuilder;
 import org.qubership.itool.modules.graph.GraphDumpSupport;
 import org.qubership.itool.modules.graph.GraphService;
 import org.qubership.itool.modules.report.GraphReport;
@@ -68,29 +60,21 @@ public class FlowContextImpl implements FlowContext {
     private Vertx vertx;
     private boolean breakRequested;
     private final Injector injector;
+    private final GraphClassifierBuilder graphClassifierBuilder;
 
     @Inject
-    public FlowContextImpl(Injector injector, Graph graph) {
+    public FlowContextImpl(Injector injector, Graph graph, GraphClassifierBuilder graphClassifierBuilder) {
         this.injector = injector;
 
         this.graph = graph;
         this.report = graph.getReport();
+        this.graphClassifierBuilder = graphClassifierBuilder;
     }
 
     @Override
     public void initialize(Vertx vertx, JsonObject config) {
         this.vertx = vertx;
         this.config = config;
-
-        WebClient client = WebClient.create(vertx);
-        GitAdapter gitAdapter = GitAdapterBuilder.create(vertx, report, config);
-        ConfluenceClient confluenceClient = ConfluenceClientBuilder.create(vertx, client, config);
-        GitFileRetriever gitFileRetriever = GitFileRetrieverBuilder.create(gitAdapter, config, vertx, report);
-
-        this.resources.put(WebClient.class, client);
-        this.resources.put(ConfluenceClient.class, confluenceClient);
-        this.resources.put(GitAdapter.class, gitAdapter);
-        this.resources.put(GitFileRetriever.class, gitFileRetriever);
 
         if (graphService != null) {
             resources.put(GraphService.class, graphService);
@@ -133,7 +117,7 @@ public class FlowContextImpl implements FlowContext {
     public void setGraphService(GraphService graphService) {
         this.graphService = graphService;
         if (graphService != null) {
-            graphClassifier = new GraphClassifierBuilderImpl()
+            graphClassifier = graphClassifierBuilder
                 .setId("flow-" + flowInstanceId)
                 .setWithReport(true)
                 .build();
