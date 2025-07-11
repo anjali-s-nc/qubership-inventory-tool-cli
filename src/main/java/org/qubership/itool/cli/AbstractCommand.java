@@ -35,7 +35,6 @@ import java.util.Optional;
 
 import org.qubership.itool.modules.graph.GraphService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.qubership.itool.cli.config.ConfigProvider;
 import org.qubership.itool.context.FlowContext;
@@ -54,8 +53,6 @@ import static org.qubership.itool.utils.ConfigProperties.PROFILE_POINTER;
  */
 public abstract class AbstractCommand extends ClasspathHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCommand.class);
-
     /**
      * Configuration properties map containing default values for the command.
      */
@@ -69,9 +66,7 @@ public abstract class AbstractCommand extends ClasspathHandler {
      *
      * @return the logger instance
      */
-    protected Logger getLogger() {
-        return LOGGER;
-    }
+    protected abstract Logger getLogger();
 
     /** Create VertX, start a flow using {@link #properties} and config, let the flow complete, terminate JVM
      *
