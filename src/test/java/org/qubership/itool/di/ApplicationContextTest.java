@@ -20,6 +20,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import jakarta.inject.Provider;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,11 +30,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.qubership.itool.context.FlowContext;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.processor.GraphMerger;
+import org.qubership.itool.modules.processor.tasks.GraphProcessorTask;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.modules.report.GraphReportImpl;
+
+import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
 
 @ExtendWith({VertxExtension.class, MockitoExtension.class})
 class ApplicationContextTest {
@@ -86,9 +95,9 @@ class ApplicationContextTest {
 
         // Create test module with custom factory
         Module testModule = TestModule.createOverrideModule(
-            vertx, 
-            mockGraphMerger, 
-            mockFlowContext, 
+            vertx,
+            mockGraphMerger,
+            mockFlowContext,
             new LoggingGraphReport()
         );
 
@@ -131,4 +140,20 @@ class ApplicationContextTest {
 
         testContext.completeNow();
     }
-} 
+
+    @Test
+    void testFinalizationTasks(VertxTestContext testContext) {
+        // Create default context
+        ApplicationContext context = ApplicationContext.createDefault();
+
+        Provider<List<GraphProcessorTask>> finalizationTasksProvider = context.getInjector().getProvider(
+            Key.get(new TypeLiteral<List<GraphProcessorTask>>() {}, Names.named("finalization.tasks"))
+        );
+
+        List<GraphProcessorTask> finalizationTasks = finalizationTasksProvider.get();
+        List<GraphProcessorTask> finalizationTasks2 = finalizationTasksProvider.get();
+        assertFalse(finalizationTasks.get(0)==finalizationTasks2.get(0), "Should have different instances");
+
+        testContext.completeNow();
+    }
+}

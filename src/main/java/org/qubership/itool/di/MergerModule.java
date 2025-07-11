@@ -94,24 +94,24 @@ public class MergerModule extends AbstractModule {
      * Provides a list of finalization tasks in the order they should be executed.
      * The order is important as some tasks may depend on the results of previous tasks.
      *
-     * @param createTransitiveQueueDependenciesTaskProvider Provider for CreateTransitiveQueueDependenciesTask
-     * @param createTransitiveHttpDependenciesTaskProvider Provider for CreateTransitiveHttpDependenciesTask
-     * @param recreateDomainsStructureTaskProvider Provider for RecreateDomainsStructureTask
-     * @param recreateHttpDependenciesTaskProvider Provider for RecreateHttpDependenciesTask
+     * @param createTransitiveQueueDependenciesTask CreateTransitiveQueueDependenciesTask
+     * @param createTransitiveHttpDependenciesTask CreateTransitiveHttpDependenciesTask
+     * @param recreateDomainsStructureTask RecreateDomainsStructureTask
+     * @param recreateHttpDependenciesTask RecreateHttpDependenciesTask
      * @return A list of finalization tasks in execution order
      */
     @Provides
     @Named("finalization.tasks")
     public List<GraphProcessorTask> provideFinalizationTasks(
-            Provider<CreateTransitiveQueueDependenciesTask> createTransitiveQueueDependenciesTaskProvider,
-            Provider<CreateTransitiveHttpDependenciesTask> createTransitiveHttpDependenciesTaskProvider,
-            Provider<RecreateDomainsStructureTask> recreateDomainsStructureTaskProvider,
-            Provider<RecreateHttpDependenciesTask> recreateHttpDependenciesTaskProvider) {
+            CreateTransitiveQueueDependenciesTask createTransitiveQueueDependenciesTask,
+            CreateTransitiveHttpDependenciesTask createTransitiveHttpDependenciesTask,
+            RecreateDomainsStructureTask recreateDomainsStructureTask,
+            RecreateHttpDependenciesTask recreateHttpDependenciesTask) {
         return List.of(
-            recreateHttpDependenciesTaskProvider.get(),
-            createTransitiveQueueDependenciesTaskProvider.get(),
-            createTransitiveHttpDependenciesTaskProvider.get(),
-            recreateDomainsStructureTaskProvider.get()
+            recreateHttpDependenciesTask,
+            createTransitiveQueueDependenciesTask,
+            createTransitiveHttpDependenciesTask,
+            recreateDomainsStructureTask
         );
     }
 
