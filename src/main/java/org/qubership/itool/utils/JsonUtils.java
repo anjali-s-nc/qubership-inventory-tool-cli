@@ -35,6 +35,7 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.commons.collections4.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.qubership.itool.modules.graph.FalloutDto;
 import org.qubership.itool.modules.graph.GraphDataConstants;
@@ -50,12 +51,13 @@ public class JsonUtils {
 
     static {
         mapper = DatabindCodec.mapper().copy();
-        prettyMapper = DatabindCodec.prettyMapper().copy();
+        prettyMapper = DatabindCodec.mapper().copy();
 
         SimpleModule module = new SimpleModule();
         module.addDeserializer(JsonObject.class, new JsonObjectDeserializer());
         module.addDeserializer(JsonArray.class, new JsonArrayDeserializer());
         mapper.registerModule(module);
+        prettyMapper.enable(SerializationFeature.INDENT_OUTPUT);
         prettyMapper.registerModule(module);
     }
 
@@ -140,13 +142,13 @@ public class JsonUtils {
     }
 
     public static <T> T readJsonFromBuffer(Buffer buffer, Class<T> clazz) throws IOException {
-        InputStream is = new ByteBufInputStream(buffer.getByteBuf());
+        InputStream is = new ByteArrayInputStream(buffer.getBytes());
         Reader reader = new InputStreamReader(is, UTF_8);
         return mapper.readValue(reader, clazz);
     }
 
     public static <T> T readJsonFromGzipBuffer(Buffer buffer, Class<T> clazz) throws IOException {
-        InputStream is = new GZIPInputStream(new ByteBufInputStream(buffer.getByteBuf()));
+        InputStream is = new GZIPInputStream(new ByteArrayInputStream(buffer.getBytes()));
         Reader reader = new InputStreamReader(is, UTF_8);
         return mapper.readValue(reader, clazz);
     }

@@ -57,7 +57,7 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
                 , 10
                 , TimeUnit.MINUTES);
 
-        List<Future> futures = parseFiles(executor, getFilePatterns());
+        List<Future<?>> futures = parseFiles(executor, getFilePatterns());
         joinFuturesAndHandleResult(futures)
                 .onComplete(res -> {
                     // We are not closing executor here, because it is used in several tasks
@@ -82,7 +82,7 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
 
 
     @SuppressWarnings("rawtypes")
-    protected List<Future> parseFiles(WorkerExecutor executor, String ... filePatterns) {
+    protected List<Future<?>> parseFiles(WorkerExecutor executor, String ... filePatterns) {
 
         // Pre-parse patterns
         List<String> simplePatterns = new ArrayList<>();
@@ -104,7 +104,7 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
         }
 
         // Find components
-        List<Future> futures = new ArrayList<>();
+        List<Future<?>> futures = new ArrayList<>();
         List<Map<String, JsonObject>> componentsWithDomains = getComponentsWithDomains();
 
         for (Map<String, JsonObject> componentWithDomain : componentsWithDomains) {

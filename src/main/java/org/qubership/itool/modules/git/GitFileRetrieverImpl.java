@@ -18,7 +18,6 @@ package org.qubership.itool.modules.git;
 
 import org.qubership.itool.modules.report.GraphReport;
 
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -52,25 +51,21 @@ public class GitFileRetrieverImpl implements GitFileRetriever {
     }
 
     @Override
-    public Future copyFilesFromReleases(String sourceRelease, String targetRelease, List<Path> files) {
+    public Future<?> copyFilesFromReleases(String sourceRelease, String targetRelease, List<Path> files) {
         return gitAdapter.openSuperrepository()
-                .compose(repo -> gitAdapter.branchCheckout(repo, sourceRelease)
-                        .compose(r -> {
-                            List<Future> copyFutures = copyFilesFromRepo(repo, sourceRelease, files);
-                            return CompositeFuture.join(copyFutures);
-                        })
-                        .compose(r -> gitAdapter.branchCheckout(repo, targetRelease)
-                                .onFailure(e -> report.internalError("Failed to checkout branch "
-                                        + targetRelease + ": " + ExceptionUtils.getStackTrace(e)))
-                                .compose(res -> {
-                                    List<Future> copyFutures = copyFilesFromRepo(repo, targetRelease, files);
-                                    return CompositeFuture.join(copyFutures)
-                                            .onFailure(e -> report.internalError("Some files were not copied: "
-                                                    + ExceptionUtils.getStackTrace(e)));
-                                })
-                        )
-                        .onComplete(r -> repo.close())
-                );
+                .compose(repo -> gitAdapter.branchCheckout(repo, sourceRelease).compose(r -> {
+                    List<Future<?>> copyFutures = copyFilesFromRepo(repo, sourceRelease, files);
+                    return Future.join(copyFutures);
+                }).compose(r -> gitAdapter.branchCheckout(repo, targetRelease)
+                        .onFailure(e -> report.internalError("Failed to checkout branch "
+                                + targetRelease + ": " + ExceptionUtils.getStackTrace(e)))
+                        .compose(res -> {
+                            List<Future<?>> copyFutures =
+                                    copyFilesFromRepo(repo, targetRelease, files);
+                            return Future.join(copyFutures).onFailure(
+                                    e -> report.internalError("Some files were not copied: "
+                                            + ExceptionUtils.getStackTrace(e)));
+                        })).onComplete(r -> repo.close()));
     }
 
     @Override
@@ -86,16 +81,16 @@ public class GitFileRetrieverImpl implements GitFileRetriever {
                 .map(v -> v.toString())
                 .recover(r -> Future.succeededFuture(
                         new JsonObject().put("warning", targetPath + " file was not found").encodePrettily()));
-        Future<Triple<Path, String, String>> result = CompositeFuture.join(sourceFuture, targetFuture)
+        Future<Triple<Path, String, String>> result = Future.join(sourceFuture, targetFuture)
                 .map(r -> Triple.of(path, sourceFuture.result(), targetFuture.result()));
         return result;
     }
 
     @Override
-    public List<Future> copyFilesFromRepo(Git repo, String release, List<Path> files) {
-        List<Future> copyFutures = new ArrayList<>();
+    public List<Future<?>> copyFilesFromRepo(Git repo, String release, List<Path> files) {
+        List<Future<?>> copyFutures = new ArrayList<>();
         for (Path path : files) {
-            Future<Void> futureFile = copyFromRepo(repo, release, path)
+            Future<?> futureFile = copyFromRepo(repo, release, path)
                     .recover(e -> {
                         report.internalError("Couldn't copy file " + path.toString()
                                 + " from repository " + repo.getRepository().getDirectory() + ": "
@@ -146,7 +141,7 @@ public class GitFileRetrieverImpl implements GitFileRetriever {
                         .map(v -> v.toString());
                 filesContents.put(path, futureFile);
             };
-            CompositeFuture.join(filesContents.values().stream().collect(Collectors.toList()))
+            Future.join(filesContents.values().stream().collect(Collectors.toList()))
                     .onComplete(r -> {
                         for (Path path: filesContents.keySet()) {
                             if (filesContents.get(path).succeeded()) {

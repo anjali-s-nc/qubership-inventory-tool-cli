@@ -61,12 +61,12 @@ public class MavenDependencyDumpExtractVerticle extends AbstractAggregationTaskV
     private final XPath xpath = xPathfactory.newXPath();
     // Have to be global to avoid closing by GC
     private WorkerExecutor executor;
-    
-    @Override   
+
+    @Override
     protected String[] features() {
         return new String[] { "mavenDependency" };
     }
-    
+
     @Override
     protected void taskStart(Promise<?> taskPromise) {
         int coresCount = CpuCoreSensor.availableProcessors();
@@ -76,12 +76,12 @@ public class MavenDependencyDumpExtractVerticle extends AbstractAggregationTaskV
                 , 60
                 , TimeUnit.MINUTES);
         BiFunction<Graph, JsonObject, List<JsonObject>> componentExtractor = AbstractAggregationTaskVerticle::getMavenDependencyComponents;
-        List<Future> futures = processGraph(this::aggregateDomainData, c -> processDependencyTree(c, executor), componentExtractor);
+        List<Future<?>> futures = processGraph(this::aggregateDomainData, c -> processDependencyTree(c, executor), componentExtractor);
         completeCompositeTask(futures, taskPromise);
     }
 
     @SuppressWarnings("rawtypes")
-    private List<Future> processDependencyTree(JsonObject component, WorkerExecutor executor) {
+    private List<Future<?>> processDependencyTree(JsonObject component, WorkerExecutor executor) {
         File depTreeFile = Path.of(component.getString("directoryPath")).resolve("target").resolve("dependency_tree.json").toFile();
         if (depTreeFile.exists()) {
             LOG.info("File {} already exists for component {}, no need to run maven", depTreeFile, component.getString(Graph.F_ID));
@@ -170,9 +170,8 @@ public class MavenDependencyDumpExtractVerticle extends AbstractAggregationTaskV
         dump.println(line);
     }
 
-    @SuppressWarnings("rawtypes")
-    private List<Future> aggregateDomainData(JsonObject jsonObject) {
-        Future future = Future.succeededFuture();
+    private List<Future<?>> aggregateDomainData(JsonObject jsonObject) {
+        Future<?> future = Future.succeededFuture();
         return Collections.singletonList(future);
     }
 

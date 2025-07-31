@@ -32,9 +32,9 @@ import org.qubership.itool.context.FlowContext;
 
 import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
-import io.vertx.core.impl.JavaVerticleFactory;
-import io.vertx.core.json.JsonObject;
+import io.vertx.core.impl.verticle.JavaVerticleFactory;
 import io.vertx.core.spi.VerticleFactory;
+import io.vertx.core.json.JsonObject;
 
 import static org.qubership.itool.utils.ConfigProperties.CONFIG_PATH_POINTER;
 

@@ -167,9 +167,10 @@ public abstract class FlowTask {
     /**
      * Joins the futures as a composite future, handles exceptions within the futures.
      * @param futureList list of futures to be joined and handled
+     * @return a future that will be completed when all the futures in the list are completed
      */
-    protected CompositeFuture joinFuturesAndHandleResult(List<Future> futureList) {
-        return CompositeFuture.join(futureList)
+    protected Future<?> joinFuturesAndHandleResult(List<? extends Future<?>> futureList) {
+        return Future.join(futureList)
                 .onFailure(e -> {
                     getLogger().error("Internal errors were encountered during execution of block of futures: ");
                     futureList.stream().forEach(f -> {
@@ -186,9 +187,9 @@ public abstract class FlowTask {
         if (saveProgressForThisTask(saveProgress)) {
             String taskName = getTaskAddress();
             getLogger().info("Save progress before execute step '{}'", taskName);
-            return vertx.<Void>executeBlocking(promise -> {
+            return vertx.executeBlocking(() -> {
                         flowContext.dumpDataToFile(new File(PROGRESS_PATH), taskName + ".json");
-                        promise.complete();
+                        return (Void) null;
                     })
                     .onFailure(e -> report.internalError("Failed to save the progress for task '"
                             + taskName + "', reason: " + ExceptionUtils.getStackTrace(e))

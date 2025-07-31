@@ -26,11 +26,11 @@ import java.util.List;
 
 public interface GitFileRetriever {
 
-    Future<Void> copyFilesFromReleases(String release1, String release2, List<Path> files);
+    Future<?> copyFilesFromReleases(String release1, String release2, List<Path> files);
 
     Future<Triple<Path, String, String>> getFileInfo(String sourceRelease, String targetRelease, Path path);
 
-    List<Future> copyFilesFromRepo(Git repo, String release, List<Path> files);
+    List<Future<?>> copyFilesFromRepo(Git repo, String release, List<Path> files);
 
     Path buildRepoPath(Git repo, Path basePath);
 

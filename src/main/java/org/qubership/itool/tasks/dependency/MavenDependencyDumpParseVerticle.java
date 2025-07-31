@@ -90,21 +90,18 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
                 , TimeUnit.SECONDS);
 
         BiFunction<Graph, JsonObject, List<JsonObject>> componentExtractor = AbstractAggregationTaskVerticle::getMavenDependencyComponents;
-        @SuppressWarnings("rawtypes")
-        List<Future> futures = processGraph(this::aggregateDomainData, c -> processDependencyTree(c, executor), componentExtractor);
+        List<Future<?>> futures = processGraph(this::aggregateDomainData, c -> processDependencyTree(c, executor), componentExtractor);
         completeCompositeTask(futures, taskPromise);
     }
 
-    @SuppressWarnings("rawtypes")
-    private List<Future> aggregateDomainData(JsonObject jsonObject) {
-        Future future = Future.succeededFuture();
+    private List<Future<?>> aggregateDomainData(JsonObject jsonObject) {
+        Future<?> future = Future.succeededFuture();
         return Collections.singletonList(future);
     }
 
-    @SuppressWarnings("rawtypes")
-    private List<Future> processDependencyTree(JsonObject component, WorkerExecutor executor) {
+    private List<Future<?>> processDependencyTree(JsonObject component, WorkerExecutor executor) {
         LOG.debug("{}: Scheduling blocking execution of maven dependencies import to the graph", component.getString(F_ID));
-        Future blockingFuture = executor.executeBlocking(() -> processDependencies(component), false);
+        Future<?> blockingFuture = executor.executeBlocking(() -> processDependencies(component), false);
         return Collections.singletonList(blockingFuture);
     }
 

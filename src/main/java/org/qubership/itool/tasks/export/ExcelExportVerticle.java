@@ -18,7 +18,6 @@ package org.qubership.itool.tasks.export;
 
 import org.qubership.itool.tasks.FlowTask;
 
-import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.json.JsonArray;
@@ -98,19 +97,17 @@ public class ExcelExportVerticle extends FlowTask {
                 , 60
                 , TimeUnit.MINUTES);
         String finalExportPath = exportPath;
-        Future<?> blockingFuture = Future.future(promise -> executor.executeBlocking(o -> {
+        executor.executeBlocking(() -> {
             try {
                 buildInventorizationXls(finalExportPath);
             } catch (IOException e) {
-                promise.fail(e);
+                throw new RuntimeException(
+                        "Failed to build Excel export " + finalExportPath + ": " + e.getMessage());
             }
+            return null;
+        }).onSuccess(r -> taskCompleted(taskPromise)).onFailure(r -> {
+            report.exceptionThrown(new JsonObject().put("id", "iTool"), (Exception) r);
             taskCompleted(taskPromise);
-        }, promise));
-        blockingFuture
-        .onSuccess(r -> taskCompleted(taskPromise))
-        .onFailure(r -> {
-           report.exceptionThrown(new JsonObject().put("id", "iTool"), (Exception) r);
-           taskCompleted(taskPromise);
         });
 
     }

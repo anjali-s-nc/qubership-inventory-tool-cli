@@ -115,60 +115,52 @@ public class GitAdapterImpl implements GitAdapter {
     }
 
     @Override
-    public void gitAddHandler(Git repo, String filePattern, Promise promise) {
-        LOG.info("Attempting to perform git add {} in {}", filePattern, repo.getRepository().getDirectory());
-        try {
-            repo.add().addFilepattern(filePattern).call();
-        } catch (GitAPIException e) {
-            promise.fail("Failed to add " + filePattern + " (" + e.getMessage() + ")");
-            return;
-        }
-        promise.complete();
-    }
-
-    @Override
     public Future<Void> gitAdd(Git repo, String filePattern) {
-        return getWorkerExecutor().executeBlocking(p -> gitAddHandler(repo, filePattern, p));
-    }
-
-    @Override
-    public void gitCommitHandler(Git repo, String message, Promise promise) {
-        LOG.info("Attempting to perform git commit in {}", repo.getRepository().getDirectory());
-        try {
-            RevCommit commit = repo.commit().setMessage(message).call();
-            LOG.info("Commit successful: " + commit.getFullMessage());
-        } catch (GitAPIException e) {
-            promise.fail("Failed to commit (" + e.getMessage() + ")");
-            return;
-        }
-        promise.complete();
+        return getWorkerExecutor().executeBlocking(() -> {
+            LOG.info("Attempting to perform git add {} in {}", filePattern, repo.getRepository().getDirectory());
+            try {
+                repo.add().addFilepattern(filePattern).call();
+            } catch (GitAPIException e) {
+                throw new RuntimeException("Failed to add " + filePattern + " (" + e.getMessage() + ")");
+            }
+            return null;
+        });
     }
 
     @Override
     public Future<Void> gitCommit(Git repo, String message) {
-        return getWorkerExecutor().executeBlocking(p -> gitCommitHandler(repo, message, p));
+        return getWorkerExecutor().executeBlocking(() -> {
+            LOG.info("Attempting to perform git commit in {}", repo.getRepository().getDirectory());
+            try {
+                RevCommit commit = repo.commit().setMessage(message).call();
+                LOG.info("Commit successful: " + commit.getFullMessage());
+            } catch (GitAPIException e) {
+                throw new RuntimeException("Failed to commit (" + e.getMessage() + ")");
+            }
+            return null;
+        });
     }
 
     @Override
     public Future<Object> gitStatusCheck(Git repo, Predicate<Status> statusPredicate) {
         LOG.info("Checking the status of repository {}", repo.getRepository().getDirectory());
-        return getWorkerExecutor().executeBlocking(promise -> {
+        return getWorkerExecutor().executeBlocking(() -> {
             try {
                 Status status = repo.status().call();
-                promise.complete(statusPredicate.test(status));
+                return statusPredicate.test(status);
             } catch (GitAPIException e) {
-                promise.fail("Failed to check the status (" + e.getMessage() + ")");
+                throw new RuntimeException("Failed to check the status (" + e.getMessage() + ")");
             }
         });
     }
 
     @Override
     public Future<Status> gitStatus(Git repo) {
-        Future<Status> statusFuture = getWorkerExecutor().executeBlocking(p -> {
+        Future<Status> statusFuture = getWorkerExecutor().executeBlocking(() -> {
             try {
-                p.complete(repo.status().call());
+                return repo.status().call();
             } catch (GitAPIException e) {
-                p.fail(e);
+                throw new RuntimeException("Failed to check the status (" + e.getMessage() + ")");
             }
         });
         return statusFuture;
@@ -177,41 +169,35 @@ public class GitAdapterImpl implements GitAdapter {
     @Override
     public Future<Void> gitRm(Git repo, Collection<String> files) {
         LOG.info("Attempting to remove files {} from repository {}", files, repo.getRepository().getDirectory());
-        Future<Void> rmFuture = getWorkerExecutor().executeBlocking(p -> {
+        Future<Void> rmFuture = getWorkerExecutor().executeBlocking(() -> {
             try {
                 RmCommand rmCommand = repo.rm();
                 files.stream().forEach(f -> rmCommand.addFilepattern(f));
                 rmCommand.call();
                 LOG.info("Removal of files {} from repository {} finished", files, repo.getRepository().getDirectory());
-                p.complete();
+                return null;
             } catch (GitAPIException e) {
-                p.fail(e);
+                throw new RuntimeException("Failed to remove files (" + e.getMessage() + ")");
             }
         });
         return rmFuture;
     }
 
     @Override
-    public void submoduleUpdateHandler(Git repository, Promise promise) {
-        LOG.info("Performing submodule update. This may take hours depending on your Internet connection.");
-        try {
-            repository.submoduleUpdate().setCredentialsProvider(credentialsProvider).call();
-        } catch (GitAPIException e) {
-            promise.fail("Unable to perform submodule update: " + ExceptionUtils.getStackTrace(e));
-            return;
-        }
-        LOG.info("Submodule update completed");
-        promise.complete();
-    }
-
-    @Override
     public Future<Void> submoduleUpdate(Git repository) {
-        return getWorkerExecutor().executeBlocking(p -> submoduleUpdateHandler(repository, p));
+        return getWorkerExecutor().executeBlocking(() -> {
+            try {
+                repository.submoduleUpdate().setCredentialsProvider(credentialsProvider).call();
+            } catch (GitAPIException e) {
+                throw new RuntimeException("Unable to perform submodule update: " + ExceptionUtils.getStackTrace(e));
+            }
+            return null;
+        });
     }
 
     @Override
-    public List<Future> bulkSubmoduleAdd(Git superRepo, List<Map<String, JsonObject>> components) {
-        List<Future> futures = new ArrayList<>();
+    public List<Future<?>> bulkSubmoduleAdd(Git superRepo, List<Map<String, JsonObject>> components) {
+        List<Future<?>> futures = new ArrayList<>();
         Map<String, SubmoduleStatus> submoduleStatus;
         try {
             submoduleStatus = superRepo.submoduleStatus().call();
@@ -231,18 +217,18 @@ public class GitAdapterImpl implements GitAdapter {
                 LOG.info("Component submodule of {} in {} already exist", componentId, cloneFolder);
                 continue;
             }
-            Future future = getWorkerExecutor().executeBlocking(
-                    p -> submoduleAddHandler(superRepo, component, domain, p), true);
+            Future<?> future = getWorkerExecutor().executeBlocking(() -> {
+                submoduleAddHandler(superRepo, component, domain);
+                return null;
+            });
             futures.add(future);
         }
         return futures;
     }
 
-    @Override
-    public void submoduleAddHandler(Git superRepo, JsonObject component, JsonObject domain, Promise promise) {
+    public void submoduleAddHandler(Git superRepo, JsonObject component, JsonObject domain) {
         if (superRepo == null) {
-            promise.fail("Superrepo cannot be null");
-            return;
+            throw new RuntimeException("Superrepo cannot be null");
         }
         String repositoryLink = component.getString(F_REPOSITORY);
         String domainId = domain.getString(F_ID);
@@ -252,8 +238,7 @@ public class GitAdapterImpl implements GitAdapter {
 
         if (repositoryLink == null) {
             report.mandatoryValueMissed(component, F_REPOSITORY);
-            promise.fail("Component " + component.getString(F_ID) + " doesn't contain repository link");
-            return;
+            throw new RuntimeException("Component " + component.getString(F_ID) + " doesn't contain repository link");
         }
 
         String cloneFolder = component.getString("directoryPath");
@@ -281,18 +266,19 @@ public class GitAdapterImpl implements GitAdapter {
             }
         } catch (GitAPIException | JGitInternalException e) {
             report.exceptionThrown(new JsonObject(), e);
-            promise.fail(e);
-            return;
+            throw new RuntimeException("Failed to add submodule " + repositoryLink + ": " + e.getMessage());
         }
 
         repository.close();
         LOG.info("Component repository of {} added to {}", componentId, cloneFolder);
-        promise.complete();
     }
 
     @Override
     public Future<Void> submoduleAdd(Git superRepo, JsonObject component, JsonObject domain) {
-        return getWorkerExecutor().executeBlocking(p -> submoduleAddHandler(superRepo, component, domain, p));
+        return getWorkerExecutor().executeBlocking(() -> {
+            submoduleAddHandler(superRepo, component, domain);
+            return null;
+        });
     }
 
     @Override
@@ -327,24 +313,23 @@ public class GitAdapterImpl implements GitAdapter {
         promise.complete(superRepository);
     }
 
-    @Override
-    public void openRepositoryHandler(Promise p) {
+    public Git openRepositoryHandler() {
         String superRepositoryDir = getFromConfig(SUPER_REPOSITORY_DIR_POINTER, config);
         LOG.info("Attempting to open repository {}", superRepositoryDir);
         if (StringUtils.isEmpty(superRepositoryDir)) {
-            p.fail("Repository directory path is empty");
-            return;
+            throw new RuntimeException("Repository directory path is empty");
         }
         File superRepoPath = new File(superRepositoryDir);
         File gitFolder = new File(superRepoPath.getPath() + File.separator + ".git");
         if (gitFolder.exists()) {
             try {
-                p.complete(Git.open(gitFolder));
+                Git git = Git.open(gitFolder);
+                return git;
             } catch (IOException e) {
-                p.fail(e);
+                throw new RuntimeException("Failed to open repository " + superRepositoryDir + ": " + e.getMessage());
             }
         } else {
-            p.fail("Repository " + superRepositoryDir + " does not exist");
+            throw new RuntimeException("Repository " + superRepositoryDir + " does not exist");
         }
     }
 
@@ -353,16 +338,13 @@ public class GitAdapterImpl implements GitAdapter {
         return getWorkerExecutor().executeBlocking(this::openRepositoryHandler);
     }
 
-    @Override
-    public void submodulesCheckoutHandler(Git repository, String release, List<JsonObject> components, Promise promise) {
+    public void submodulesCheckoutHandler(Git repository, String release, List<JsonObject> components) {
         LOG.info("Performing checkout of branches for release {} in all modules", release);
         if (repository == null) {
-            promise.fail("Repository cannot be null");
-            return;
+            throw new RuntimeException("Repository cannot be null");
         }
         if (StringUtils.isEmpty(release)) {
-            promise.fail("Release name cannot be null or empty");
-            return;
+            throw new RuntimeException("Release name cannot be null or empty");
         }
 
         try (SubmoduleWalk walk = SubmoduleWalk.forIndex(repository.getRepository())) {
@@ -397,10 +379,8 @@ public class GitAdapterImpl implements GitAdapter {
             }
         } catch (IOException e) {
             report.internalError("Unable to perform checkout of " + release + ": " + e.getMessage());
-            promise.fail(e);
-            return;
+            throw new RuntimeException("Unable to perform checkout of " + release + ": " + e.getMessage());
         }
-        promise.complete();
     }
 
     private Boolean isComponentMatchingModule(Repository module, JsonObject component) {
@@ -416,7 +396,10 @@ public class GitAdapterImpl implements GitAdapter {
 
     @Override
     public Future<Void> submodulesCheckout(Git superrepo, String release, List<JsonObject> components) {
-        return getWorkerExecutor().executeBlocking(p -> submodulesCheckoutHandler(superrepo, release, components, p));
+        return getWorkerExecutor().executeBlocking(() -> {
+            submodulesCheckoutHandler(superrepo, release, components);
+            return null;
+        });
     }
 
     public void checkout(Git repository, String ref) throws GitAPIException {
@@ -450,26 +433,24 @@ public class GitAdapterImpl implements GitAdapter {
 
     @Override
     public Future branchCheckout(Git repository, String branch) {
-        return getWorkerExecutor().executeBlocking(p -> {
+        return getWorkerExecutor().executeBlocking(() -> {
                     try {
                         checkout(repository, branch);
-                        p.complete();
+                        return null;
                     } catch (GitAPIException e) {
-                        p.fail(e);
+                        throw new RuntimeException("Failed to checkout branch " + branch + ": " + e.getMessage());
                     }
                 })
                 .onFailure(e -> report.internalError("Failed to checkout branch " + branch + ": "
                         + ExceptionUtils.getStackTrace(e)));
     }
 
-    @Override
-    public void prepareSuperRepoHandler(Promise<Git> promise) {
+    public Git prepareSuperRepoHandler() {
         String superRepositoryDir = getFromConfig(SUPER_REPOSITORY_DIR_POINTER, config);
         String superRepositoryUri = getFromConfig(SUPER_REPOSITORY_URL_POINTER, config);
 
         if (StringUtils.isEmpty(superRepositoryDir)) {
-            promise.fail("Repository directory path is empty");
-            return;
+            throw new RuntimeException("Repository directory path is empty");
         }
         LOG.info("Preparing repository {}", superRepositoryDir);
         File gitFolder = Path.of(superRepositoryDir,".git").toFile();
@@ -480,8 +461,7 @@ public class GitAdapterImpl implements GitAdapter {
                 superRepository = Git.open(gitFolder);
             } catch (IOException e) {
                 LOG.error("Unable to open super repository {}", gitFolder);
-                promise.fail(e);
-                return;
+                throw new RuntimeException("Unable to open super repository " + gitFolder + ": " + e.getMessage());
             }
         } else {
             try {
@@ -492,12 +472,11 @@ public class GitAdapterImpl implements GitAdapter {
                     superRepository = prepareLocalRepo(superRepositoryDir);
                 } catch (GitAPIException e2) {
                     LOG.error("Unable to init the new super repository {}", superRepositoryDir);
-                    promise.fail(e2);
-                    return;
+                    throw new RuntimeException("Unable to init the new super repository " + superRepositoryDir + ": " + e2.getMessage());
                 }
             }
         }
-        promise.complete(superRepository);
+        return superRepository;
     }
 
     private Git prepareLocalRepo(String superRepositoryUri) throws GitAPIException {
@@ -513,13 +492,13 @@ public class GitAdapterImpl implements GitAdapter {
 
     @Override
     public Future switchSuperRepoBranch(Git superRepository, String superRepositoryBranch) {
-        return getWorkerExecutor().executeBlocking(promise -> {
+        return getWorkerExecutor().executeBlocking(() -> {
                     try {
                         checkoutSuperRepoReleaseBranch(superRepository, superRepositoryBranch);
                     } catch (GitAPIException e) {
-                        promise.fail(e);
+                        throw new RuntimeException("Failed to checkout branch " + superRepositoryBranch + ": " + e.getMessage());
                     }
-                    promise.complete();
+                    return null;
                 })
                 .onFailure(e -> report.internalError("Could not checkout " + superRepositoryBranch
                         + " branch of superrepository: " + ExceptionUtils.getStackTrace(e)));

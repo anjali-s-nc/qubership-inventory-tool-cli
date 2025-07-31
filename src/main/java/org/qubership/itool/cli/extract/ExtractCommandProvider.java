@@ -14,14 +14,25 @@
  * limitations under the License.
  */
 
-package org.qubership.itool.cli.ci;
+package org.qubership.itool.cli.extract;
 
-import io.vertx.core.spi.launcher.DefaultCommandFactory;
+import org.qubership.itool.cli.ExtensionCommandProvider;
 
-public class CiExecCommandFactory extends DefaultCommandFactory<CiExecCommand> {
+import java.util.concurrent.Callable;
 
-    public CiExecCommandFactory() {
-        super(CiExecCommand.class, CiExecCommand::new);
+/**
+ * Provider for the ExtractCommand. This allows the command to be discovered
+ * and registered automatically through the SPI mechanism.
+ */
+public class ExtractCommandProvider implements ExtensionCommandProvider {
+
+    @Override
+    public Callable<Integer> createCommand() {
+        return new ExtractCommand();
     }
 
+    @Override
+    public String getCommandName() {
+        return "extract";
+    }
 }

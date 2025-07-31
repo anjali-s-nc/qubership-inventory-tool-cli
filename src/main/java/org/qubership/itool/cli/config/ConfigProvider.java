@@ -60,10 +60,9 @@ public class ConfigProvider {
 
     public void handleConfig(Handler<AsyncResult<JsonObject>> asyncResultHandler) {
         ConfigRetriever retriever = retrieveConfig(customProperties, vertx);
-        retriever.getConfig(ar -> {
-            fillPassword(ar.result())
-            .onComplete(asyncResultHandler);
-        });
+        retriever.getConfig()
+                .onComplete(ar -> fillPassword(ar.result()))
+                .onComplete(asyncResultHandler);
     }
 
     public Future<JsonObject> fillPassword(JsonObject config) {
@@ -87,10 +86,10 @@ public class ConfigProvider {
         }
 
         WorkerExecutor executor = vertx.createSharedWorkerExecutor("console-password-asker", 1, 15, TimeUnit.MINUTES);
-        return executor.executeBlocking(p -> {
+        return executor.executeBlocking(() -> {
             String passwordStr = readPasswordFromConsole();
             config.put(PASSWORD_PROPERTY, passwordStr);
-            p.complete(config);
+            return config;
         });
     }
 

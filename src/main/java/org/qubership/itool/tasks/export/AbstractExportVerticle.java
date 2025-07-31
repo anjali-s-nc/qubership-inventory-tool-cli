@@ -46,24 +46,21 @@ public abstract class AbstractExportVerticle extends FlowTask {
         String finalExportPath = exportPath;
 
 
-        LOG.info("Scheduling blocking execution of " + getTaskAddress() + " process in a separate thread");
+        LOG.info("Scheduling blocking execution of " + getTaskAddress()
+                + " process in a separate thread");
         WorkerExecutor executor = getWorkerExecutor();
 
-        Future blockingFuture = Future.future(promise -> executor.executeBlocking(o -> {
+        executor.executeBlocking(() -> {
             try {
                 createFolder(finalExportPath);
                 build(finalExportPath);
 
             } catch (IOException e) {
-                promise.fail(e);
+                throw new RuntimeException(
+                        "Failed to build export " + finalExportPath + ": " + e.getMessage());
             }
-
-            taskCompleted(taskPromise);
-        }, promise));
-
-        blockingFuture
-        .onSuccess(r -> taskCompleted(taskPromise))
-        .onFailure(r -> {
+            return null;
+        }).onSuccess(r -> taskCompleted(taskPromise)).onFailure(r -> {
             report.exceptionThrown(new JsonObject().put("id", "Unexpected"), (Exception) r);
             taskCompleted(taskPromise);
         });

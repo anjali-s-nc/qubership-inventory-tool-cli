@@ -16,12 +16,21 @@
 
 package org.qubership.itool.cli;
 
-import io.vertx.core.spi.launcher.DefaultCommandFactory;
+import java.util.concurrent.Callable;
 
-public class ExecCommandFactory extends DefaultCommandFactory<ExecCommand> {
+/**
+ * Provider for the QueryCommand. This allows the command to be discovered
+ * and registered automatically through the SPI mechanism.
+ */
+public class QueryCommandProvider implements ExtensionCommandProvider {
 
-  public ExecCommandFactory() {
-    super(ExecCommand.class, ExecCommand::new);
-  }
+    @Override
+    public Callable<Integer> createCommand() {
+        return new QueryCommand();
+    }
 
+    @Override
+    public String getCommandName() {
+        return "query";
+    }
 }

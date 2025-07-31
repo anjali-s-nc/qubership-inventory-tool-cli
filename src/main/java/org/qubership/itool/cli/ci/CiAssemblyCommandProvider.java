@@ -16,12 +16,23 @@
 
 package org.qubership.itool.cli.ci;
 
-import io.vertx.core.spi.launcher.DefaultCommandFactory;
+import org.qubership.itool.cli.ExtensionCommandProvider;
 
-public class CiAssemblyCommandFactory extends DefaultCommandFactory<CiAssemblyCommand> {
+import java.util.concurrent.Callable;
 
-    public CiAssemblyCommandFactory() {
-        super(CiAssemblyCommand.class, CiAssemblyCommand::new);
+/**
+ * Provider for the CiAssemblyCommand. This allows the command to be discovered
+ * and registered automatically through the SPI mechanism.
+ */
+public class CiAssemblyCommandProvider implements ExtensionCommandProvider {
+
+    @Override
+    public Callable<Integer> createCommand() {
+        return new CiAssemblyCommand();
     }
 
+    @Override
+    public String getCommandName() {
+        return "ci-assembly";
+    }
 }

@@ -82,7 +82,7 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
             .<String>values("/C/id", "/F/groupId", "/F/version").dedup()
             .group().by(F_ID).next();
 
-        vertx.executeBlocking(promise -> {
+        vertx.executeBlocking(() -> {
             for (JsonObject component : components) {
                 String componentId = component.getString(F_ID);
                 getLogger().debug("{}: Set outgoing Edges", componentId);
@@ -122,8 +122,8 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
                     this.report.exceptionThrown(component, ex);
                 }
             }
-            promise.complete();
-        }, res -> {
+            return null;
+        }).onComplete(res -> {
             taskCompleted(taskPromise);
         });
     }

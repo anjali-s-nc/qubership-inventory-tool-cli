@@ -75,7 +75,9 @@ public abstract class FlowMainVerticle extends AbstractVerticle {
     public Future<?> deployAndRunFlow(FlowContext flowContext) {
         flowContext.initialize(this);
 
-        DeploymentOptions options = new DeploymentOptions().setWorker(true).setConfig(flowContext.getConfig());
+        DeploymentOptions options = new DeploymentOptions()
+            .setThreadingModel(ThreadingModel.WORKER)
+            .setConfig(flowContext.getConfig());
         deployThisVerticle(flowContext.getVertx(), options)
             .onSuccess(depId -> deploymentIdHolder.set(depId))
             .onFailure(TERMINATOR);

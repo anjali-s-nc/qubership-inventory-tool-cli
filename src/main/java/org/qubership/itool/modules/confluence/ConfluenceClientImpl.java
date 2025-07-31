@@ -16,7 +16,6 @@
 
 package org.qubership.itool.modules.confluence;
 
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -77,7 +76,7 @@ public class ConfluenceClientImpl implements ConfluenceClient {
                         )
                 );
 
-        Future<JsonObject> futureResponse = CompositeFuture.join(futureConfluencePageInfo, futureStorageFileContents)
+        Future<JsonObject> futureResponse = Future.join(futureConfluencePageInfo, futureStorageFileContents)
                 .compose(compositeFuture -> {
                             JsonObject confluencePageInfo = futureConfluencePageInfo.result();
                             String storageFileContents = futureStorageFileContents.result();

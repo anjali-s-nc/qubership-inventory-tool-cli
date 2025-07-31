@@ -18,7 +18,6 @@ package org.qubership.itool.tasks.init;
 
 import org.qubership.itool.tasks.FlowTask;
 
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
@@ -48,12 +47,11 @@ public class InventoryToolInitVerticle extends FlowTask {
         ConfigUtils.getFilesFromJsonConfig(vertx, config(), JsonPointer.from("/files"), "config", "cleanupConfig.json")
                 // Clean up of working directory
                 .compose(files -> {
-                    @SuppressWarnings("rawtypes")
-                    List<Future> futures = files.stream()
-                            .map(f -> vertx.fileSystem().deleteRecursive(f.toString(), true)
+                    List<Future<?>> futures = files.stream()
+                            .map(f -> vertx.fileSystem().deleteRecursive(f.toString())
                                     .recover(e -> reportDeleteFailure(e, f)))
                             .collect(Collectors.toList());
-                    return CompositeFuture.join(futures);
+                    return Future.join((List<Future<?>>) futures);
                 })
                 // Save effective config
                 .compose(r -> saveConfigFuture())

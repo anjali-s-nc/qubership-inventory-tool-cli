@@ -16,24 +16,33 @@
 
 package org.qubership.itool.cli;
 
-import io.vertx.core.cli.CLIException;
-import io.vertx.core.cli.annotations.Description;
-import io.vertx.core.cli.annotations.Name;
-import io.vertx.core.cli.annotations.Option;
-import io.vertx.core.cli.annotations.Summary;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 import static org.qubership.itool.utils.ConfigProperties.*;
 
-
-@Name("query")
-@Summary("Execute Gremlin query")
+/**
+ * Picocli-based implementation of the query command.
+ * Execute Gremlin query against the graph data.
+ *
+ * <p>Usage examples:</p>
+ * <pre>
+ * java -jar &lt;JAR&gt; query -f /path/to/graph.json
+ * java -jar &lt;JAR&gt; query -s result
+ * </pre>
+ */
+@Command(
+    name = "query",
+    description = "Execute Gremlin query",
+    mixinStandardHelpOptions = true
+)
 public class QueryCommand extends AbstractCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryCommand.class);
 
+    @Override
     protected Logger getLogger() {
         return LOGGER;
     }
@@ -43,39 +52,38 @@ public class QueryCommand extends AbstractCommand {
         properties.put(OFFLINE_MODE, "true");
     }
 
-    @Override
-    public void run() throws CLIException {
-        runFlow(new QueryVerticle(), null);
-    }
-
-    @Option(longName = "file", argName = "file", shortName = "f", required = false)
-    @Description("JSON file that CLI should load instead of Graph dump")
+    @Option(names = {"-f", "--file"}, description = "JSON file that CLI should load instead of Graph dump")
     public void setFile(String file) {
         properties.put(QUERY_FILE_POINTER, file);
     }
 
-    @Option(longName = "step", argName = "step", shortName = "s", required = false)
-    @Description("Execution step for query (default is 'result' step)")
+    @Option(names = {"-s", "--step"}, description = "Execution step for query (default is 'result' step)")
     public void setStep(String step) {
         properties.put(QUERY_STEP_POINTER, step);
     }
 
-    @Option(longName = "login", argName = "login", shortName = "l", required = false)
-    @Description("Login to access services requiring authentication")
+    @Option(names = {"-l", "--login"}, description = "Login to access services requiring authentication")
     public void setLogin(String login) {
         properties.put("login", login);
     }
 
-    @Option(longName = "passwordSource", argName = "passwordSource", shortName = "pws", required = false)
-    @Description("Password source, default: \"file:password.txt\"")
+    @Option(names = {"--passwordSource"}, description = "Password source, default: \"file:password.txt\"")
     public void setPasswordSource(String passwordSource) {
         properties.put(PASSWORD_SOURCE_PROPERTY, passwordSource);
     }
 
-    @Option(longName = "progressPath", argName = "progressPath", shortName = "pp", required = false)
-    @Description("Path to progress folder (default is 'progress')")
+    @Option(names = {"--progressPath"}, description = "Path to progress folder (default is 'progress')")
     public void setProgressPath(String progressPath) {
         this.properties.put(QUERY_PROGRESS_PATH_POINTER, progressPath);
     }
 
+    @Override
+    public Integer call() throws Exception {
+        LOGGER.info("Query command execution");
+
+        // Execute the flow using the existing AbstractCommand infrastructure
+        runFlow(new QueryVerticle(), null);
+
+        return 0;
+    }
 }

@@ -18,7 +18,6 @@ package org.qubership.itool.tasks.confluence;
 
 import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
@@ -141,7 +140,7 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
         String spaceKey = ConfigUtils.getConfigValue(CONFLUENCE_SPACE_POINTER, config());
         Future trashFuture = confluenceClient.getConfluencePageInfo(spaceKey, TRASH_PAGE_NAME);
         Future existingTreeFuture = buildExistingConfluenceTree(spaceKey, finalConfluenceStructure);
-        CompositeFuture.join(trashFuture, existingTreeFuture)
+        Future.join(trashFuture, existingTreeFuture)
                 .onComplete(res -> {
                     JsonObject trashPage = (JsonObject) trashFuture.result();
                     JsonObject realConfluenceTree = (JsonObject) existingTreeFuture.result();
@@ -154,7 +153,7 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                     JsonArray mergedActions = mergeActions(actionsRequired);
 
                     logActions(mergedActions);
-                    List<Future> actionFutures = new ArrayList<>();
+                    List<Future<?>> actionFutures = new ArrayList<>();
                     getLogger().info("Property {} is set to {}", UPLOAD_CONFLUENCE_PAGES_POINTER, uploadConfluencePages);
                     // Perform all the "create" actions first
                     List<JsonObject> createActions = mergedActions.stream().map(action -> (JsonObject) action)
@@ -187,13 +186,13 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                 orphanActions.add(nextAction);
             }
         }
-        List<Future> actionFutures = new ArrayList<>();
+        List<Future<?>> actionFutures = new ArrayList<>();
         parentedActions.stream()
                 .filter(action -> considerToPerformAction(uploadConfluencePages, action))
                 .forEach(action ->
                         actionFutures.add(performAction(spaceKey, trashPage, action))
                 );
-        return CompositeFuture.join(actionFutures).compose(res -> {
+        return Future.join(actionFutures).compose(res -> {
             orphanActions.stream().forEach(orphanAction -> {
                 actionFutures.stream()
                         .map(result -> (JsonObject) result.result())
@@ -645,12 +644,12 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                             });
                 })
                 .compose(page -> {
-                    List<Future> childFutures = new ArrayList<>();
+                    List<Future<?>> childFutures = new ArrayList<>();
                     JsonArray children = page.getJsonArray(STRUCT_CHILDREN);
                     children.stream().forEach(childPage ->
                             childFutures.add(addChildren((JsonObject) childPage, spaceKey))
                     );
-                    return CompositeFuture.join(childFutures).compose(res -> Future.succeededFuture(page));
+                    return Future.join(childFutures).compose(res -> Future.succeededFuture(page));
                 });
         return confluenceTreeFuture;
     }
@@ -666,12 +665,12 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
         getLogger().debug("Adding child pages for page {}", page.getString(PAGE_TITLE));
         return confluenceClient.getChildPages(spaceKey, page.getString(PAGE_ID))
                 .compose(children -> {
-                    List<Future> childFutures = new ArrayList<>();
+                    List<Future<?>> childFutures = new ArrayList<>();
                     page.put(STRUCT_CHILDREN, children);
                     children.stream().forEach(childPage ->
                             childFutures.add(addChildren((JsonObject) childPage, spaceKey))
                     );
-                    return CompositeFuture.join(childFutures).compose(res -> Future.succeededFuture(page));
+                    return Future.join(childFutures).compose(res -> Future.succeededFuture(page));
                 });
     }
 

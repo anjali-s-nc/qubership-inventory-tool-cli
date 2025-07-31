@@ -23,17 +23,17 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.core.cli.annotations.Description;
-import io.vertx.core.cli.annotations.Option;
-import io.vertx.core.impl.launcher.commands.ClasspathHandler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.spi.VerticleFactory;
-
+import picocli.CommandLine.Option;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.qubership.itool.modules.graph.GraphService;
+import org.qubership.itool.utils.FutureUtils;
 import org.slf4j.Logger;
 
 import org.qubership.itool.cli.config.ConfigProvider;
@@ -51,7 +51,7 @@ import static org.qubership.itool.utils.ConfigProperties.PROFILE_POINTER;
  * Provides common functionality for command execution, configuration handling,
  * and flow management.
  */
-public abstract class AbstractCommand extends ClasspathHandler {
+public abstract class AbstractCommand implements Callable<Integer> {
 
     /**
      * Configuration properties map containing default values for the command.
@@ -80,7 +80,7 @@ public abstract class AbstractCommand extends ClasspathHandler {
             System.exit(1);
         });
 
-        runFlow(vertx, main, graphService)
+        Future<?> flowFuture = runFlow(vertx, main, graphService)
             .onComplete(ar -> {
                 if (ar.failed()) {
                     getLogger().error("Flow execution failed", ar.cause());
@@ -88,6 +88,7 @@ public abstract class AbstractCommand extends ClasspathHandler {
                 }
                 System.exit(0);
             });
+        FutureUtils.blockForResultOrException(flowFuture, 10, TimeUnit.HOURS);
     }
 
     /**
@@ -197,8 +198,7 @@ public abstract class AbstractCommand extends ClasspathHandler {
      *
      * @param params array of property parameters in format "name=value"
      */
-    @Option(longName = "set", argName = "set", required = false)
-    @Description("Universal setter: name=value (multiple)")
+    @Option(names = {"--set"}, description = "Universal setter: name=value (multiple)", required = false)
     public void setProperty(String[] params) {
         for (String param: params) {
             String[] pair = param.split("=", 2);
@@ -211,8 +211,7 @@ public abstract class AbstractCommand extends ClasspathHandler {
      *
      * @param configPath the path to the configuration folder
      */
-    @Option(longName = "configPath", argName = "configPath", shortName = "c", required = false)
-    @Description("Path to folder containing the configuration files")
+    @Option(names = {"-c", "--configPath"}, description = "Path to folder containing the configuration files", required = false)
     public void setConfigPath(String configPath) {
         properties.put(CONFIG_PATH_POINTER, configPath);
     }
@@ -222,9 +221,7 @@ public abstract class AbstractCommand extends ClasspathHandler {
      *
      * @param profile the profile name or file
      */
-    @Option(longName = "profile", argName = "profile", shortName = "p", required = false)
-    @Description("Custom profile to be used. By default uses properties format, in case of json, use file name with " +
-            "extension (Examples: \"custom\", \"custom.properties\", \"custom_example.json\")")
+    @Option(names = {"-p", "--profile"}, description = "Custom profile to be used. By default uses properties format, in case of json, use file name with extension (Examples: \"custom\", \"custom.properties\", \"custom_example.json\")", required = false)
     public void setProfile(String profile) {
         properties.put(PROFILE_POINTER, profile);
     }

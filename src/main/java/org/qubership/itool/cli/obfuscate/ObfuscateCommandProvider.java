@@ -16,12 +16,23 @@
 
 package org.qubership.itool.cli.obfuscate;
 
-import io.vertx.core.spi.launcher.DefaultCommandFactory;
+import org.qubership.itool.cli.ExtensionCommandProvider;
 
-public class ObfuscateCommandFactory extends DefaultCommandFactory<ObfuscateCommand> {
+import java.util.concurrent.Callable;
 
-    public ObfuscateCommandFactory() {
-        super(ObfuscateCommand.class, ObfuscateCommand::new);
+/**
+ * Provider for the ObfuscateCommand. This allows the command to be discovered
+ * and registered automatically through the SPI mechanism.
+ */
+public class ObfuscateCommandProvider implements ExtensionCommandProvider {
+
+    @Override
+    public Callable<Integer> createCommand() {
+        return new ObfuscateCommand();
     }
 
+    @Override
+    public String getCommandName() {
+        return "obfuscate";
+    }
 }
