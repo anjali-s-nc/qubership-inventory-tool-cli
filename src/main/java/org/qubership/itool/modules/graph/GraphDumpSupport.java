@@ -70,27 +70,7 @@ public class GraphDumpSupport {
     }
 
     /**
-     * Dump graph to SSM-specific format
-     * @param graph A graph to dump
-     * @param nsMatchRe SSM-specific parameter
-     * @param deepCopy Whether deep copy is needed
-     * @return SSM-specific dump model
-     */
-    public static JsonArray dumpToSsmJson(Graph graph, String nsMatchRe, boolean deepCopy) {
-
-        JsonObject graphData = graph.dumpGraphData(deepCopy);
-        graphData.remove("modelVersion");
-
-        JsonObject graphDump = new JsonObject();
-        graphDump.put("nsMatchRe", nsMatchRe);
-        graphDump.put("graph", graphData);
-
-        JsonArray wrapper = new JsonArray();
-        wrapper.add(graphDump);
-        return wrapper;
-    }
-
-    /** Restore dump into existing Graph instance.
+     * Restore dump into existing Graph instance.
      * <b>Objects are copied shallowly!</b>
      *
      * @param target Graph instance to restore the dump into
