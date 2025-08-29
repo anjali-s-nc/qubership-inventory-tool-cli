@@ -20,8 +20,8 @@
         <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
         <junit-jupiter.version>5.12.2</junit-jupiter.version>
         <mockito.version>5.11.0</mockito.version>
-        <vertx.version>4.5.14</vertx.version>
-        <inventory-tool-cli.version>4.0.2-SNAPSHOT</inventory-tool-cli.version>
+        <vertx.version>5.0.3</vertx.version>
+        <inventory-tool-cli.version>5.0.1-SNAPSHOT</inventory-tool-cli.version>
         <main.verticle>org.qubership.itool.cli.ci.extension.ExtensionCiAssemblyVerticle</main.verticle>
         <main.command>ci-assembly</main.command>
         <maven-resource-plugin.version>3.3.1</maven-resource-plugin.version>
@@ -52,6 +52,13 @@
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>7.0.0</version>
+        </dependency>
+
+        <!-- Picocli dependency -->
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.7.6</version>
         </dependency>
 
         <!-- Apache Commons dependencies -->
@@ -159,13 +166,8 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>io.vertx.core.Launcher</Main-Class>
-                                        <Main-Verticle>${main.verticle}</Main-Verticle>
-                                        <Main-Command>${main.command}</Main-Command>
+                                        <Main-Class>org.qubership.itool.cli.InventoryToolMain</Main-Class>
                                     </manifestEntries>
-                                </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/services/io.vertx.core.spi.VerticleFactory</resource>
                                 </transformer>
                             </transformers>
                             <filters>

@@ -79,7 +79,7 @@ public class ExecCommand extends AbstractCommand {
         properties.put("includeDomains", includeDomains);
     }
 
-    @Option(names = {"-df", "--disabledFeatures"}, description = "List of the disabled features. Delimiter is ','. Possible: confluenceGenerate,confluenceUpload,excelExport,mavenDependency,repositoryUpdate")
+    @Option(names = {"-df", "--disabledFeatures"}, description = "List of the disabled features. Delimiter is ','. Examples: confluenceGenerate,confluenceUpload,excelExport,mavenDependency,repositoryUpdate")
     public void setDisabledFeatures(String disabledFeatures) {
         properties.put("disabledFeatures", disabledFeatures);
     }

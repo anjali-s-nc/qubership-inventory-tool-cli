@@ -8,7 +8,7 @@ import io.vertx.core.json.JsonObject;
  * Extended implementation of GraphReport that adds custom functionality.
  */
 public class ExtensionGraphReport extends GraphReportImpl {
-    
+
     public ExtensionGraphReport() {
         super();
     }
@@ -20,4 +20,4 @@ public class ExtensionGraphReport extends GraphReportImpl {
         LOG.info("[Extended] Adding record: {}", record);
     }
     // Add custom methods here
-} 
+}

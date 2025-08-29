@@ -36,22 +36,19 @@ import java.util.concurrent.Callable;
  * Example implementation:
  * </p>
  *
- * <pre>
- * {
- *     &#64;code
- *     public class MyExtensionCommandProvider implements ExtensionCommandProvider {
- *         &#64;Override
- *         public Callable<Integer> createCommand() {
- *             return new MyExtensionCommand();
- *         }
+ * <pre>{@code
+ * public class MyExtensionCommandProvider implements ExtensionCommandProvider {
+ *     @Override
+ *     public Callable<Integer> createCommand() {
+ *         return new MyExtensionCommand();
+ *     }
  *
- *         &#64;Override
- *         public String getCommandName() {
- *             return "my-extension";
- *         }
+ *     @Override
+ *     public String getCommandName() {
+ *         return "my-extension";
  *     }
  * }
- * </pre>
+ * }</pre>
  *
  * <p>
  * Registration file: {@code META-INF/services/org.qubership.itool.cli.ExtensionCommandProvider}
