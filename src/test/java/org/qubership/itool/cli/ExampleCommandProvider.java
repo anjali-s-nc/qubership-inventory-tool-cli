@@ -16,6 +16,8 @@
 
 package org.qubership.itool.cli;
 
+import org.qubership.itool.cli.spi.CommandProvider;
+
 import java.util.concurrent.Callable;
 
 /**
@@ -24,18 +26,18 @@ import java.util.concurrent.Callable;
  *
  * <p>
  * In a real extension, this would be registered in:
- * {@code META-INF/services/org.qubership.itool.cli.ExtensionCommandProvider}
+ * {@code META-INF/services/org.qubership.itool.cli.spi.CommandProvider}
  * </p>
  *
  * <p>
  * This is a test/demo implementation. Real extensions would provide actual functionality.
  * </p>
  */
-public class ExampleExtensionCommandProvider implements ExtensionCommandProvider {
+public class ExampleCommandProvider implements CommandProvider {
 
     @Override
     public Callable<Integer> createCommand() {
-        return new ExampleExtensionCommand();
+        return new ExampleCommand();
     }
 
     @Override

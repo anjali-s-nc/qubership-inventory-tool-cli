@@ -16,6 +16,7 @@
 
 package org.qubership.itool.cli;
 
+import org.qubership.itool.cli.spi.CommandProvider;
 import org.junit.jupiter.api.Test;
 import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
@@ -25,12 +26,12 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test for the ExtensionCommandProvider SPI mechanism.
  */
-public class ExtensionCommandProviderTest {
+public class CommandProviderTest {
 
     @Test
     public void testExtensionCommandProviderInterface() {
         // Test that the interface can be implemented
-        ExtensionCommandProvider provider = new TestExtensionCommandProvider();
+        CommandProvider provider = new TestExtensionCommandProvider();
 
         assertNotNull(provider);
         assertEquals("test-command", provider.getCommandName());
@@ -42,14 +43,14 @@ public class ExtensionCommandProviderTest {
     @Test
     public void testServiceLoaderDiscovery() {
         // Test that ServiceLoader can discover command providers
-        ServiceLoader<ExtensionCommandProvider> providers =
-                ServiceLoader.load(ExtensionCommandProvider.class);
+        ServiceLoader<CommandProvider> providers =
+                ServiceLoader.load(CommandProvider.class);
 
         assertNotNull(providers);
 
         // Count discovered providers (should be 6 core providers in test environment)
         int providerCount = 0;
-        for (ExtensionCommandProvider provider : providers) {
+        for (CommandProvider provider : providers) {
             providerCount++;
             assertNotNull(provider);
             assertNotNull(provider.getCommandName());
@@ -64,14 +65,14 @@ public class ExtensionCommandProviderTest {
     @Test
     public void testCoreCommandsArePresent() {
         // Test that all core commands are discovered
-        ServiceLoader<ExtensionCommandProvider> providers =
-                ServiceLoader.load(ExtensionCommandProvider.class);
+        ServiceLoader<CommandProvider> providers =
+                ServiceLoader.load(CommandProvider.class);
 
         assertNotNull(providers);
 
         // Collect all command names
         java.util.Set<String> commandNames = new java.util.HashSet<>();
-        for (ExtensionCommandProvider provider : providers) {
+        for (CommandProvider provider : providers) {
             commandNames.add(provider.getCommandName());
         }
 
@@ -90,7 +91,7 @@ public class ExtensionCommandProviderTest {
     /**
      * Test implementation of ExtensionCommandProvider for testing purposes.
      */
-    private static class TestExtensionCommandProvider implements ExtensionCommandProvider {
+    private static class TestExtensionCommandProvider implements CommandProvider {
 
         @Override
         public Callable<Integer> createCommand() {

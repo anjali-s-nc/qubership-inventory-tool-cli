@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package org.qubership.itool.cli;
+package org.qubership.itool.cli.spi;
 
 import java.util.concurrent.Callable;
 
 /**
- * Interface for extension command providers. Extensions implement this interface to provide custom
- * commands that will be automatically discovered and registered at runtime.
+ * Interface for command providers. Implement this interface to provide custom
+ * commands that will be registered at runtime.
  *
  * <p>
- * To register an extension command:
+ * To register a command:
  * </p>
  * <ol>
  * <li>Implement this interface</li>
- * <li>Create a file in your extension's resources:
- * {@code META-INF/services/org.qubership.itool.cli.ExtensionCommandProvider}</li>
+ * <li>Create a file in your resources:
+ * {@code META-INF/services/org.qubership.itool.cli.spi.CommandProvider}</li>
  * <li>Add the fully qualified class name of your implementation to that file</li>
  * </ol>
  *
@@ -37,7 +37,7 @@ import java.util.concurrent.Callable;
  * </p>
  *
  * <pre>{@code
- * public class MyExtensionCommandProvider implements ExtensionCommandProvider {
+ * public class MyExtensionCommandProvider implements CommandProvider {
  *     @Override
  *     public Callable<Integer> createCommand() {
  *         return new MyExtensionCommand();
@@ -51,14 +51,14 @@ import java.util.concurrent.Callable;
  * }</pre>
  *
  * <p>
- * Registration file: {@code META-INF/services/org.qubership.itool.cli.ExtensionCommandProvider}
+ * Registration file: {@code META-INF/services/org.qubership.itool.cli.spi.CommandProvider}
  * </p>
  *
  * <pre>{@code
  * org.qubership.itool.extension.MyExtensionCommandProvider
  * }</pre>
  */
-public interface ExtensionCommandProvider {
+public interface CommandProvider {
 
     /**
      * Creates a new command instance. The returned command should implement

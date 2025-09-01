@@ -16,15 +16,14 @@
 
 package org.qubership.itool.cli.extract;
 
-import org.qubership.itool.cli.ExtensionCommandProvider;
+import org.qubership.itool.cli.spi.CommandProvider;
 
 import java.util.concurrent.Callable;
 
 /**
- * Provider for the ExtractCommand. This allows the command to be discovered
- * and registered automatically through the SPI mechanism.
+ * Provider for the ExtractCommand.
  */
-public class ExtractCommandProvider implements ExtensionCommandProvider {
+public class ExtractCommandProvider implements CommandProvider {
 
     @Override
     public Callable<Integer> createCommand() {

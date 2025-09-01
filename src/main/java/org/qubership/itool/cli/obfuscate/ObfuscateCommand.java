@@ -29,15 +29,7 @@ import static org.qubership.itool.cli.ci.CiConstants.*;
 import static org.qubership.itool.utils.ConfigProperties.*;
 
 /**
- * Picocli-based implementation of the obfuscate command.
  * A command for obfuscation of CI run or assembly.
- *
- * <p>Run example:
- *<pre>
- * java -jar &lt;JAR&gt; obfuscate \
- *  --inputFile=/path/to/assembly.result.json \
- *  --outputFile=/path/to/obfuscate.result.json
- *</pre>
  */
 @Command(
     name = "obfuscate",

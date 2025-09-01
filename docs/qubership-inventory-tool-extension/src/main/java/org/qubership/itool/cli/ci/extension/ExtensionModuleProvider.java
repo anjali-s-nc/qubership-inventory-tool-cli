@@ -17,6 +17,6 @@ public class ExtensionModuleProvider implements ModuleProvider {
 
     @Override
     public String getName() {
-        return "CiExtensionModule";
+        return "ExtensionModule";
     }
 }

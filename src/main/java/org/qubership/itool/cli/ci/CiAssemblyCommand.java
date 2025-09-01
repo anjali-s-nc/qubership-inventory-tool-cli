@@ -29,17 +29,8 @@ import org.qubership.itool.cli.AbstractCommand;
 import org.qubership.itool.utils.ConfigUtils;
 
 /**
- * Picocli-based implementation of the CI assembly command.
- * A command for CI assembly.
+ * A command for executing CI assembly.
  * Works in "ci" profile, loads domains from it before merging graphs.
- *
- * <p>Run example:</p>
- * <pre>
- * java -jar inventory-tool.jar ci-assembly \
- *  --appName=ApplicationName \
- *  --inputDirectory=/path/to/local/results/ \
- *  --outputFile=/path/to/assembly.result.json
- * </pre>
  */
 @Command(
     name = "ci-assembly",
@@ -66,7 +57,7 @@ public class CiAssemblyCommand extends AbstractCommand {
     }
 
     // CI Assembly specific options
-    @Option(names = {"--inputDirectory"}, description = "Input directory. All files within it will be loaded and merged.")
+    @Option(names = {"--inputDirectory", "--inputDir"}, description = "Input directory. All files within it will be loaded and merged.")
     public void setInputDirectory(String inputDirectory) {
         properties.put(P_INPUT_DIRECTORY, inputDirectory);
     }
@@ -81,7 +72,7 @@ public class CiAssemblyCommand extends AbstractCommand {
         properties.put(P_OUTPUT_FILE, outputFile);
     }
 
-    @Option(names = {"--appName"}, description = "Application name, e.g.: \"Inventory-Tool\"", required = true)
+    @Option(names = {"--appName", "--appname"}, description = "Application name, e.g.: \"Inventory-Tool\"", required = true)
     public void setAppName(String appName) {
         properties.put(P_APP_NAME, appName);
     }

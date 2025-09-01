@@ -24,14 +24,7 @@ import picocli.CommandLine.Option;
 import static org.qubership.itool.utils.ConfigProperties.*;
 
 /**
- * Picocli-based implementation of the query command.
  * Execute Gremlin query against the graph data.
- *
- * <p>Usage examples:</p>
- * <pre>
- * java -jar &lt;JAR&gt; query -f /path/to/graph.json
- * java -jar &lt;JAR&gt; query -s result
- * </pre>
  */
 @Command(
     name = "query",

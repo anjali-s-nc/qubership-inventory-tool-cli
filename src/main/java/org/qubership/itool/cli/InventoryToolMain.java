@@ -14,6 +14,7 @@
 
 package org.qubership.itool.cli;
 
+import org.qubership.itool.cli.spi.CommandProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -131,11 +132,11 @@ public class InventoryToolMain implements Callable<Integer> {
         LOGGER.debug("Loading commands via SPI...");
 
         try {
-            ServiceLoader<ExtensionCommandProvider> commandProviders =
-                    ServiceLoader.load(ExtensionCommandProvider.class);
+            ServiceLoader<CommandProvider> commandProviders =
+                    ServiceLoader.load(CommandProvider.class);
 
             int commandCount = 0;
-            for (ExtensionCommandProvider provider : commandProviders) {
+            for (CommandProvider provider : commandProviders) {
                 try {
                     String commandName = provider.getCommandName();
                     Object command = provider.createCommand();

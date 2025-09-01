@@ -29,15 +29,7 @@ import static org.qubership.itool.cli.ci.CiConstants.*;
 import static org.qubership.itool.utils.ConfigProperties.*;
 
 /**
- * Picocli-based implementation of the extract command.
- * Command for extraction of specific data from graph. Extracts frameworks and languages per component from application graph.
- *
- * <p>Run example:
- *<pre>
- * java -jar &lt;JAR&gt; extract \
- *  -inputFile=/path/to/graph.json \
- *  -outputFile=/path/to/extraction.result.json
- *</pre>
+ * Command for extraction of specific data from graph.
  */
 @Command(
     name = "extract",

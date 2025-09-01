@@ -29,29 +29,23 @@ import org.qubership.itool.modules.graph.GraphService;
 import org.qubership.itool.utils.FutureUtils;
 import org.slf4j.Logger;
 
-// ConfigProvider import removed - now handled centrally in InventoryToolMain
 import org.qubership.itool.context.FlowContext;
 import org.qubership.itool.di.ApplicationContext;
-// QubershipModule and JavaAppContextVerticleFactory imports removed - now handled centrally in InventoryToolMain
 
 import static org.qubership.itool.utils.ConfigProperties.CONFIG_PATH_POINTER;
 import static org.qubership.itool.utils.ConfigProperties.PROFILE_POINTER;
 
-
 /**
- * Abstract base class for all CLI commands in the inventory tool.
- * Provides common functionality for command execution, configuration handling,
- * and flow management.
+ * Abstract base class for all CLI commands in the inventory tool. Provides common functionality for
+ * command execution, configuration handling, and flow management.
  */
 public abstract class AbstractCommand implements Callable<Integer> {
 
     /**
      * Configuration properties map containing default values for the command.
      */
-    protected Map<String, String> properties = new HashMap<>(Map.of(
-            PROFILE_POINTER, "dev",
-            CONFIG_PATH_POINTER, "inventory-tool"
-    ));
+    protected Map<String, String> properties =
+            new HashMap<>(Map.of(PROFILE_POINTER, "dev", CONFIG_PATH_POINTER, "inventory-tool"));
 
     /**
      * Returns the logger instance for this command.
@@ -60,7 +54,9 @@ public abstract class AbstractCommand implements Callable<Integer> {
      */
     protected abstract Logger getLogger();
 
-    /** Create VertX, start a flow using {@link #properties} and config, let the flow complete, terminate JVM
+    /**
+     * Create VertX, start a flow using {@link #properties} and config, let the flow complete,
+     * terminate JVM
      *
      * @param main Main verticle
      * @param graphService Graph Service to work with. May be omitted (set to null)
@@ -72,20 +68,19 @@ public abstract class AbstractCommand implements Callable<Integer> {
             System.exit(1);
         });
 
-        Future<?> flowFuture = runFlow(vertx, main, graphService)
-            .onComplete(ar -> {
-                if (ar.failed()) {
-                    getLogger().error("Flow execution failed", ar.cause());
-                    System.exit(1);
-                }
-                System.exit(0);
-            });
+        Future<?> flowFuture = runFlow(vertx, main, graphService).onComplete(ar -> {
+            if (ar.failed()) {
+                getLogger().error("Flow execution failed", ar.cause());
+                System.exit(1);
+            }
+            System.exit(0);
+        });
         FutureUtils.blockForResultOrException(flowFuture, 10, TimeUnit.HOURS);
     }
 
     /**
-     * Runs the flow with the given Vertx instance, main verticle, and graph service.
-     * Configuration is loaded by InventoryToolMain's execution strategy before this method is called.
+     * Runs the flow with the given Vertx instance, main verticle, and graph service. Configuration
+     * is loaded by InventoryToolMain's execution strategy before this method is called.
      *
      * @param vertx the Vertx instance
      * @param main the main verticle
@@ -99,17 +94,17 @@ public abstract class AbstractCommand implements Callable<Integer> {
                 // Get the shared context that was prepared by InventoryToolMain
                 ApplicationContext context = getSharedApplicationContext();
                 if (context == null) {
-                    throw new IllegalStateException("Shared application context is not available. This indicates a problem with the execution strategy.");
+                    throw new IllegalStateException(
+                            "Shared application context is not available. This indicates a problem with the execution strategy.");
                 }
 
                 FlowContext flowContext = context.getInstance(FlowContext.class);
 
                 // Execute the flow
-                main.deployAndRunFlow(flowContext)
-                    .onComplete(flowResult -> {
-                        promise.handle((AsyncResult<Object>) flowResult);
-                        flowFinished(main, flowResult);
-                    });
+                main.deployAndRunFlow(flowContext).onComplete(flowResult -> {
+                    promise.handle((AsyncResult<Object>) flowResult);
+                    flowFinished(main, flowResult);
+                });
             } catch (Throwable ex) {
                 promise.fail(ex);
             }
@@ -117,15 +112,16 @@ public abstract class AbstractCommand implements Callable<Integer> {
     }
 
     /**
-     * Get the shared application context through a service locator pattern.
-     * This completely avoids any dependency on InventoryToolMain.
+     * Get the shared application context through a service locator pattern. This completely avoids
+     * any dependency on InventoryToolMain.
      *
      * @return the shared application context
      */
     private ApplicationContext getSharedApplicationContext() {
         ApplicationContext context = ApplicationContextHolder.getInstance();
         if (context == null) {
-            throw new IllegalStateException("No application context available. Ensure InventoryToolMain properly initialized the shared context.");
+            throw new IllegalStateException(
+                    "No application context available. Ensure InventoryToolMain properly initialized the shared context.");
         }
         return context;
     }
@@ -137,7 +133,7 @@ public abstract class AbstractCommand implements Callable<Integer> {
      * @param flowResult the result of the flow execution
      */
     protected void flowFinished(FlowMainVerticle main, AsyncResult<?> flowResult) {
-        main.undeploy();    // Fire-and-forget
+        main.undeploy(); // Fire-and-forget
         if (flowResult.succeeded()) {
             getLogger().info("Flow succeeded. Undeploying and terminating.");
         } else {
@@ -146,7 +142,7 @@ public abstract class AbstractCommand implements Callable<Integer> {
     }
 
 
-    //------------------------------------------------------
+    // ------------------------------------------------------
     // Common command-line parameters
 
     /**
@@ -154,9 +150,10 @@ public abstract class AbstractCommand implements Callable<Integer> {
      *
      * @param params array of property parameters in format "name=value"
      */
-    @Option(names = {"--set"}, description = "Universal setter: name=value (multiple)", required = false)
+    @Option(names = {"--set"}, description = "Universal setter: name=value (multiple)",
+            required = false)
     public void setProperty(String[] params) {
-        for (String param: params) {
+        for (String param : params) {
             String[] pair = param.split("=", 2);
             properties.put(pair[0], pair.length > 1 ? pair[1] : "");
         }
@@ -167,7 +164,8 @@ public abstract class AbstractCommand implements Callable<Integer> {
      *
      * @param configPath the path to the configuration folder
      */
-    @Option(names = {"-c", "--configPath"}, description = "Path to folder containing the configuration files", required = false)
+    @Option(names = {"-c", "--configPath"},
+            description = "Path to folder containing the configuration files", required = false)
     public void setConfigPath(String configPath) {
         properties.put(CONFIG_PATH_POINTER, configPath);
     }
@@ -177,7 +175,9 @@ public abstract class AbstractCommand implements Callable<Integer> {
      *
      * @param profile the profile name or file
      */
-    @Option(names = {"-p", "--profile"}, description = "Custom profile to be used. By default uses properties format, in case of json, use file name with extension (Examples: \"custom\", \"custom.properties\", \"custom_example.json\")", required = false)
+    @Option(names = {"-p", "--profile"},
+            description = "Custom profile to be used. By default uses properties format, in case of json, use file name with extension (Examples: \"custom\", \"custom.properties\", \"custom_example.json\")",
+            required = false)
     public void setProfile(String profile) {
         properties.put(PROFILE_POINTER, profile);
     }

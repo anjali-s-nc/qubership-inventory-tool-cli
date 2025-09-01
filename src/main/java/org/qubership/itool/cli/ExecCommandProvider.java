@@ -16,13 +16,14 @@
 
 package org.qubership.itool.cli;
 
+import org.qubership.itool.cli.spi.CommandProvider;
+
 import java.util.concurrent.Callable;
 
 /**
- * Provider for the ExecCommand. This allows the command to be discovered
- * and registered automatically through the SPI mechanism.
+ * Provider for the ExecCommand.
  */
-public class ExecCommandProvider implements ExtensionCommandProvider {
+public class ExecCommandProvider implements CommandProvider {
 
     @Override
     public Callable<Integer> createCommand() {

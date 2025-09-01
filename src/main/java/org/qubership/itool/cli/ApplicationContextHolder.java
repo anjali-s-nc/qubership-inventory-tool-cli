@@ -33,9 +33,9 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 
 /**
- * Service locator and manager for ApplicationContext to avoid circular dependencies.
- * This class handles the complete lifecycle of the application context including initialization,
- * management, and cleanup.
+ * Service locator and manager for ApplicationContext to avoid circular dependencies. This class
+ * handles the complete lifecycle of the application context including initialization, management,
+ * and cleanup.
  */
 public class ApplicationContextHolder {
 
@@ -45,8 +45,8 @@ public class ApplicationContextHolder {
     private static volatile FlowContext flowContext;
 
     /**
-     * Initialize application context with specific configuration.
-     * Uses SPI-based module discovery for centralized extension management.
+     * Initialize application context with specific configuration. Uses SPI-based module discovery
+     * for centralized extension management.
      *
      * @param vertx the Vertx instance
      * @param config the configuration to use
@@ -85,17 +85,16 @@ public class ApplicationContextHolder {
     }
 
     /**
-     * Clear the shared application context.
-     * Should be called during cleanup.
+     * Clear the shared application context. Should be called during cleanup.
      */
     public static void clear() {
         instance = null;
         flowContext = null;
     }
 
-        /**
-     * Create modules for dependency injection.
-     * Uses SPI to discover a single extension module for centralized extension management.
+    /**
+     * Create modules for dependency injection. Uses SPI to discover a single extension module for
+     * centralized extension management.
      *
      * @param vertx The Vertx instance
      * @return Array of modules to use for dependency injection
@@ -108,16 +107,16 @@ public class ApplicationContextHolder {
 
         if (extensionModule != null) {
             // Base module + extension override
-            return new Module[] { Modules.override(baseModule).with(extensionModule) };
+            return new Module[] {Modules.override(baseModule).with(extensionModule)};
         } else {
             // Only base module
-            return new Module[] { baseModule };
+            return new Module[] {baseModule};
         }
     }
 
-        /**
-     * Discover a single extension module using Java's ServiceLoader mechanism.
-     * If multiple providers are found, only the first one is used and others are logged as warnings.
+    /**
+     * Discover a single extension module using Java's ServiceLoader mechanism. If multiple
+     * providers are found, only the first one is used and others are logged as warnings.
      *
      * @param vertx The Vertx instance
      * @return the extension module, or null if no provider found
@@ -132,15 +131,17 @@ public class ApplicationContextHolder {
                     selectedProvider = provider;
                     LOGGER.info("Using extension module provider: {}", provider.getName());
                 } else {
-                    LOGGER.warn("Ignoring additional module provider: {}. Only one extension module is supported.",
-                        provider.getName());
+                    LOGGER.warn(
+                            "Ignoring additional module provider: {}. Only one extension module is supported.",
+                            provider.getName());
                 }
             }
 
             if (selectedProvider != null) {
                 Module module = selectedProvider.createModule(vertx);
                 if (module != null) {
-                    LOGGER.debug("Created extension module from provider: {}", selectedProvider.getName());
+                    LOGGER.debug("Created extension module from provider: {}",
+                            selectedProvider.getName());
                     return module;
                 } else {
                     LOGGER.debug("Provider {} returned null module", selectedProvider.getName());
@@ -163,7 +164,8 @@ public class ApplicationContextHolder {
      * @param flowContext the flow context
      * @param config the configuration
      */
-    private static void initializeVerticleFactories(Vertx vertx, FlowContext flowContext, JsonObject config) {
+    private static void initializeVerticleFactories(Vertx vertx, FlowContext flowContext,
+            JsonObject config) {
         Optional<VerticleFactory> factory = vertx.verticleFactories().stream()
                 .filter(f -> f instanceof JavaAppContextVerticleFactory).findAny();
 

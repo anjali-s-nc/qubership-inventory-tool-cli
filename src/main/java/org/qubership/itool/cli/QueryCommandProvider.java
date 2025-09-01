@@ -16,13 +16,14 @@
 
 package org.qubership.itool.cli;
 
+import org.qubership.itool.cli.spi.CommandProvider;
+
 import java.util.concurrent.Callable;
 
 /**
- * Provider for the QueryCommand. This allows the command to be discovered
- * and registered automatically through the SPI mechanism.
+ * Provider for the QueryCommand.
  */
-public class QueryCommandProvider implements ExtensionCommandProvider {
+public class QueryCommandProvider implements CommandProvider {
 
     @Override
     public Callable<Integer> createCommand() {

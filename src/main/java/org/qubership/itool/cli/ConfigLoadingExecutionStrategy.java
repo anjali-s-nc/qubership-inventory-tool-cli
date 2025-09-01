@@ -33,7 +33,8 @@ import java.util.Map;
  */
 public class ConfigLoadingExecutionStrategy implements IExecutionStrategy {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigLoadingExecutionStrategy.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ConfigLoadingExecutionStrategy.class);
 
     private final Vertx vertx;
 
@@ -75,7 +76,8 @@ public class ConfigLoadingExecutionStrategy implements IExecutionStrategy {
 
                     // Load configuration synchronously
                     Future<JsonObject> configFuture = loadConfiguration(abstractCommand.properties);
-                    JsonObject config = configFuture.toCompletionStage().toCompletableFuture().get();
+                    JsonObject config =
+                            configFuture.toCompletionStage().toCompletableFuture().get();
 
                     ApplicationContextHolder.initializeWithConfig(vertx, config);
 

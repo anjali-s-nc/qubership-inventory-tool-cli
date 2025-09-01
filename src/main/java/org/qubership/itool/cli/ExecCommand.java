@@ -22,14 +22,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 /**
- * Picocli-based implementation of the exec command.
- *
- * <p>Usage examples:</p>
- * <pre>
- * java -jar exec -l your_login -p -sp true -df confluenceGenerate,confluenceUpload,excelExport,mavenDependency,repositoryUpdate
- * java -jar exec -l your_login -p -sp true -df confluenceUpload,mavenDependency,repositoryUpdate -ss excelExport -ls releaseDiff
- * java -jar exec -l your_login -p -sp confluenceGenerateComponentPages,parseComponentConfFiles -df .....
- * </pre>
+ * Main flow execution command.
  */
 @Command(
     name = "exec",
@@ -44,7 +37,8 @@ public class ExecCommand extends AbstractCommand {
     public static final String DEFAULT_OUTPUT_DIRECTORY_DOCKER = "/var/output";
 
     // ExecCommand specific options
-    @Option(names = {"-l", "--login"}, description = "Login to access services requiring authentication")
+    @Option(names = {"-l", "--login"},
+            description = "Login to access services requiring authentication")
     public void setLogin(String login) {
         properties.put("login", login);
     }
@@ -54,52 +48,62 @@ public class ExecCommand extends AbstractCommand {
         properties.put("excelExport", excelExport);
     }
 
-    @Option(names = {"-u", "--uploadConfluencePages"}, description = "List of the page titles to be uploaded to Confluence. Delimiter is ','. Examples: all; none; type:report; \"Tech of DOMAIN1, Cloud Libraries list\"")
+    @Option(names = {"-u", "--uploadConfluencePages"},
+            description = "List of the page titles to be uploaded to Confluence. Delimiter is ','. Examples: all; none; type:report; \"Tech of DOMAIN1, Cloud Libraries list\"")
     public void setUploadConfluencePages(String uploadConfluencePages) {
         properties.put("uploadConfluencePages", uploadConfluencePages);
     }
 
-    @Option(names = {"-sp", "--saveProgress"}, description = "Save execution progress. That allow restart progress from the specified step.")
+    @Option(names = {"-sp", "--saveProgress"},
+            description = "Save execution progress. That allow restart progress from the specified step.")
     public void setSaveProgress(String saveProgress) {
         properties.put("saveProgress", saveProgress);
     }
 
-    @Option(names = {"-ss", "--startStep"}, description = "Start execution from the specified step if progress was saved before. See 'saveProgress' property.")
+    @Option(names = {"-ss", "--startStep"},
+            description = "Start execution from the specified step if progress was saved before. See 'saveProgress' property.")
     public void setStartStep(String startStep) {
         properties.put("startStep", startStep);
     }
 
-    @Option(names = {"-ls", "--lastStep"}, description = "Last execution step (if progress was saved before). See 'saveProgress' property.")
+    @Option(names = {"-ls", "--lastStep"},
+            description = "Last execution step (if progress was saved before). See 'saveProgress' property.")
     public void setLastStep(String lastStep) {
         properties.put("lastStep", lastStep);
     }
 
-    @Option(names = {"-id", "--includeDomains"}, description = "List of Domains that must be processed. Delimiter is ','")
+    @Option(names = {"-id", "--includeDomains"},
+            description = "List of Domains that must be processed. Delimiter is ','")
     public void setIncludeDomains(String includeDomains) {
         properties.put("includeDomains", includeDomains);
     }
 
-    @Option(names = {"-df", "--disabledFeatures"}, description = "List of the disabled features. Delimiter is ','. Examples: confluenceGenerate,confluenceUpload,excelExport,mavenDependency,repositoryUpdate")
+    @Option(names = {"-df", "--disabledFeatures"},
+            description = "List of the disabled features. Delimiter is ','. Examples: confluenceGenerate,confluenceUpload,excelExport,mavenDependency,repositoryUpdate")
     public void setDisabledFeatures(String disabledFeatures) {
         properties.put("disabledFeatures", disabledFeatures);
     }
 
-    @Option(names = {"-r", "--release"}, description = "Release version to be used as a suffix during the export to Confluence")
+    @Option(names = {"-r", "--release"},
+            description = "Release version to be used as a suffix during the export to Confluence")
     public void setRelease(String release) {
         properties.put("release", release);
     }
 
-    @Option(names = {"-rb", "--releaseBranch"}, description = "Release version to be used as a suffix during the export to Confluence")
+    @Option(names = {"-rb", "--releaseBranch"},
+            description = "Release version to be used as a suffix during the export to Confluence")
     public void setReleaseBranch(String releaseBranch) {
         properties.put("releaseBranch", releaseBranch);
     }
 
-    @Option(names = {"-pr", "--priorRelease"}, description = "Release version prior to selected release to compare to")
+    @Option(names = {"-pr", "--priorRelease"},
+            description = "Release version prior to selected release to compare to")
     public void setPriorRelease(String priorRelease) {
         properties.put("priorRelease", priorRelease);
     }
 
-    @Option(names = {"-pws", "--passwordSource"}, description = "Password source, e.g.: \"file:password.txt\"")
+    @Option(names = {"-pws", "--passwordSource"},
+            description = "Password source, e.g.: \"file:password.txt\"")
     public void setPasswordSource(String passwordSource) {
         properties.put("passwordSource", passwordSource);
     }
@@ -132,9 +136,9 @@ public class ExecCommand extends AbstractCommand {
         properties.put("defaultOutputDirectory", defaultOutputDirectory);
     }
 
-        @Override
+    @Override
     public Integer call() throws Exception {
-        LOGGER.info("Inventory tool main flow execution (Picocli version)");
+        LOGGER.info("Inventory tool main flow execution");
 
         // Execute the flow using the existing AbstractCommand infrastructure
         runFlow(new ExecVerticle(), null);

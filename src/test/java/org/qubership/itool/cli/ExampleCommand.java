@@ -29,9 +29,9 @@ import java.util.concurrent.Callable;
  * This is a test/demo implementation. Real extensions would implement actual functionality.
  * </p>
  */
-public class ExampleExtensionCommand implements Callable<Integer> {
+public class ExampleCommand implements Callable<Integer> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExampleExtensionCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExampleCommand.class);
 
     private String message = "Hello from extension!";
 

@@ -16,15 +16,14 @@
 
 package org.qubership.itool.cli.obfuscate;
 
-import org.qubership.itool.cli.ExtensionCommandProvider;
+import org.qubership.itool.cli.spi.CommandProvider;
 
 import java.util.concurrent.Callable;
 
 /**
- * Provider for the ObfuscateCommand. This allows the command to be discovered
- * and registered automatically through the SPI mechanism.
+ * Provider for the ObfuscateCommand.
  */
-public class ObfuscateCommandProvider implements ExtensionCommandProvider {
+public class ObfuscateCommandProvider implements CommandProvider {
 
     @Override
     public Callable<Integer> createCommand() {

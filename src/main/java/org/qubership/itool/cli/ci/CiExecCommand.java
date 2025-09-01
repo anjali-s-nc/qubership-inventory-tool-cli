@@ -32,19 +32,8 @@ import org.qubership.itool.modules.graph.GraphDataConstants;
 import org.qubership.itool.utils.ConfigUtils;
 
 /**
- * Picocli-based implementation of the CI exec command.
  * A command for single-component run on CI.
  * Works in "ci" profile.
- *
- * <p>Run example:</p>
- * <pre>
- * java -jar inventory-tool.jar ci-exec \
- *  --inputDirectory /path/to/local/repositories/ABC/ABCDE \
- *  --repository https://git.your.host/abc/abcde \
- *  --componentName=abcde \
- *  --rb feature-branch \
- *  --outputFile /path/to/result-abcde.json
- * </pre>
  */
 @Command(
     name = "ci-exec",
@@ -91,12 +80,12 @@ public class CiExecCommand extends AbstractCommand {
         properties.put(P_RUN_NAME, runName);
     }
 
-    @Option(names = {"--inputDirectory"}, description = "Input directory with sources of the target component")
+    @Option(names = {"--inputDirectory", "--inputDir"}, description = "Input directory with sources of the target component")
     public void setInputDirectory(String inputDirectory) {
         properties.put(P_INPUT_DIRECTORY, inputDirectory);
     }
 
-    @Option(names = {"--outputDirectory"}, description = "Output directory")
+    @Option(names = {"--outputDirectory", "--outputDir"}, description = "Output directory")
     public void setOutputDirectory(String outputDirectory) {
         properties.put(P_OUTPUT_DIRECTORY, outputDirectory);
     }

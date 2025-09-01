@@ -16,15 +16,14 @@
 
 package org.qubership.itool.cli.ci;
 
-import org.qubership.itool.cli.ExtensionCommandProvider;
+import org.qubership.itool.cli.spi.CommandProvider;
 
 import java.util.concurrent.Callable;
 
 /**
- * Provider for the CiAssemblyCommand. This allows the command to be discovered
- * and registered automatically through the SPI mechanism.
+ * Provider for the CiAssemblyCommand.
  */
-public class CiAssemblyCommandProvider implements ExtensionCommandProvider {
+public class CiAssemblyCommandProvider implements CommandProvider {
 
     @Override
     public Callable<Integer> createCommand() {
