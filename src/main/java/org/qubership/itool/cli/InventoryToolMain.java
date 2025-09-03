@@ -83,6 +83,12 @@ public class InventoryToolMain implements Callable<Integer> {
         InventoryToolMain app = new InventoryToolMain();
         CommandLine commandLine = new CommandLine(app);
 
+        // Configure Picocli to behave like Vertx CLI: case-insensitive and abbreviated options
+        commandLine.setOptionsCaseInsensitive(true);
+        commandLine.setAbbreviatedOptionsAllowed(true);
+        commandLine.setSubcommandsCaseInsensitive(true);
+        commandLine.setAbbreviatedSubcommandsAllowed(true);
+
         // Load and register all extension commands
         loadExtensionCommands(commandLine);
 
@@ -144,7 +150,15 @@ public class InventoryToolMain implements Callable<Integer> {
                     LOGGER.debug("Found command: {}", commandName);
 
                     // Add the command to Picocli CommandLine
-                    commandLine.addSubcommand(commandName, command);
+                    CommandLine subCommandLine = new CommandLine(command);
+
+                    // Configure subcommand with same settings as main command
+                    subCommandLine.setOptionsCaseInsensitive(true);
+                    subCommandLine.setAbbreviatedOptionsAllowed(true);
+                    subCommandLine.setSubcommandsCaseInsensitive(true);
+                    subCommandLine.setAbbreviatedSubcommandsAllowed(true);
+
+                    commandLine.addSubcommand(commandName, subCommandLine);
 
                     commandCount++;
                 } catch (Exception e) {

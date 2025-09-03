@@ -57,7 +57,7 @@ public class CiAssemblyCommand extends AbstractCommand {
     }
 
     // CI Assembly specific options
-    @Option(names = {"--inputDirectory", "--inputDir"}, description = "Input directory. All files within it will be loaded and merged.")
+    @Option(names = {"--inputDirectory"}, description = "Input directory. All files within it will be loaded and merged.")
     public void setInputDirectory(String inputDirectory) {
         properties.put(P_INPUT_DIRECTORY, inputDirectory);
     }
@@ -72,7 +72,7 @@ public class CiAssemblyCommand extends AbstractCommand {
         properties.put(P_OUTPUT_FILE, outputFile);
     }
 
-    @Option(names = {"--appName", "--appname"}, description = "Application name, e.g.: \"Inventory-Tool\"", required = true)
+    @Option(names = {"--appName"}, description = "Application name, e.g.: \"Inventory-Tool\"", required = true)
     public void setAppName(String appName) {
         properties.put(P_APP_NAME, appName);
     }

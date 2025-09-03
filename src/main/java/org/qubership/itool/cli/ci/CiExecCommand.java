@@ -80,12 +80,12 @@ public class CiExecCommand extends AbstractCommand {
         properties.put(P_RUN_NAME, runName);
     }
 
-    @Option(names = {"--inputDirectory", "--inputDir"}, description = "Input directory with sources of the target component")
+    @Option(names = {"--inputDirectory"}, description = "Input directory with sources of the target component")
     public void setInputDirectory(String inputDirectory) {
         properties.put(P_INPUT_DIRECTORY, inputDirectory);
     }
 
-    @Option(names = {"--outputDirectory", "--outputDir"}, description = "Output directory")
+    @Option(names = {"--outputDirectory"}, description = "Output directory")
     public void setOutputDirectory(String outputDirectory) {
         properties.put(P_OUTPUT_DIRECTORY, outputDirectory);
     }
