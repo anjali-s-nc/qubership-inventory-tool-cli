@@ -6,7 +6,7 @@
 
     <groupId>org.qubership</groupId>
     <artifactId>qubership-inventory-tool-extension</artifactId>
-    <version>4.0.2-SNAPSHOT</version>
+    <version>5.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Qubership Inventory Tool Extension</name>
