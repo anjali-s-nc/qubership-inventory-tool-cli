@@ -56,7 +56,8 @@ public abstract class AbstractConfluenceGenerationPageVerticle extends AbstractA
 
     @Override
     protected void taskStart(Promise<?> taskPromise) throws Exception {
-        final JsonArray rootConfluencePages = JsonUtils.getOrCreateJsonArray(graph.getVertex(Graph.V_ROOT), "confluencePages");
+        final JsonArray rootConfluencePages =
+                JsonUtils.getOrCreateJsonArray(graph.getVertex(Graph.V_ROOT), "confluencePages");
 
         vertx.executeBlocking(() -> {
             List<ConfluencePage> pageList = prepareConfluencePageList();
@@ -82,7 +83,8 @@ public abstract class AbstractConfluenceGenerationPageVerticle extends AbstractA
             @SuppressWarnings("rawtypes")
             List<Future<?>> futureList = new ArrayList<>();
             for (ConfluencePage confluencePage : confluencePageList) {
-                getLogger().info("Generate Confluence page: " + confluencePage.getDirectoryPath() + "/" + confluencePage.getFileName());
+                getLogger().info("Generate Confluence page: " + confluencePage.getDirectoryPath()
+                        + "/" + confluencePage.getFileName());
 
                 Future<Void> future = Future.future(promise -> {
                     try {

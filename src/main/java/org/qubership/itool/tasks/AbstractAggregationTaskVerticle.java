@@ -40,7 +40,8 @@ public abstract class AbstractAggregationTaskVerticle extends FlowTask {
     protected Logger LOG = LoggerFactory.getLogger(AbstractAggregationTaskVerticle.class);
 
     protected List<Future<?>> processGraph(
-            Function<JsonObject, List<Future<?>>> domainProcessor, Function<JsonObject, List<Future<?>>> componentProcessor,
+            Function<JsonObject, List<Future<?>>> domainProcessor,
+            Function<JsonObject, List<Future<?>>> componentProcessor,
             BiFunction<Graph, JsonObject, List<JsonObject>> componentExtractor) {
         Graph graph = this.graph;
         List<JsonObject> domains = V(graph).hasType("domain").toList();
@@ -62,7 +63,9 @@ public abstract class AbstractAggregationTaskVerticle extends FlowTask {
      * @return the maven dependency components
      */
     public static List<JsonObject> getMavenDependencyComponents(Graph graph, JsonObject domain) {
-        return graph.traversal().V(domain.getString(Graph.F_ID)).out().not(hasType("ui", "ui cdn", "ui app bundle")).hasKey("repository", "details").toList();
+        return graph.traversal().V(domain.getString(Graph.F_ID)).out()
+                .not(hasType("ui", "ui cdn", "ui app bundle")).hasKey("repository", "details")
+                .toList();
     }
 
     protected void completeCompositeTask(List<? extends Future<?>> futureList, Promise<?> taskPromise) {

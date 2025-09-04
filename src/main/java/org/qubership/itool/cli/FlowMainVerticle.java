@@ -125,7 +125,8 @@ public abstract class FlowMainVerticle extends AbstractVerticle {
             getLogger().info("========== Starting a flow: fiid={}", flowContext.getFlowInstanceId());
             startStep = flowSequence.get(0);
         } else {
-            getLogger().info("========== Starting a flow from '{}': fiid={}", startStep, flowContext.getFlowInstanceId());
+            getLogger().info("========== Starting a flow from '{}': fiid={}", startStep,
+                    flowContext.getFlowInstanceId());
             JsonObject dump = null;
             try {
                 dump = JsonUtils.readJsonFile("progress/task." + startStep + ".json");
@@ -254,7 +255,8 @@ public abstract class FlowMainVerticle extends AbstractVerticle {
             getLogger().debug("Java task found: {}", clazz);
             classes.put(shortName, clazz.asSubclass(FlowTask.class));
         }
-        // XXX Here we may add lookup for tasks packaged as .java files inside JavaAppContextVerticleFactory.getCustomTaskPath()
+        // XXX Here we may add lookup for tasks packaged as .java files inside
+        // JavaAppContextVerticleFactory.getCustomTaskPath()
         // XXX If we ever get other task factories, poll them here
 
         // Map<taskName to class>
@@ -272,8 +274,9 @@ public abstract class FlowMainVerticle extends AbstractVerticle {
             }
         }
 
-        if (! missedTasks.isEmpty()) {
-            throw new IllegalStateException("No implementations found for the following tasks of the flow: " + missedTasks);
+        if (!missedTasks.isEmpty()) {
+            throw new IllegalStateException(
+                    "No implementations found for the following tasks of the flow: " + missedTasks);
         }
         return result;
     }

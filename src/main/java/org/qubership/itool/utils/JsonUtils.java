@@ -16,7 +16,6 @@
 
 package org.qubership.itool.utils;
 
-import io.netty.buffer.ByteBufInputStream;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -295,7 +294,8 @@ public class JsonUtils {
         } else if (value instanceof Map) {
             return new JsonObject( (Map)value );
         } else {
-            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as " + JsonObject.class.getName());
+            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as "
+                    + JsonObject.class.getName());
         }
     }
 
@@ -308,7 +308,8 @@ public class JsonUtils {
         } else if (value instanceof JsonObject) {
             return (Map) ((JsonObject)value).getMap();
         } else {
-            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as " + Map.class.getName());
+            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as "
+                    + Map.class.getName());
         }
     }
 
@@ -321,7 +322,8 @@ public class JsonUtils {
         } else if (value instanceof JsonArray) {
             return ((JsonArray) value).getList();
         } else {
-            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as " + List.class.getName());
+            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as "
+                    + List.class.getName());
         }
     }
 }

@@ -257,7 +257,8 @@ public class GitAdapterImpl implements GitAdapter {
                         .setPath(submoduleDir)
                         .call();
             } catch (TransportException te) {
-                LOG.warn("Error while trying to add submodule {}: {}. Trying again once", repositoryLink, te.getMessage());
+                LOG.warn("Error while trying to add submodule {}: {}. Trying again once",
+                        repositoryLink, te.getMessage());
                 repository = submoduleAddCommand
                         .setCredentialsProvider(credentialsProvider)
                         .setURI(repositoryLink)
@@ -351,7 +352,8 @@ public class GitAdapterImpl implements GitAdapter {
             while (walk.next()) {
                 try (Repository module = walk.getRepository()) {
                     if (module == null) {
-                        report.internalError("Module in superrepository " + repository.getRepository().getDirectory() + " is null");
+                        report.internalError("Module in superrepository "
+                                + repository.getRepository().getDirectory() + " is null");
                         continue;
                     }
                     List<JsonObject> matchedComponents = components.stream()
@@ -422,7 +424,8 @@ public class GitAdapterImpl implements GitAdapter {
                     .call();
         } catch (RefNotFoundException e) {
             // In case of sha1
-            LOG.debug("Reference {} was not found, trying to find local ref {} in {}", reference, ref, repository.getRepository().getDirectory());
+            LOG.debug("Reference {} was not found, trying to find local ref {} in {}", reference,
+                    ref, repository.getRepository().getDirectory());
             repository.checkout()
                     .setName(ref)
                     .setForceRefUpdate(true)
@@ -472,7 +475,8 @@ public class GitAdapterImpl implements GitAdapter {
                     superRepository = prepareLocalRepo(superRepositoryDir);
                 } catch (GitAPIException e2) {
                     LOG.error("Unable to init the new super repository {}", superRepositoryDir);
-                    throw new RuntimeException("Unable to init the new super repository " + superRepositoryDir + ": " + e2.getMessage());
+                    throw new RuntimeException("Unable to init the new super repository "
+                            + superRepositoryDir + ": " + e2.getMessage());
                 }
             }
         }
@@ -493,15 +497,15 @@ public class GitAdapterImpl implements GitAdapter {
     @Override
     public Future switchSuperRepoBranch(Git superRepository, String superRepositoryBranch) {
         return getWorkerExecutor().executeBlocking(() -> {
-                    try {
-                        checkoutSuperRepoReleaseBranch(superRepository, superRepositoryBranch);
-                    } catch (GitAPIException e) {
-                        throw new RuntimeException("Failed to checkout branch " + superRepositoryBranch + ": " + e.getMessage());
-                    }
-                    return null;
-                })
-                .onFailure(e -> report.internalError("Could not checkout " + superRepositoryBranch
-                        + " branch of superrepository: " + ExceptionUtils.getStackTrace(e)));
+            try {
+                checkoutSuperRepoReleaseBranch(superRepository, superRepositoryBranch);
+            } catch (GitAPIException e) {
+                throw new RuntimeException("Failed to checkout branch " + superRepositoryBranch
+                        + ": " + e.getMessage());
+            }
+            return null;
+        }).onFailure(e -> report.internalError("Could not checkout " + superRepositoryBranch
+                + " branch of superrepository: " + ExceptionUtils.getStackTrace(e)));
     }
 
     @Override
@@ -509,7 +513,8 @@ public class GitAdapterImpl implements GitAdapter {
         return getWorkerExecutor().executeBlocking(this::prepareSuperRepoHandler);
     }
 
-    private void checkoutSuperRepoReleaseBranch(Git superRepository, String superRepositoryBranch) throws GitAPIException {
+    private void checkoutSuperRepoReleaseBranch(Git superRepository, String superRepositoryBranch)
+            throws GitAPIException {
         LOG.info("Attempting to checkout branch {} in super repository", superRepositoryBranch);
         try {
             checkout(superRepository, superRepositoryBranch);
@@ -519,7 +524,8 @@ public class GitAdapterImpl implements GitAdapter {
             if (superRepository.remoteList().call().isEmpty()) {
                 branch = main;
             }
-            LOG.warn("Checkout of branch {} failed ({}), creating the new branch based on {}", superRepositoryBranch, e.getMessage(), branch);
+            LOG.warn("Checkout of branch {} failed ({}), creating the new branch based on {}",
+                    superRepositoryBranch, e.getMessage(), branch);
             superRepository.branchCreate()
                     .setStartPoint(branch)
                     .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)

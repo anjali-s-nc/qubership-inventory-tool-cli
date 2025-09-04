@@ -95,7 +95,8 @@ public abstract class AbstractCommand implements Callable<Integer> {
                 ApplicationContext context = getSharedApplicationContext();
                 if (context == null) {
                     throw new IllegalStateException(
-                            "Shared application context is not available. This indicates a problem with the execution strategy.");
+                            "Shared application context is not available. " +
+                            "This indicates a problem with the execution strategy.");
                 }
 
                 FlowContext flowContext = context.getInstance(FlowContext.class);
@@ -121,7 +122,8 @@ public abstract class AbstractCommand implements Callable<Integer> {
         ApplicationContext context = ApplicationContextHolder.getInstance();
         if (context == null) {
             throw new IllegalStateException(
-                    "No application context available. Ensure InventoryToolMain properly initialized the shared context.");
+                    "No application context available. " +
+                    "Ensure InventoryToolMain properly initialized the shared context.");
         }
         return context;
     }
@@ -176,7 +178,9 @@ public abstract class AbstractCommand implements Callable<Integer> {
      * @param profile the profile name or file
      */
     @Option(names = {"-p", "--profile"},
-            description = "Custom profile to be used. By default uses properties format, in case of json, use file name with extension (Examples: \"custom\", \"custom.properties\", \"custom_example.json\")",
+            description = "Custom profile to be used. " +
+                    "By default uses properties format, in case of json, use file name with extension " +
+                    "(Examples: \"custom\", \"custom.properties\", \"custom_example.json\")",
             required = false)
     public void setProfile(String profile) {
         properties.put(PROFILE_POINTER, profile);

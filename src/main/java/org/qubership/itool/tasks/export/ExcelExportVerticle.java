@@ -225,7 +225,9 @@ public class ExcelExportVerticle extends FlowTask {
         if (dependencies.size() == 0) {
             return "N/A";
         } else {
-            return String.join(", ", dependencies.stream().map(d -> ((JsonObject) d).getString("artifactId")).collect(Collectors.toList()));
+            return String.join(", ",
+                    dependencies.stream().map(d -> ((JsonObject) d).getString("artifactId"))
+                            .collect(Collectors.toList()));
         }
     }
 
@@ -258,7 +260,8 @@ public class ExcelExportVerticle extends FlowTask {
                 reFormatSheet(sheet, domain);
             }
 
-            try (OutputStream os = new FileOutputStream(reportFolder + File.separator + getFileName(exportFileLocation))) {
+            try (OutputStream os = new FileOutputStream(
+                    reportFolder + File.separator + getFileName(exportFileLocation))) {
                 book.write(os);
             }
         }
@@ -319,7 +322,8 @@ public class ExcelExportVerticle extends FlowTask {
     protected void addDetailsRow(Sheet sheet, List<JsonObject> components, String propertyName, int rowIndex) {
         addPropertyRow(sheet, components, propertyName, rowIndex,
                 component -> {
-                    Object obj = component.getJsonObject("details").getValue(readablePropertyToFieldNameMap.get(propertyName));
+                    Object obj = component.getJsonObject("details")
+                            .getValue(readablePropertyToFieldNameMap.get(propertyName));
                     if (obj instanceof String) {
                         return (String)obj;
                     } else if (obj instanceof JsonArray) {
@@ -334,7 +338,8 @@ public class ExcelExportVerticle extends FlowTask {
                 });
     }
 
-    protected void addPropertyRow(Sheet sheet, List<JsonObject> components, String propertyName, int rowIndex, Function<JsonObject, String> cellValueProducer) {
+    protected void addPropertyRow(Sheet sheet, List<JsonObject> components, String propertyName,
+            int rowIndex, Function<JsonObject, String> cellValueProducer) {
         addRow(sheet, components, rowIndex, cell -> {
                     cell.setCellStyle(cellStylesMap.get(PROPERTY_STYLE));
                     cell.setCellValue(propertyName);

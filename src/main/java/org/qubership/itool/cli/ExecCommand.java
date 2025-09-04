@@ -49,7 +49,8 @@ public class ExecCommand extends AbstractCommand {
     }
 
     @Option(names = {"-u", "--uploadConfluencePages"},
-            description = "List of the page titles to be uploaded to Confluence. Delimiter is ','. Examples: all; none; type:report; \"Tech of DOMAIN1, Cloud Libraries list\"")
+            description = "List of the page titles to be uploaded to Confluence. " +
+                    "Delimiter is ','. Examples: all; none; type:report; \"Tech of DOMAIN1, Cloud Libraries list\"")
     public void setUploadConfluencePages(String uploadConfluencePages) {
         properties.put("uploadConfluencePages", uploadConfluencePages);
     }
@@ -61,7 +62,8 @@ public class ExecCommand extends AbstractCommand {
     }
 
     @Option(names = {"-ss", "--startStep"},
-            description = "Start execution from the specified step if progress was saved before. See 'saveProgress' property.")
+            description = "Start execution from the specified step if progress was saved before. " +
+                    "See 'saveProgress' property.")
     public void setStartStep(String startStep) {
         properties.put("startStep", startStep);
     }
@@ -79,7 +81,8 @@ public class ExecCommand extends AbstractCommand {
     }
 
     @Option(names = {"-df", "--disabledFeatures"},
-            description = "List of the disabled features. Delimiter is ','. Examples: confluenceGenerate,confluenceUpload,excelExport,mavenDependency,repositoryUpdate")
+            description = "List of the disabled features. Delimiter is ','. " +
+                    "Examples: confluenceGenerate,confluenceUpload,excelExport,mavenDependency,repositoryUpdate")
     public void setDisabledFeatures(String disabledFeatures) {
         properties.put("disabledFeatures", disabledFeatures);
     }

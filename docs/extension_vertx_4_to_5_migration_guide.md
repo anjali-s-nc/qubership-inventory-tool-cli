@@ -133,13 +133,13 @@ public class MyExtensionCommandProvider implements CommandProvider {
 ### Step 3: Update Service Registration
 
 #### Before (Vert.x 4)
-```
+```properties
 # META-INF/services/io.vertx.core.spi.launcher.CommandFactory
 org.mycompany.MyExtensionCommandFactory
 ```
 
 #### After (Vert.x 5)
-```
+```properties
 # META-INF/services/org.qubership.itool.cli.spi.CommandProvider
 org.mycompany.MyExtensionCommandProvider
 ```
@@ -183,7 +183,7 @@ public class MyExtensionModuleProvider implements ModuleProvider {
 ```
 
 #### Register ModuleProvider
-```
+```properties
 # META-INF/services/org.qubership.itool.cli.spi.ModuleProvider
 org.mycompany.MyExtensionModuleProvider
 ```
@@ -191,7 +191,7 @@ org.mycompany.MyExtensionModuleProvider
 ## Common Migration Issues and Solutions
 
 ### Issue 1: Command Not Recognized
-```
+```text
 Problem: Extension command not found after migration
 Solution: 
 - Verify CommandProvider is properly implemented
@@ -200,7 +200,7 @@ Solution:
 ```
 
 ### Issue 2: Option Parsing Errors
-```
+```text
 Problem: Command line options not working
 Solution:
 - Update @Option annotations to Picocli format
@@ -209,7 +209,7 @@ Solution:
 ```
 
 ### Issue 3: DI Context Not Available
-```
+```text
 Problem: Cannot access application context in extension
 Solution:
 - Use ApplicationContextHolder.getContext() to access DI container
@@ -218,7 +218,7 @@ Solution:
 ```
 
 ### Issue 4: Vert.x API Compilation Errors
-```
+```text
 Problem: Compilation errors with Vert.x APIs
 Solution:
 - Update to Vert.x 5.0.1
@@ -288,7 +288,7 @@ public class MyExtensionCommandProvider implements CommandProvider {
 ```
 
 ### Service Registration Files
-```
+```properties
 # META-INF/services/org.qubership.itool.cli.spi.CommandProvider
 org.mycompany.MyExtensionCommandProvider
 ```

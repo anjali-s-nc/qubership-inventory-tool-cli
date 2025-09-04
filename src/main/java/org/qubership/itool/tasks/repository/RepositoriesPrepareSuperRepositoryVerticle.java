@@ -88,7 +88,8 @@ public class RepositoriesPrepareSuperRepositoryVerticle extends AbstractAggregat
                     if (compareRequired && sourceRelease != null && !sourceRelease.equals(targetRelease)) {
                         previousReleaseCopyFuture = gitAdapter.switchSuperRepoBranch(superRepository, sourceRelease)
                                 .compose(r -> getFilesList())
-                                .compose(list -> Future.join(gitFileRetriever.copyFilesFromRepo(superRepository, sourceRelease, (List<Path>) list)));
+                                .compose(list -> Future.join(gitFileRetriever.copyFilesFromRepo(
+                                        superRepository, sourceRelease, (List<Path>) list)));
                     }
 
                     Future<Void> resultFuture = previousReleaseCopyFuture
@@ -100,7 +101,8 @@ public class RepositoriesPrepareSuperRepositoryVerticle extends AbstractAggregat
                                 return Future.join(futures);
                             })
                             // Performing commit and update of submodules
-                            .compose(r -> gitAdapter.gitStatusCheck(superRepository, s -> !CollectionUtils.isEmpty(s.getAdded())))
+                            .compose(r -> gitAdapter.gitStatusCheck(superRepository,
+                                    s -> !CollectionUtils.isEmpty(s.getAdded())))
                             .compose(r -> {
                                 if ((Boolean) r) {
                                     return gitAdapter.gitCommit(superRepository, "New repositories added");
@@ -116,7 +118,9 @@ public class RepositoriesPrepareSuperRepositoryVerticle extends AbstractAggregat
     }
 
     private Future<List<Path>> getFilesList() {
-        return vertx.fileSystem().readFile(ConfigUtils.getConfigFilePath(config(), "config", "diffConfig.json").toString())
+        return vertx
+                .fileSystem().readFile(ConfigUtils
+                        .getConfigFilePath(config(), "config", "diffConfig.json").toString())
                 .map(fileContents -> {
                     JsonObject jsonResult = new JsonObject(fileContents);
                     List<Path> filesArray = jsonResult.getJsonArray("files").stream()

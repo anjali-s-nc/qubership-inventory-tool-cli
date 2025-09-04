@@ -43,8 +43,11 @@ public class InventoryToolInitVerticle extends FlowTask {
 
     @Override
     protected void taskStart(Promise<?> taskPromise) {
-        getLogger().debug("Initializing the tool for a flow. Graph instance is: Graph @{}", System.identityHashCode(graph));
-        ConfigUtils.getFilesFromJsonConfig(vertx, config(), JsonPointer.from("/files"), "config", "cleanupConfig.json")
+        getLogger().debug("Initializing the tool for a flow. Graph instance is: Graph @{}",
+                System.identityHashCode(graph));
+        ConfigUtils
+                .getFilesFromJsonConfig(vertx, config(), JsonPointer.from("/files"), "config",
+                        "cleanupConfig.json")
                 // Clean up of working directory
                 .compose(files -> {
                     List<Future<?>> futures = files.stream()

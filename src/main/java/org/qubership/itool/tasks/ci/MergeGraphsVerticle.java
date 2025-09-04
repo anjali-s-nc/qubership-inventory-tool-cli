@@ -47,10 +47,13 @@ public class MergeGraphsVerticle extends FlowTask {
     protected void taskStart(Promise<?> taskPromise) {
         vertx.executeBlocking(() -> {
             try (MergerApi merger = graphMergerProvider.get()) {
-                JsonObject targetDesc = new JsonObject()
-                    .put(MergerApi.P_IS_APPLICATION, true)
-                    .put(MergerApi.P_APP_NAME, config().getString(CiConstants.P_APP_NAME, GraphDataConstants.UNKNOWN))
-                    .put(MergerApi.P_APP_VERSION, config().getString(CiConstants.P_APP_VERSION, GraphDataConstants.UNKNOWN));
+                JsonObject targetDesc = new JsonObject().put(MergerApi.P_IS_APPLICATION, true)
+                        .put(MergerApi.P_APP_NAME,
+                                config().getString(CiConstants.P_APP_NAME,
+                                        GraphDataConstants.UNKNOWN))
+                        .put(MergerApi.P_APP_VERSION,
+                                config().getString(CiConstants.P_APP_VERSION,
+                                        GraphDataConstants.UNKNOWN));
 
                 merger.prepareGraphForMerging(graph, targetDesc);
                 merger.walkAndMerge(

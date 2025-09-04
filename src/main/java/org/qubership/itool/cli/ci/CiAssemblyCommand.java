@@ -57,7 +57,8 @@ public class CiAssemblyCommand extends AbstractCommand {
     }
 
     // CI Assembly specific options
-    @Option(names = {"--inputDirectory"}, description = "Input directory. All files within it will be loaded and merged.")
+    @Option(names = {"--inputDirectory"},
+            description = "Input directory. All files within it will be loaded and merged.")
     public void setInputDirectory(String inputDirectory) {
         properties.put(P_INPUT_DIRECTORY, inputDirectory);
     }
@@ -72,19 +73,22 @@ public class CiAssemblyCommand extends AbstractCommand {
         properties.put(P_OUTPUT_FILE, outputFile);
     }
 
-    @Option(names = {"--appName"}, description = "Application name, e.g.: \"Inventory-Tool\"", required = true)
+    @Option(names = {"--appName"}, description = "Application name, e.g.: \"Inventory-Tool\"",
+            required = true)
     public void setAppName(String appName) {
         properties.put(P_APP_NAME, appName);
     }
 
-    @Option(names = {"--appVersion"}, description = "Application version from builder, e.g.: \"main-SNAPSHOT\"")
+    @Option(names = {"--appVersion"},
+            description = "Application version from builder, e.g.: \"main-SNAPSHOT\"")
     public void setAppVersion(String appVersion) {
         properties.put(P_APP_VERSION, appVersion);
     }
 
     @Option(names = {"--docker", "--dockerMode"}, description = "Docker mode: true/false")
     public void setDockerMode(boolean dockerMode) {
-        properties.put(P_DEFAULT_OUTPUT_DIRECTORY, dockerMode ? DEFAULT_OUTPUT_DIRECTORY_DOCKER : DEFAULT_OUTPUT_DIRECTORY_DESKTOP);
+        properties.put(P_DEFAULT_OUTPUT_DIRECTORY,
+                dockerMode ? DEFAULT_OUTPUT_DIRECTORY_DOCKER : DEFAULT_OUTPUT_DIRECTORY_DESKTOP);
         properties.put("dockerMode", String.valueOf(dockerMode));
         if (dockerMode) {
             properties.put("saveProgress", "false");

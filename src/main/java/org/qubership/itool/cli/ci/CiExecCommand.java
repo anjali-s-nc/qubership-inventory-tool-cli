@@ -69,7 +69,8 @@ public class CiExecCommand extends AbstractCommand {
         properties.put(P_COMP_VERSION, componentVersion);
     }
 
-    @Option(names = {"--repository"}, description = "Repository of the target component", required = true)
+    @Option(names = {"--repository"}, description = "Repository of the target component",
+            required = true)
     public void setRepository(String repository) {
         if ("null".equals(repository)) {
             LOGGER.error("'null' repository name passed");
@@ -80,7 +81,8 @@ public class CiExecCommand extends AbstractCommand {
         properties.put(P_RUN_NAME, runName);
     }
 
-    @Option(names = {"--inputDirectory"}, description = "Input directory with sources of the target component")
+    @Option(names = {"--inputDirectory"},
+            description = "Input directory with sources of the target component")
     public void setInputDirectory(String inputDirectory) {
         properties.put(P_INPUT_DIRECTORY, inputDirectory);
     }
@@ -95,14 +97,17 @@ public class CiExecCommand extends AbstractCommand {
         properties.put(P_OUTPUT_FILE, outputFile);
     }
 
-    @Option(names = {"--dumpResultsBy"}, description = "Strategy for automatic generation of output file name when it is not provided. Choices: hash, id, repo")
+    @Option(names = {"--dumpResultsBy"},
+            description = "Strategy for automatic generation of output file name when it is not provided. " +
+                    "Choices: hash, id, repo")
     public void setDumpResultsBy(String dumpResults) {
         properties.put(P_DUMP_BY, dumpResults);
     }
 
     @Option(names = {"--docker", "--dockerMode"}, description = "Docker mode: true/false")
     public void setDockerMode(boolean dockerMode) {
-        properties.put(P_DEFAULT_OUTPUT_DIRECTORY, dockerMode ? DEFAULT_OUTPUT_DIRECTORY_DOCKER : DEFAULT_OUTPUT_DIRECTORY_DESKTOP);
+        properties.put(P_DEFAULT_OUTPUT_DIRECTORY,
+                dockerMode ? DEFAULT_OUTPUT_DIRECTORY_DOCKER : DEFAULT_OUTPUT_DIRECTORY_DESKTOP);
         properties.put("dockerMode", String.valueOf(dockerMode));
         if (dockerMode) {
             properties.put("saveProgress", "false");

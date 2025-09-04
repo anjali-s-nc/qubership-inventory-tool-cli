@@ -94,9 +94,12 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
                 simplePatterns.add(filePattern);
             } else if (!filePattern.contains("/")) {
                 Pattern regex = Pattern.compile(
-                        (filePattern.startsWith("*.") ? "^." : "^") // Pattern "*.ext" requires non-empty part before dot
+                        (filePattern.startsWith("*.") ? "^." : "^") // Pattern "*.ext" requires
+                                                                    // non-empty part before dot
                                 + filePattern.replace(".", "\\.").replace("*", ".*")
-                                + (filePattern.endsWith(".*") ? ".$" : "$")); // Pattern "name.*" requires non-empty extension
+                                + (filePattern.endsWith(".*") ? ".$" : "$"));   // Pattern "name.*"
+                                                                                // requires non-empty
+                                                                                // extension
                 shallowPatterns.add(regex);
             } else {
                 deepPatterns.add(filePattern);
@@ -127,7 +130,8 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
                 }
                 long endTime = System.nanoTime();
                 long processingTime = endTime - startTime;
-                getLogger().debug("Processing time for component " + component.getValue("id") + ": " + Duration.ofNanos(processingTime));
+                getLogger().debug("Processing time for component " + component.getValue("id") + ": "
+                        + Duration.ofNanos(processingTime));
 
                 return null;
             }, false);
@@ -143,8 +147,8 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
                 .<JsonObject>select("D", "C").toList();
     }
 
-    protected List<String> findAllFiles(JsonObject component,
-                                        List<String> simplePatterns, List<Pattern> shallowPatterns, List<String> deepPatterns) {
+    protected List<String> findAllFiles(JsonObject component, List<String> simplePatterns,
+            List<Pattern> shallowPatterns, List<String> deepPatterns) {
 
         List<String> result = new ArrayList<>();
         String directoryPath = component.getString(F_DIRECTORY);
@@ -169,7 +173,8 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
         }
 
         Path basePath = FileSystems.getDefault().getPath(directoryPath);
-        PathAccumulatorVisitor<Path> visitor = new PathAccumulatorVisitor<>(basePath, shallowPatterns, deepPatterns, topDirExcludes);
+        PathAccumulatorVisitor<Path> visitor = new PathAccumulatorVisitor<>(basePath,
+                shallowPatterns, deepPatterns, topDirExcludes);
         try {
             Files.walkFileTree(basePath, visitor);
         } catch (UncheckedIOException|IOException e) {
@@ -185,7 +190,8 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
     protected boolean isExcluded(Collection<Path> topDirExcludes, Path relativePath, Path fileDirectory) {
         for (Path topDirExclude : topDirExcludes) {
             if (relativePath.startsWith(topDirExclude)) {
-                getLogger().trace("Excluding file {} belonging to a subComponent directory {}", relativePath, topDirExclude);
+                getLogger().trace("Excluding file {} belonging to a subComponent directory {}",
+                        relativePath, topDirExclude);
                 return true;
             }
         }
@@ -199,7 +205,8 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
         Collection<Path> topDirExcludes;
         Path basePath;
 
-        public PathAccumulatorVisitor(Path basePath, List<Pattern> shallowPatterns, List<String> deepPatterns, Collection<Path> topDirExcludes) {
+        public PathAccumulatorVisitor(Path basePath, List<Pattern> shallowPatterns,
+                List<String> deepPatterns, Collection<Path> topDirExcludes) {
             this.basePath = basePath;
             this.shallowPatterns = shallowPatterns;
             this.deepPatterns = deepPatterns;

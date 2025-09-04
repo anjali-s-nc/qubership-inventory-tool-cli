@@ -75,28 +75,36 @@ public class MavenDependencyDumpExtractVerticle extends AbstractAggregationTaskV
                 , coresCount
                 , 60
                 , TimeUnit.MINUTES);
-        BiFunction<Graph, JsonObject, List<JsonObject>> componentExtractor = AbstractAggregationTaskVerticle::getMavenDependencyComponents;
-        List<Future<?>> futures = processGraph(this::aggregateDomainData, c -> processDependencyTree(c, executor), componentExtractor);
+        BiFunction<Graph, JsonObject, List<JsonObject>> componentExtractor =
+                AbstractAggregationTaskVerticle::getMavenDependencyComponents;
+        List<Future<?>> futures = processGraph(this::aggregateDomainData,
+                c -> processDependencyTree(c, executor), componentExtractor);
         completeCompositeTask(futures, taskPromise);
     }
 
     @SuppressWarnings("rawtypes")
     private List<Future<?>> processDependencyTree(JsonObject component, WorkerExecutor executor) {
-        File depTreeFile = Path.of(component.getString("directoryPath")).resolve("target").resolve("dependency_tree.json").toFile();
+        File depTreeFile = Path.of(component.getString("directoryPath")).resolve("target")
+                .resolve("dependency_tree.json").toFile();
         if (depTreeFile.exists()) {
-            LOG.info("File {} already exists for component {}, no need to run maven", depTreeFile, component.getString(Graph.F_ID));
+            LOG.info("File {} already exists for component {}, no need to run maven", depTreeFile,
+                    component.getString(Graph.F_ID));
             return Collections.emptyList();
         }
         String pomPath = component.getString("directoryPath");
-        LOG.debug("{}: Scheduling blocking execute of maven dependencies collection, root pom path {}", component.getString("name"), pomPath);
-        Future blockingFuture = executor.executeBlocking(() -> processDependencies(component), false);
+        LOG.debug(
+                "{}: Scheduling blocking execute of maven dependencies collection, root pom path {}",
+                component.getString("name"), pomPath);
+        Future blockingFuture =
+                executor.executeBlocking(() -> processDependencies(component), false);
         return Collections.singletonList(blockingFuture);
     }
 
     private Callable<Void> processDependencies(JsonObject component) {
         long executionStart = System.nanoTime();
         createMavenDump(component);
-        LOG.debug("{}: Dependency retrieval finished in {}", component.getString(Graph.F_ID), Duration.ofNanos(System.nanoTime() - executionStart).toString());
+        LOG.debug("{}: Dependency retrieval finished in {}", component.getString(Graph.F_ID),
+                Duration.ofNanos(System.nanoTime() - executionStart).toString());
         return null;
     }
 
@@ -113,12 +121,15 @@ public class MavenDependencyDumpExtractVerticle extends AbstractAggregationTaskV
 
             List<String> modules = extractProperties(pomFile, moduleLocations);
             for (String module : modules) {
-                File modulePomFile = Path.of(component.getString("directoryPath")).resolve(module).resolve("pom.xml").toFile();
+                File modulePomFile = Path.of(component.getString("directoryPath")).resolve(module)
+                        .resolve("pom.xml").toFile();
                 List<String> artifactIdLocation = new ArrayList<>();
                 artifactIdLocation.add("/project/build/plugins/plugin/artifactId");
                 List<String> artifactIds = extractProperties(modulePomFile, artifactIdLocation);
                 if (artifactIds.contains("frontend-maven-plugin")) {
-                    LOG.info("skipping entire component {} because of its module {} uses frontend-maven-plugin", component.getString(Graph.F_ID), module);
+                    LOG.info(
+                            "skipping entire component {} because of its module {} uses frontend-maven-plugin",
+                            component.getString(Graph.F_ID), module);
                     return;
                 }
             }
@@ -148,7 +159,8 @@ public class MavenDependencyDumpExtractVerticle extends AbstractAggregationTaskV
         request.setGoals(goals);
         Invoker invoker = new DefaultInvoker();
         InvocationResult invocationResult;
-        try (PrintWriter dependencyTreeWriter = new PrintWriter(new BufferedWriter(new FileWriter(dependencyDumpFile, JsonUtils.UTF_8)))) {
+        try (PrintWriter dependencyTreeWriter = new PrintWriter(
+                new BufferedWriter(new FileWriter(dependencyDumpFile, JsonUtils.UTF_8)))) {
             request.setOutputHandler(str -> writeToFile(str, dependencyTreeWriter));
             invocationResult = invoker.execute(request);
         } catch (Exception e) {
@@ -157,9 +169,9 @@ public class MavenDependencyDumpExtractVerticle extends AbstractAggregationTaskV
         }
         if (invocationResult.getExitCode() != 0) {
             report.addMessage("ERROR", component,
-                      compId + ": Dependency extraction failed with exit code "
-                    + invocationResult.getExitCode() + ". Result can be found here: "
-                    + dependencyDumpFile.getAbsolutePath());
+                    compId + ": Dependency extraction failed with exit code "
+                            + invocationResult.getExitCode() + ". Result can be found here: "
+                            + dependencyDumpFile.getAbsolutePath());
         } else {
             LOG.debug("{}: Extraction finished. Result is stored in {} ", compId, dependencyDumpFile.getAbsolutePath());
         }

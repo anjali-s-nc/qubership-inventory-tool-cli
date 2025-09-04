@@ -131,7 +131,8 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
         JsonArray generatedConfluencePages = this.graph.getVertex(Graph.V_ROOT).getJsonArray("confluencePages");
         JsonObject confluenceStructure = null;
         try {
-            confluenceStructure = JsonUtils.readJsonFile(FSUtils.getConfigFilePath(config(), "config", "confluenceStructure.json"));
+            confluenceStructure = JsonUtils.readJsonFile(
+                    FSUtils.getConfigFilePath(config(), "config", "confluenceStructure.json"));
         } catch (IOException /* | DecodeException */ e) {
             report.exceptionThrown(new JsonObject().put(PAGE_ID, "iTool"), e);
         }
@@ -145,7 +146,8 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                     JsonObject trashPage = (JsonObject) trashFuture.result();
                     JsonObject realConfluenceTree = (JsonObject) existingTreeFuture.result();
 
-                    JsonArray actionsRequired = buildActions(realConfluenceTree, finalConfluenceStructure, generatedConfluencePages);
+                    JsonArray actionsRequired = buildActions(realConfluenceTree,
+                            finalConfluenceStructure, generatedConfluencePages);
 
                     logActions(actionsRequired);
 
@@ -154,7 +156,8 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
 
                     logActions(mergedActions);
                     List<Future<?>> actionFutures = new ArrayList<>();
-                    getLogger().info("Property {} is set to {}", UPLOAD_CONFLUENCE_PAGES_POINTER, uploadConfluencePages);
+                    getLogger().info("Property {} is set to {}", UPLOAD_CONFLUENCE_PAGES_POINTER,
+                            uploadConfluencePages);
                     // Perform all the "create" actions first
                     List<JsonObject> createActions = mergedActions.stream().map(action -> (JsonObject) action)
                             .filter(action -> ACTION_CREATE.equals(action.getString(ACTION_KEY_ACTION)))
@@ -198,7 +201,9 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                         .map(result -> (JsonObject) result.result())
                         .forEach(result -> {
                             String newPageId = result.getString(PAGE_ID);
-                            String orphanActionParentTitle = (String) ACTION_POINTER_GENERATED_PAGE_PARENT_TITLE.queryJson(orphanAction);
+                            String orphanActionParentTitle =
+                                    (String) ACTION_POINTER_GENERATED_PAGE_PARENT_TITLE
+                                            .queryJson(orphanAction);
                             String newPageTitle = result.getString(PAGE_TITLE);
                             if (newPageTitle.equals(buildPageTitle(orphanActionParentTitle))){
                                 orphanAction.put(PAGE_PARENT_ID, newPageId);
@@ -207,7 +212,8 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                             }
                         });
                 if (orphanAction.getString(PAGE_PARENT_ID) == null) {
-                    getLogger().debug("'{}': Still can not find parent ID", ACTION_POINTER_GENERATED_PAGE_TITLE.queryJson(orphanAction));
+                    getLogger().debug("'{}': Still can not find parent ID",
+                            ACTION_POINTER_GENERATED_PAGE_TITLE.queryJson(orphanAction));
                 }
             });
             if(orphanActions.isEmpty()) {
@@ -221,7 +227,8 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
         if (getLogger().isDebugEnabled()) {
             String actionsString = actions.stream().map(actionObj -> {
                 JsonObject action = (JsonObject) actionObj;
-                return action.getString(ACTION_KEY_ACTION) + ":'" + action.getString(PAGE_TITLE) + "' (parentId=" + action.getString(PAGE_PARENT_ID) + ")";
+                return action.getString(ACTION_KEY_ACTION) + ":'" + action.getString(PAGE_TITLE)
+                        + "' (parentId=" + action.getString(PAGE_PARENT_ID) + ")";
             }).collect(Collectors.joining("; \n"));
             getLogger().debug("Actions list: \n{}", actionsString);
         }
@@ -257,7 +264,8 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                             .put(ACTION_KEY_CONFLUENCE_PAGE, deleteAction.getJsonObject(ACTION_KEY_CONFLUENCE_PAGE))
                             .put(ACTION_KEY_GENERATED_PAGE, createAction.getJsonObject(ACTION_KEY_GENERATED_PAGE))
                             .put(PAGE_PARENT_ID, createAction.getString(PAGE_PARENT_ID));
-                    // In case of created structure pages without generated content we need to move the page instead of updating it
+                    // In case of created structure pages without generated content we need to move
+                    // the page instead of updating it
                     if (null != ACTION_POINTER_GENERATED_PAGE_TYPE.queryJson(createAction)) {
                         mergedAction.put(ACTION_KEY_ACTION, ACTION_UPDATE);
                     } else {
@@ -265,7 +273,9 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                     }
                     createActionsIter.remove();
                     deleteActionsIter.remove();
-                    getLogger().debug("'{}': Actions merged into '{}'", mergedAction.getString(PAGE_TITLE), mergedAction.getString(ACTION_KEY_ACTION));
+                    getLogger().debug("'{}': Actions merged into '{}'",
+                            mergedAction.getString(PAGE_TITLE),
+                            mergedAction.getString(ACTION_KEY_ACTION));
                     mergedActions.add(mergedAction);
                 }
             }
@@ -389,7 +399,8 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                 buildPageTitle(title).equalsIgnoreCase(pageTitle));
     }
 
-    private JsonArray buildActions(JsonObject confluenceTree, JsonObject confluenceStructure, JsonArray generatedPages) {
+    private JsonArray buildActions(JsonObject confluenceTree, JsonObject confluenceStructure,
+            JsonArray generatedPages) {
         JsonArray actions = new JsonArray();
         Queue<JsonObject> queue = new LinkedList<>();
 
@@ -493,7 +504,8 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
         }
 
         queueTitledChildren(queue, parent, remainingConfluenceChildren, structureChildren);
-        queueTypedChildren(queue, parent, remainingGeneratedConfluencePages, remainingConfluenceChildren, structureChildren);
+        queueTypedChildren(queue, parent, remainingGeneratedConfluencePages,
+                remainingConfluenceChildren, structureChildren);
     }
 
     private void queueTypedChildren(Queue<JsonObject> queue, JsonObject parent, JsonArray remainingGeneratedPages,
@@ -555,7 +567,8 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
         }
     }
 
-    private void queueTitledChildren(Queue<JsonObject> queue, JsonObject parent, List<Object> remainingConfluenceChildren, JsonArray structChildren) {
+    private void queueTitledChildren(Queue<JsonObject> queue, JsonObject parent,
+            List<Object> remainingConfluenceChildren, JsonArray structChildren) {
         structChildren.stream()
                 .map(structChild -> (JsonObject) structChild)
                 .filter(structChild -> structChild.containsKey(PAGE_TITLE))
@@ -593,20 +606,23 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
     }
 
 
-    private JsonObject getGeneratedPage(JsonArray generatedPages, JsonObject parent, JsonObject child, JsonObject structChild) {
-        JsonObject eligiblePage = (JsonObject) generatedPages.stream().filter(generatedPage ->
-                        isChildAGeneratedPage(parent, child, (JsonObject) generatedPage)
-                                && ((JsonObject)generatedPage).getString(STRUCT_TYPE).equals(structChild.getString(STRUCT_TYPE))
-                )
+    private JsonObject getGeneratedPage(JsonArray generatedPages, JsonObject parent,
+            JsonObject child, JsonObject structChild) {
+        JsonObject eligiblePage = (JsonObject) generatedPages.stream().filter(
+                generatedPage -> isChildAGeneratedPage(parent, child, (JsonObject) generatedPage)
+                        && ((JsonObject) generatedPage).getString(STRUCT_TYPE)
+                                .equals(structChild.getString(STRUCT_TYPE)))
                 .findFirst().orElse(null);
         return eligiblePage;
     }
 
-    private JsonArray getGeneratedPagesForStructureSection(JsonArray generatedPages, JsonObject structChild, String parentTitle) {
-        List matchingPages = generatedPages.stream().filter(generatedPage ->
-                        ((JsonObject) generatedPage).getString(STRUCT_TYPE).equals(structChild.getString(STRUCT_TYPE))
-                                && ((JsonObject) generatedPage).getString(PAGE_PARENT_TITLE).equals(parentTitle)
-                )
+    private JsonArray getGeneratedPagesForStructureSection(JsonArray generatedPages,
+            JsonObject structChild, String parentTitle) {
+        List matchingPages = generatedPages.stream()
+                .filter(generatedPage -> ((JsonObject) generatedPage).getString(STRUCT_TYPE)
+                        .equals(structChild.getString(STRUCT_TYPE))
+                        && ((JsonObject) generatedPage).getString(PAGE_PARENT_TITLE)
+                                .equals(parentTitle))
                 .collect(Collectors.toList());
         return new JsonArray(matchingPages);
     }
