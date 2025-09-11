@@ -16,38 +16,31 @@
 
 package org.qubership.itool.cli.extract;
 
-import java.util.Properties;
-
 import org.qubership.itool.cli.AbstractCommand;
 import org.qubership.itool.utils.ConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-import io.vertx.core.cli.CLIException;
-import io.vertx.core.cli.annotations.Description;
-import io.vertx.core.cli.annotations.Name;
-import io.vertx.core.cli.annotations.Option;
-import io.vertx.core.cli.annotations.Summary;
+import java.util.Properties;
 
 import static org.qubership.itool.cli.ci.CiConstants.*;
 import static org.qubership.itool.utils.ConfigProperties.*;
 
 /**
- * Command for extraction of specific data from graph. Extracts frameworks and languages per component from application graph.
- *
- * <p>Run example:
- *<pre>
- * java -jar &lt;JAR&gt; extract \
- *  -inputFile=/path/to/graph.json \
- *  -outputFile=/path/to/extraction.result.json
- *</pre>
+ * Command for extraction of specific data from graph.
  */
-@Name("extract")
-@Summary("Extract Language and Framework data from Graph")
+@Command(
+    name = "extract",
+    description = "Extract Language and Framework data from Graph",
+    mixinStandardHelpOptions = true
+)
 public class ExtractCommand extends AbstractCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtractCommand.class);
 
+    @Override
     protected Logger getLogger() {
         return LOGGER;
     }
@@ -59,28 +52,28 @@ public class ExtractCommand extends AbstractCommand {
         properties.put(SAVE_PROGRESS, "false");
     }
 
-    @Override
-    public void run() throws CLIException {
-        getLogger().info("Graph data extraction flow execution");
-        getLogger().info("----- Configuration -----");
-        Properties buildProperties = ConfigUtils.getInventoryToolBuildProperties();
-        getLogger().info("cli version: {}", buildProperties.get("inventory-tool-cli.version"));
-        getLogger().info("inputFile: {}", properties.get(P_INPUT_FILE));
-        getLogger().info("outputFile: {}", properties.get(P_OUTPUT_FILE));
-
-        runFlow(new ExtractMainVerticle(), null);
-    }
-
-    @Option(longName = "inputFile", argName = "inputFile", required = true)
-    @Description("Input file name")
+    @Option(names = {"--inputFile"}, description = "Input file name", required = true)
     public void setInputFile(String inputFile) {
         this.properties.put(P_INPUT_FILE, inputFile);
     }
 
-    @Option(longName = "outputFile", argName = "outputFile", required = true)
-    @Description("Output file name")
+    @Option(names = {"--outputFile"}, description = "Output file name", required = true)
     public void setOutputFile(String outputFile) {
         this.properties.put(P_OUTPUT_FILE, outputFile);
     }
 
+    @Override
+    public Integer call() throws Exception {
+        LOGGER.info("Graph data extraction flow execution");
+        LOGGER.info("----- Configuration -----");
+        Properties buildProperties = ConfigUtils.getInventoryToolBuildProperties();
+        LOGGER.info("cli version: {}", buildProperties.get("inventory-tool-cli.version"));
+        LOGGER.info("inputFile: {}", properties.get(P_INPUT_FILE));
+        LOGGER.info("outputFile: {}", properties.get(P_OUTPUT_FILE));
+
+        // Execute the flow using the existing AbstractCommand infrastructure
+        runFlow(new ExtractMainVerticle(), null);
+
+        return 0;
+    }
 }

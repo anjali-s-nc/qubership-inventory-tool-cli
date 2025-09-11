@@ -28,7 +28,6 @@ import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.utils.JsonUtils;
-import org.qubership.itool.utils.FutureUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,28 +88,29 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
                 , 60
                 , TimeUnit.SECONDS);
 
-        BiFunction<Graph, JsonObject, List<JsonObject>> componentExtractor = AbstractAggregationTaskVerticle::getMavenDependencyComponents;
-        @SuppressWarnings("rawtypes")
-        List<Future> futures = processGraph(this::aggregateDomainData, c -> processDependencyTree(c, executor), componentExtractor);
+        BiFunction<Graph, JsonObject, List<JsonObject>> componentExtractor =
+                AbstractAggregationTaskVerticle::getMavenDependencyComponents;
+        List<Future<?>> futures = processGraph(this::aggregateDomainData,
+                c -> processDependencyTree(c, executor), componentExtractor);
         completeCompositeTask(futures, taskPromise);
     }
 
-    @SuppressWarnings("rawtypes")
-    private List<Future> aggregateDomainData(JsonObject jsonObject) {
-        Future future = Future.succeededFuture();
+    private List<Future<?>> aggregateDomainData(JsonObject jsonObject) {
+        Future<?> future = Future.succeededFuture();
         return Collections.singletonList(future);
     }
 
-    @SuppressWarnings("rawtypes")
-    private List<Future> processDependencyTree(JsonObject component, WorkerExecutor executor) {
-        LOG.debug("{}: Scheduling blocking execution of maven dependencies import to the graph", component.getString(F_ID));
-        Future blockingFuture = executor.executeBlocking(() -> processDependencies(component), false);
+    private List<Future<?>> processDependencyTree(JsonObject component, WorkerExecutor executor) {
+        LOG.debug("{}: Scheduling blocking execution of maven dependencies import to the graph",
+                component.getString(F_ID));
+        Future<?> blockingFuture = executor.executeBlocking(() -> processDependencies(component), false);
         return Collections.singletonList(blockingFuture);
     }
 
     private Callable<Void> processDependencies(JsonObject component) {
         long executionStart = System.currentTimeMillis();
-        File depTreeFile = Path.of(component.getString(F_DIRECTORY)).resolve("target").resolve("dependency_tree.json").toFile();
+        File depTreeFile = Path.of(component.getString(F_DIRECTORY)).resolve("target")
+                .resolve("dependency_tree.json").toFile();
         if (depTreeFile.exists()) {
             parseDepTreeFromCi(component, depTreeFile);
         } else {

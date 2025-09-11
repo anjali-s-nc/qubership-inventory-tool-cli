@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 
 public class FutureUtils {
@@ -131,7 +130,7 @@ public class FutureUtils {
             .map(Future::result);
     }
 
-    public static Optional<Throwable> anyCause(@SuppressWarnings("rawtypes") List<Future> futuresList) {
+    public static Optional<Throwable> anyCause(List<? extends Future<?>> futuresList) {
         return futuresList.stream()
             .filter(Future::failed)
             .findAny()
@@ -155,12 +154,12 @@ public class FutureUtils {
         if (futures.size() == 1) {
             return futures.get(0);
         }
-        return CompositeFuture.any((List)futures)
+        return Future.any(futures)
             .flatMap(cf -> {
                 if (cf.succeeded()) {
                     return Future.succeededFuture(anyResult(futures).get());
                 } else {
-                    List<Future> list = (List)futures;
+                    List<Future<T>> list = futures;
                     return Future.failedFuture(anyCause(list).get());
                 }
             });

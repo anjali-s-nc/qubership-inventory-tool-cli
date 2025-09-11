@@ -32,9 +32,9 @@ import org.qubership.itool.context.FlowContext;
 
 import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
-import io.vertx.core.impl.JavaVerticleFactory;
-import io.vertx.core.json.JsonObject;
+import io.vertx.core.impl.verticle.JavaVerticleFactory;
 import io.vertx.core.spi.VerticleFactory;
+import io.vertx.core.json.JsonObject;
 
 import static org.qubership.itool.utils.ConfigProperties.CONFIG_PATH_POINTER;
 
@@ -74,35 +74,37 @@ public class JavaAppContextVerticleFactory extends JavaVerticleFactory {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void createVerticle(String verticleName, ClassLoader parentClassLoader, Promise<Callable<Verticle>> promise) {
-      LOG.debug(verticleName);
-      verticleName = VerticleFactory.removePrefix(verticleName);
-      Class<Verticle> clazz = null;
-      try {
-          clazz = (Class<Verticle>) taskClassLoader.loadClass(verticleName);
-      } catch (ClassNotFoundException ignore) {
-          // Fall thru
-      }
-      if (clazz == null) {
-          try {
-//              if (verticleName.endsWith(".java")) {
-//                  CompilingClassLoader compilingLoader = new CompilingClassLoader(taskClassLoader, verticleName);
-//                  String className = compilingLoader.resolveMainClassName();
-//                  clazz = (Class<Verticle>) compilingLoader.loadClass(className);
-//              } else
-              clazz = (Class<Verticle>) parentClassLoader.loadClass(verticleName);
-          } catch (ClassNotFoundException e) {
-              promise.fail(e);
-              return;
-          }
-      }
+    public void createVerticle(String verticleName, ClassLoader parentClassLoader,
+            Promise<Callable<Verticle>> promise) {
+        LOG.debug(verticleName);
+        verticleName = VerticleFactory.removePrefix(verticleName);
+        Class<Verticle> clazz = null;
+        try {
+            clazz = (Class<Verticle>) taskClassLoader.loadClass(verticleName);
+        } catch (ClassNotFoundException ignore) {
+            // Fall thru
+        }
+        if (clazz == null) {
+            try {
+                // if (verticleName.endsWith(".java")) {
+                // CompilingClassLoader compilingLoader = new CompilingClassLoader(taskClassLoader,
+                // verticleName);
+                // String className = compilingLoader.resolveMainClassName();
+                // clazz = (Class<Verticle>) compilingLoader.loadClass(className);
+                // } else
+                clazz = (Class<Verticle>) parentClassLoader.loadClass(verticleName);
+            } catch (ClassNotFoundException e) {
+                promise.fail(e);
+                return;
+            }
+        }
 
-      final Class<Verticle> finalClazz = clazz;
-      promise.complete(() -> {
-          Verticle verticle = finalClazz.getDeclaredConstructor().newInstance();
-          this.applicationContext.initialize(verticle);
-          return verticle;
-      });
+        final Class<Verticle> finalClazz = clazz;
+        promise.complete(() -> {
+            Verticle verticle = finalClazz.getDeclaredConstructor().newInstance();
+            this.applicationContext.initialize(verticle);
+            return verticle;
+        });
     }
 
     @Override

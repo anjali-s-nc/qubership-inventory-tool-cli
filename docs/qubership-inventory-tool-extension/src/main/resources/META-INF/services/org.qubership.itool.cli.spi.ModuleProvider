@@ -1,0 +1,4 @@
+# Extension Module Provider Service Registration
+# This extension provides a custom module for dependency injection
+
+org.qubership.itool.cli.ci.extension.ExtensionModuleProvider

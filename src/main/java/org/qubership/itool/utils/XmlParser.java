@@ -93,7 +93,7 @@ public class XmlParser {
      * @throws Exception Parse exception
      */
     public static Document parseXmlData(Buffer buffer, String inputId) throws Exception {
-        InputStream is = new ByteBufInputStream(buffer.getByteBuf());
+        InputStream is = new ByteArrayInputStream(buffer.getBytes());
         return parseXmlData(is, inputId);
     }
 

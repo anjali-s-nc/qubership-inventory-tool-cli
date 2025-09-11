@@ -19,7 +19,6 @@ package org.qubership.itool.cli;
 import org.qubership.itool.cli.query.CliQuery;
 import org.qubership.itool.tasks.FlowTask;
 
-import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.json.JsonArray;
@@ -85,22 +84,21 @@ public class QueryVerticle extends FlowMainVerticle {
             ConfigUtils.getConfigValue(QUERY_PROGRESS_PATH_POINTER, config),
             FlowTask.TASK_ADDRESS_PREFIX + step + ".json");
 
-        executor.executeBlocking(p -> {
+        executor.executeBlocking(() -> {
                 JsonObject dump = null;
                 try {
                     dump = JsonUtils.readJsonFile(progressPath.toString());
                 } catch (IOException /* | DecodeException */ e) {
-                    p.fail(e);
+                    throw new RuntimeException(e);
                 }
                 if (dump == null) {
-                    p.fail("Dump is empty or not found for step " + step);
+                    throw new RuntimeException("Dump is empty or not found for step " + step);
                 }
 
                 Graph graph = graphProvider.get();
                 GraphDumpSupport.restoreFromJson(graph, dump);
                 if (graph.getVertexCount() == 1) {
-                    p.fail("Graph is empty for step " + step);
-                    return;
+                    throw new RuntimeException("Graph is empty for step " + step);
                 }
                 dump = null;    // Help GC
 
@@ -111,6 +109,7 @@ public class QueryVerticle extends FlowMainVerticle {
 
                 CliQuery cli = new CliQuery(graph);
                 cli.run();
+                return null;
             })
             .onFailure(f -> {
                 System.out.println("Gremlin CLI failed to run:\n" + ExceptionUtils.getStackTrace(f));
@@ -121,20 +120,20 @@ public class QueryVerticle extends FlowMainVerticle {
     private void startFromFile(Vertx vertx, JsonObject config, WorkerExecutor executor, String file) {
         Path filePath = Path.of(file);
 
-        executor.executeBlocking(p -> {
+        executor.executeBlocking(() -> {
                 String content = null;
                 try {
                     content = FSUtils.readFileAsIs(filePath.toString());
                 } catch (IOException e) {
-                    p.fail(e);
+                    throw new RuntimeException(e);
                 }
                 if (content == null) {
-                    p.fail("Empty data");
+                    throw new RuntimeException("Empty data");
                 }
 
                 Graph graph = graphProvider.get();
                 if (content.startsWith("[")) {
-                    loadFromJsonArray(file, graph, p, content);
+                    loadFromJsonArray(graph, content);
                 } else {
                     GraphDumpSupport.restoreFromJson(graph, new JsonObject(content));
                 }
@@ -148,6 +147,7 @@ public class QueryVerticle extends FlowMainVerticle {
 
                 CliQuery cli = new CliQuery(graph);
                 cli.run();
+                return null;
             })
             .onFailure(f -> {
                 System.out.println("Gremlin CLI failed to run:\n" + ExceptionUtils.getStackTrace(f));
@@ -155,24 +155,21 @@ public class QueryVerticle extends FlowMainVerticle {
             });
     }
 
-    private void loadFromJsonArray(String file, Graph graph, Promise<Object> p, String content) {
+    private void loadFromJsonArray(Graph graph, String content) {
         JsonArray jsonArray = null;
         try {
             jsonArray = new JsonArray(content);
         } catch (Exception e) {
-            p.fail(e);
-        }
-        if (jsonArray == null) {
-            p.fail("JSON file is empty or not found. File: " + file);
+            throw new RuntimeException(e);
         }
 
         for (Object json : jsonArray) {
             if (!(json instanceof JsonObject)) {
-                p.fail("JsonObject expected. Found scalar: " + json);
+                throw new RuntimeException("JsonObject expected. Found scalar: " + json);
             }
             JsonObject jsonObj = (JsonObject)json;
             if (jsonObj.getValue(Graph.F_ID) == null) {
-                p.fail("JsonObject should contain 'id' property");
+                throw new RuntimeException("JsonObject should contain 'id' property");
             }
             graph.addVertex(jsonObj);
         }

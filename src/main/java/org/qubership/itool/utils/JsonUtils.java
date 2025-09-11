@@ -16,7 +16,6 @@
 
 package org.qubership.itool.utils;
 
-import io.netty.buffer.ByteBufInputStream;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -35,6 +34,7 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.commons.collections4.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.qubership.itool.modules.graph.FalloutDto;
 import org.qubership.itool.modules.graph.GraphDataConstants;
@@ -50,12 +50,13 @@ public class JsonUtils {
 
     static {
         mapper = DatabindCodec.mapper().copy();
-        prettyMapper = DatabindCodec.prettyMapper().copy();
+        prettyMapper = DatabindCodec.mapper().copy();
 
         SimpleModule module = new SimpleModule();
         module.addDeserializer(JsonObject.class, new JsonObjectDeserializer());
         module.addDeserializer(JsonArray.class, new JsonArrayDeserializer());
         mapper.registerModule(module);
+        prettyMapper.enable(SerializationFeature.INDENT_OUTPUT);
         prettyMapper.registerModule(module);
     }
 
@@ -140,13 +141,13 @@ public class JsonUtils {
     }
 
     public static <T> T readJsonFromBuffer(Buffer buffer, Class<T> clazz) throws IOException {
-        InputStream is = new ByteBufInputStream(buffer.getByteBuf());
+        InputStream is = new ByteArrayInputStream(buffer.getBytes());
         Reader reader = new InputStreamReader(is, UTF_8);
         return mapper.readValue(reader, clazz);
     }
 
     public static <T> T readJsonFromGzipBuffer(Buffer buffer, Class<T> clazz) throws IOException {
-        InputStream is = new GZIPInputStream(new ByteBufInputStream(buffer.getByteBuf()));
+        InputStream is = new GZIPInputStream(new ByteArrayInputStream(buffer.getBytes()));
         Reader reader = new InputStreamReader(is, UTF_8);
         return mapper.readValue(reader, clazz);
     }
@@ -293,7 +294,8 @@ public class JsonUtils {
         } else if (value instanceof Map) {
             return new JsonObject( (Map)value );
         } else {
-            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as " + JsonObject.class.getName());
+            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as "
+                    + JsonObject.class.getName());
         }
     }
 
@@ -306,7 +308,8 @@ public class JsonUtils {
         } else if (value instanceof JsonObject) {
             return (Map) ((JsonObject)value).getMap();
         } else {
-            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as " + Map.class.getName());
+            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as "
+                    + Map.class.getName());
         }
     }
 
@@ -319,7 +322,8 @@ public class JsonUtils {
         } else if (value instanceof JsonArray) {
             return ((JsonArray) value).getList();
         } else {
-            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as " + List.class.getName());
+            throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as "
+                    + List.class.getName());
         }
     }
 }

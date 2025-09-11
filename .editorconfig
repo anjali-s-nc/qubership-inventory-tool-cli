@@ -28,6 +28,18 @@ indent_style = tab
 [Dockerfile]
 indent_size = 4
 
+[*.java]
+indent_size = 4
+
+# Import organization settings for Java
+java_import_order = java,javax,org.qubership,org,com,net,io,static
+java_organize_imports_on_save = true
+java_remove_unused_imports = true
+java_imports_style = google
+
+# Code style settings
+max_line_length = 120
+
 [*.py]
 profile = black
 

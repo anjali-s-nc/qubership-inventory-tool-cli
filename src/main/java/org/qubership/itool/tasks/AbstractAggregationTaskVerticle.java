@@ -32,16 +32,20 @@ import java.util.function.Function;
 import static org.qubership.itool.modules.gremlin2.graph.__.hasType;
 
 
+/**
+ * Abstract class for aggregation tasks.
+ */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractAggregationTaskVerticle extends FlowTask {
     protected Logger LOG = LoggerFactory.getLogger(AbstractAggregationTaskVerticle.class);
 
-    protected List<Future> processGraph(
-            Function<JsonObject, List<Future>> domainProcessor, Function<JsonObject, List<Future>> componentProcessor,
+    protected List<Future<?>> processGraph(
+            Function<JsonObject, List<Future<?>>> domainProcessor,
+            Function<JsonObject, List<Future<?>>> componentProcessor,
             BiFunction<Graph, JsonObject, List<JsonObject>> componentExtractor) {
         Graph graph = this.graph;
         List<JsonObject> domains = V(graph).hasType("domain").toList();
-        List<Future> futures = new ArrayList<>();
+        List<Future<?>> futures = new ArrayList<>();
         for (JsonObject domain : domains) {
             futures.addAll(domainProcessor.apply(domain));
             List<JsonObject> components = componentExtractor.apply(graph, domain);
@@ -52,11 +56,19 @@ public abstract class AbstractAggregationTaskVerticle extends FlowTask {
         return futures;
     }
 
+    /**
+     * Get the maven dependency components for a given domain.
+     * @param graph the graph
+     * @param domain the domain
+     * @return the maven dependency components
+     */
     public static List<JsonObject> getMavenDependencyComponents(Graph graph, JsonObject domain) {
-        return graph.traversal().V(domain.getString(Graph.F_ID)).out().not(hasType("ui", "ui cdn", "ui app bundle")).hasKey("repository", "details").toList();
+        return graph.traversal().V(domain.getString(Graph.F_ID)).out()
+                .not(hasType("ui", "ui cdn", "ui app bundle")).hasKey("repository", "details")
+                .toList();
     }
 
-    protected void completeCompositeTask(List<Future> futureList, Promise<?> taskPromise) {
+    protected void completeCompositeTask(List<? extends Future<?>> futureList, Promise<?> taskPromise) {
         if (futureList == null) {
             report.internalError("List of futures should not be null");
             taskCompleted(taskPromise);

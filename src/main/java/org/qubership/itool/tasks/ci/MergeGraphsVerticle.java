@@ -45,12 +45,15 @@ public class MergeGraphsVerticle extends FlowTask {
 
     @Override
     protected void taskStart(Promise<?> taskPromise) {
-        vertx.executeBlocking(promise -> {
+        vertx.executeBlocking(() -> {
             try (MergerApi merger = graphMergerProvider.get()) {
-                JsonObject targetDesc = new JsonObject()
-                    .put(MergerApi.P_IS_APPLICATION, true)
-                    .put(MergerApi.P_APP_NAME, config().getString(CiConstants.P_APP_NAME, GraphDataConstants.UNKNOWN))
-                    .put(MergerApi.P_APP_VERSION, config().getString(CiConstants.P_APP_VERSION, GraphDataConstants.UNKNOWN));
+                JsonObject targetDesc = new JsonObject().put(MergerApi.P_IS_APPLICATION, true)
+                        .put(MergerApi.P_APP_NAME,
+                                config().getString(CiConstants.P_APP_NAME,
+                                        GraphDataConstants.UNKNOWN))
+                        .put(MergerApi.P_APP_VERSION,
+                                config().getString(CiConstants.P_APP_VERSION,
+                                        GraphDataConstants.UNKNOWN));
 
                 merger.prepareGraphForMerging(graph, targetDesc);
                 merger.walkAndMerge(
@@ -62,12 +65,9 @@ public class MergeGraphsVerticle extends FlowTask {
             } catch (Exception e) {
                 report.exceptionThrown(new JsonObject().put(Graph.F_ID, "inventory-tool"), e);
 //                promise.tryFail(e);  // XXX Shall we fail the entire flow?
-            } finally {
-                promise.tryComplete();
             }
-        }, res -> {
-            taskCompleted(taskPromise);
-        });
+            return null;
+        }).onComplete(res -> taskCompleted(taskPromise));
     }
 
     @Override

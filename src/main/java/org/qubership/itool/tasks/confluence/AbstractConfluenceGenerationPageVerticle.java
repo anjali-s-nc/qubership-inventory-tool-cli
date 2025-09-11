@@ -56,16 +56,17 @@ public abstract class AbstractConfluenceGenerationPageVerticle extends AbstractA
 
     @Override
     protected void taskStart(Promise<?> taskPromise) throws Exception {
-        final JsonArray rootConfluencePages = JsonUtils.getOrCreateJsonArray(graph.getVertex(Graph.V_ROOT), "confluencePages");
+        final JsonArray rootConfluencePages =
+                JsonUtils.getOrCreateJsonArray(graph.getVertex(Graph.V_ROOT), "confluencePages");
 
-        vertx.executeBlocking(promise -> {
+        vertx.executeBlocking(() -> {
             List<ConfluencePage> pageList = prepareConfluencePageList();
             pageList.forEach(page -> {
                 page.addDataModel("release", ConfigUtils.getConfigValue(RELEASE_POINTER, config()));
                 page.setSpace(ConfigUtils.getConfigValue(CONFLUENCE_SPACE_POINTER, config()));
             });
-            promise.complete(pageList);
-        }, res -> {
+            return pageList;
+        }).onComplete(res -> {
             if (res.failed()) {
                 report.internalError(ExceptionUtils.getStackTrace(res.cause()));
                 taskCompleted(taskPromise);
@@ -80,9 +81,10 @@ public abstract class AbstractConfluenceGenerationPageVerticle extends AbstractA
             }
 
             @SuppressWarnings("rawtypes")
-            List<Future> futureList = new ArrayList<>();
+            List<Future<?>> futureList = new ArrayList<>();
             for (ConfluencePage confluencePage : confluencePageList) {
-                getLogger().info("Generate Confluence page: " + confluencePage.getDirectoryPath() + "/" + confluencePage.getFileName());
+                getLogger().info("Generate Confluence page: " + confluencePage.getDirectoryPath()
+                        + "/" + confluencePage.getFileName());
 
                 Future<Void> future = Future.future(promise -> {
                     try {

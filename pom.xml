@@ -37,8 +37,7 @@
     </distributionManagement>
 
     <properties>
-        <revision>4.0.2-SNAPSHOT</revision>
-        <main.verticle>org.qubership.itool.cli.ci.CiExecVerticle</main.verticle>
+        <revision>5.0.1-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
@@ -47,11 +46,11 @@
         <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
         <logback.version>1.5.18</logback.version>
         <junit-jupiter.version>5.13.2</junit-jupiter.version>
-        <main.command>ci-exec</main.command>
         <guava.version>33.4.8-jre</guava.version>
         <groovy.version>4.0.27</groovy.version>
-        <vertx.version>4.5.14</vertx.version>
+        <vertx.version>5.0.3</vertx.version>
         <freemarker.version>2.3.34</freemarker.version>
+        <picocli.version>4.6.3</picocli.version>
     </properties>
 
     <dependencyManagement>
@@ -162,6 +161,19 @@
             <version>2.0.17</version>
         </dependency>
 
+        <!-- Log4j2 core for Apache POI compatibility -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.24.1</version>
+        </dependency>
+        <!-- Log4j2 to SLF4J bridge to route POI logging to Logback -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.24.1</version>
+        </dependency>
+
         <!-- Console handling input -->
         <dependency>
             <groupId>org.jline</groupId>
@@ -174,6 +186,13 @@
             <groupId>org.commonmark</groupId>
             <artifactId>commonmark</artifactId>
             <version>0.25.0</version>
+        </dependency>
+
+        <!-- Picocli for CLI parsing -->
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>${picocli.version}</version>
         </dependency>
         <dependency>
             <groupId>org.commonmark</groupId>
@@ -349,13 +368,8 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>io.vertx.core.Launcher</Main-Class>
-                                        <Main-Verticle>${main.verticle}</Main-Verticle>
-                                        <Main-Command>${main.command}</Main-Command>
+                                        <Main-Class>org.qubership.itool.cli.InventoryToolMain</Main-Class>
                                     </manifestEntries>
-                                </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/services/io.vertx.core.spi.VerticleFactory</resource>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.properties.PropertiesTransformer">
                                     <resource>inventory.tool.build.properties</resource>

@@ -30,7 +30,6 @@ import org.qubership.itool.cli.FlowMainVerticle;
 
 import static org.qubership.itool.cli.ci.CiConstants.*;
 
-
 public class ObfuscationMainVerticle extends FlowMainVerticle {
     protected static final Logger LOG = LoggerFactory.getLogger(ObfuscationMainVerticle.class);
 

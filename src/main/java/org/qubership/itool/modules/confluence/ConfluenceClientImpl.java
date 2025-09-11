@@ -16,7 +16,6 @@
 
 package org.qubership.itool.modules.confluence;
 
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -55,12 +54,15 @@ public class ConfluenceClientImpl implements ConfluenceClient {
     }
 
     @Override
-    public Future<JsonObject> updateConfluencePage(String spaceKey, String title, String parentTitle, String filePath, String release) {
+    public Future<JsonObject> updateConfluencePage(String spaceKey, String title,
+            String parentTitle, String filePath, String release) {
         LOG.info("Sending page '{}' stored in '{}' to Confluence", title, filePath);
         Future<JsonObject> futureConfluencePageInfo = getConfluencePageInfo(spaceKey, title, release)
                 // If page was not found, then get the parent id, create new page and return its info in future
                 .recover(pageInfo -> {
-                    LOG.debug("'{}': Page was not found, searching for the parent '{}' and create the new one", title, parentTitle);
+                    LOG.debug(
+                            "'{}': Page was not found, searching for the parent '{}' and create the new one",
+                            title, parentTitle);
                     return getConfluencePageInfo(spaceKey, parentTitle, release)
                             .compose(parent -> createConfluencePage(spaceKey, title, parent.getString("id"), release));
                 });
@@ -77,24 +79,31 @@ public class ConfluenceClientImpl implements ConfluenceClient {
                         )
                 );
 
-        Future<JsonObject> futureResponse = CompositeFuture.join(futureConfluencePageInfo, futureStorageFileContents)
-                .compose(compositeFuture -> {
+        Future<JsonObject> futureResponse =
+                Future.join(futureConfluencePageInfo, futureStorageFileContents)
+                        .compose(compositeFuture -> {
                             JsonObject confluencePageInfo = futureConfluencePageInfo.result();
                             String storageFileContents = futureStorageFileContents.result();
                             JsonArray ancestors = confluencePageInfo.getJsonArray("ancestors");
                             Future<JsonObject> parentFuture;
-                            JsonObject parentPage = ancestors.getJsonObject(ancestors.size()-1);
-                            if (buildPageTitle(parentTitle, release).equals(parentPage.getString("title"))){
+                            JsonObject parentPage = ancestors.getJsonObject(ancestors.size() - 1);
+                            if (buildPageTitle(parentTitle, release)
+                                    .equals(parentPage.getString("title"))) {
                                 parentFuture = Future.succeededFuture(parentPage);
                             } else {
-                                // If parent title doesn't match the closest ancestor, it shall be changed
-                                LOG.debug("'{}': Parent page didn't match, finding the related parent with title '{}'", title, parentTitle);
-                                parentFuture = getConfluencePageInfo(spaceKey, parentTitle, release);
+                                // If parent title doesn't match the closest ancestor, it shall be
+                                // changed
+                                LOG.debug(
+                                        "'{}': Parent page didn't match, finding the related parent with title '{}'",
+                                        title, parentTitle);
+                                parentFuture =
+                                        getConfluencePageInfo(spaceKey, parentTitle, release);
                             }
-                            return parentFuture.compose(parent ->
-                                    uploadConfluencePageAsStorage(confluencePageInfo, parent.getString("id"), storageFileContents));
-                        },
-                        fail -> Future.failedFuture("Failed to upload the content of '" + title + "' page, reason: " + fail.getMessage()));
+                            return parentFuture.compose(
+                                    parent -> uploadConfluencePageAsStorage(confluencePageInfo,
+                                            parent.getString("id"), storageFileContents));
+                        }, fail -> Future.failedFuture("Failed to upload the content of '" + title
+                                + "' page, reason: " + fail.getMessage()));
         return futureResponse;
     }
 
@@ -114,7 +123,8 @@ public class ConfluenceClientImpl implements ConfluenceClient {
     }
 
     @Override
-    public Future<JsonObject> createOrMoveConfluencePage(String spaceKey, String title, String parentId, String release) {
+    public Future<JsonObject> createOrMoveConfluencePage(String spaceKey, String title,
+            String parentId, String release) {
         Future<JsonObject> future = getConfluencePageInfo(spaceKey, title, release)
                 .compose(page -> moveConfluencePage(page, parentId, release),
                         res -> createConfluencePage(spaceKey, title, parentId, release));
@@ -204,7 +214,9 @@ public class ConfluenceClientImpl implements ConfluenceClient {
         LOG.info("Attempting to move the page '{}' to new parent with id={}", finalTitle, newParentId);
         JsonObject request = buildPageMoveRequestBody(finalTitle, newParentId,
                 page.getJsonObject("version").getInteger("number"));
-        Future<JsonObject> future = session.put(443, config.getString("confluenceUrl"), "/rest/api/content/" + page.getString("id"))
+        Future<JsonObject> future = session
+                .put(443, config.getString("confluenceUrl"),
+                        "/rest/api/content/" + page.getString("id"))
                 .followRedirects(true)
                 .ssl(true)
                 .authentication(credentials)
@@ -213,7 +225,8 @@ public class ConfluenceClientImpl implements ConfluenceClient {
                 .compose(rsp -> {
                     LOG.debug("Movement of page '{}' finished", finalTitle);
                     if (200 != rsp.statusCode()) {
-                        return Future.failedFuture("Can't move Confluence page '" + page.getString("title") + "': " + rsp.bodyAsString());
+                        return Future.failedFuture("Can't move Confluence page '"
+                                + page.getString("title") + "': " + rsp.bodyAsString());
                     }
                     return Future.succeededFuture(rsp.bodyAsJsonObject());
                 });
@@ -236,7 +249,9 @@ public class ConfluenceClientImpl implements ConfluenceClient {
                 .put("value", wikiContent)
                 .put("representation", "wiki");
 
-        Future<String> future = session.post(443, config.getString("confluenceUrl"), "/rest/api/contentbody/convert/storage")
+        Future<String> future = session
+                .post(443, config.getString("confluenceUrl"),
+                        "/rest/api/contentbody/convert/storage")
                 .followRedirects(true)
                 .ssl(true)
                 .authentication(credentials)
@@ -245,8 +260,8 @@ public class ConfluenceClientImpl implements ConfluenceClient {
                 .compose( rsp -> {
                     LOG.trace("Conversion of page '{}' finished", title);
                     if (200 != rsp.statusCode()) {
-                        return Future.failedFuture("Can't convert wiki page '" + title + "' to storage format, response: "
-                                + rsp.bodyAsString());
+                        return Future.failedFuture("Can't convert wiki page '" + title
+                                + "' to storage format, response: " + rsp.bodyAsString());
                     }
                     return Future.succeededFuture(rsp.bodyAsJsonObject().getString("value"));
                 });
@@ -282,7 +297,8 @@ public class ConfluenceClientImpl implements ConfluenceClient {
                         return Future.succeededFuture(confluencePageInfoJson.getJsonArray("results").getJsonObject(0));
                     }
                     if (confluencePageInfoJson.getJsonArray("results").size() > 1) {
-                        return Future.failedFuture("Found more than one page with a spaceKey=" + spaceKey + " and title='" + finalTitle + "'");
+                        return Future.failedFuture("Found more than one page with a spaceKey="
+                                + spaceKey + " and title='" + finalTitle + "'");
                     }
                     return Future.failedFuture("Page '" + finalTitle + "' was not found in Confluence");
                 });
@@ -317,7 +333,9 @@ public class ConfluenceClientImpl implements ConfluenceClient {
         LOG.debug("Uploading page '{}' with id {} and parentId {} in storage format.", page.getString("title"),
                 page.getString("id"), parentId);
         JsonObject requestBody = buildUpdateRequestBody(page, parentId, storageContent);
-        Future<JsonObject> future = client.put(443, config.getString("confluenceUrl"), "/rest/api/content/" + page.getString("id"))
+        Future<JsonObject> future = client
+                .put(443, config.getString("confluenceUrl"),
+                        "/rest/api/content/" + page.getString("id"))
                 .authentication(credentials)
                 .ssl(true)
                 .followRedirects(true)

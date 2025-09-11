@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.impl.future.SucceededFuture;
@@ -84,12 +83,13 @@ public class RepositoriesPrepareSuperRepositoryVerticle extends AbstractAggregat
 
         Future<Void> updateRepoFuture = gitAdapter.prepareSuperRepository()
                 .compose(superRepository -> {
-                    Future previousReleaseCopyFuture = SucceededFuture.EMPTY;
+                    Future<?> previousReleaseCopyFuture = SucceededFuture.EMPTY;
                     // Copy files from prior release if needed
                     if (compareRequired && sourceRelease != null && !sourceRelease.equals(targetRelease)) {
                         previousReleaseCopyFuture = gitAdapter.switchSuperRepoBranch(superRepository, sourceRelease)
                                 .compose(r -> getFilesList())
-                                .compose(list -> CompositeFuture.join(gitFileRetriever.copyFilesFromRepo(superRepository, sourceRelease, (List<Path>) list)));
+                                .compose(list -> Future.join(gitFileRetriever.copyFilesFromRepo(
+                                        superRepository, sourceRelease, (List<Path>) list)));
                     }
 
                     Future<Void> resultFuture = previousReleaseCopyFuture
@@ -97,11 +97,12 @@ public class RepositoriesPrepareSuperRepositoryVerticle extends AbstractAggregat
                             .compose(r -> gitAdapter.switchSuperRepoBranch(superRepository, targetRelease))
                             // Adding the missing submodules, if any
                             .compose(r -> {
-                                List<Future> futures = gitAdapter.bulkSubmoduleAdd(superRepository, jsonObjectList);;
-                                return CompositeFuture.join(futures);
+                                List<Future<?>> futures = gitAdapter.bulkSubmoduleAdd(superRepository, jsonObjectList);
+                                return Future.join(futures);
                             })
                             // Performing commit and update of submodules
-                            .compose(r -> gitAdapter.gitStatusCheck(superRepository, s -> !CollectionUtils.isEmpty(s.getAdded())))
+                            .compose(r -> gitAdapter.gitStatusCheck(superRepository,
+                                    s -> !CollectionUtils.isEmpty(s.getAdded())))
                             .compose(r -> {
                                 if ((Boolean) r) {
                                     return gitAdapter.gitCommit(superRepository, "New repositories added");
@@ -117,7 +118,9 @@ public class RepositoriesPrepareSuperRepositoryVerticle extends AbstractAggregat
     }
 
     private Future<List<Path>> getFilesList() {
-        return vertx.fileSystem().readFile(ConfigUtils.getConfigFilePath(config(), "config", "diffConfig.json").toString())
+        return vertx
+                .fileSystem().readFile(ConfigUtils
+                        .getConfigFilePath(config(), "config", "diffConfig.json").toString())
                 .map(fileContents -> {
                     JsonObject jsonResult = new JsonObject(fileContents);
                     List<Path> filesArray = jsonResult.getJsonArray("files").stream()

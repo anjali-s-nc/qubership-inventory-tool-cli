@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <!-- Route all Log4j2 logging to SLF4J -->
+        <SLF4J name="SLF4J" />
+    </Appenders>
+    <Loggers>
+        <!-- Route all loggers to SLF4J -->
+        <Root level="all">
+            <AppenderRef ref="SLF4J"/>
+        </Root>
+    </Loggers>
+</Configuration>

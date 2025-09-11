@@ -34,11 +34,7 @@ public interface GitAdapter {
 
     void setWorkerExecutor(WorkerExecutor executor);
 
-    void gitAddHandler(Git repo, String dir, Promise promise);
-
     Future<Void> gitAdd(Git repo, String dir);
-
-    void gitCommitHandler(Git repo, String message, Promise promise);
 
     Future<Object> gitStatusCheck(Git repo, Predicate<Status> statusPredicate);
 
@@ -48,29 +44,19 @@ public interface GitAdapter {
 
     Future<Void> gitRm(Git repo, Collection<String> files);
 
-    void submoduleUpdateHandler(Git repository, Promise promise);
-
     Future<Void> submoduleUpdate(Git repo);
 
-    List<Future> bulkSubmoduleAdd(Git superRepo, List<Map<String, JsonObject>> components);
-
-    void submoduleAddHandler(Git superRepo, JsonObject component, JsonObject domain, Promise promise);
+    List<Future<?>> bulkSubmoduleAdd(Git superRepo, List<Map<String, JsonObject>> components);
 
     Future<Void> submoduleAdd(Git superRepo, JsonObject component, JsonObject domain);
 
     void initSuperRepoHandler(String directoryPath, Promise promise);
 
-    void openRepositoryHandler(Promise p);
-
     Future<Git> openSuperrepository();
-
-    void submodulesCheckoutHandler(Git repository, String branch, List<JsonObject> components, Promise promise);
 
     Future<Void> submodulesCheckout(Git superrepo, String branch, List<JsonObject> components);
 
     Future<Void> branchCheckout(Git repository, String branch);
-
-    void prepareSuperRepoHandler(Promise<Git> promise);
 
     Future switchSuperRepoBranch(Git superRepository, String superRepositoryBranch);
 

@@ -69,14 +69,17 @@ public class EnrichDocumentationLinksVerticle extends AbstractAggregationTaskVer
                 .out().hasKeys(F_DIRECTORY)
                 .toList();
 
-        List<Future> blockingFutures = new ArrayList<>();
+        List<Future<?>> blockingFutures = new ArrayList<>();
         for (JsonObject component : components) {
-            blockingFutures.add(executor.executeBlocking(promise -> enrichComponentWithDocs(component, promise)));
+            blockingFutures.add(executor.executeBlocking(() -> {
+                enrichComponentWithDocs(component);
+                return null;
+            }));
         }
         completeCompositeTask(blockingFutures, taskPromise);
     }
 
-    private void enrichComponentWithDocs(JsonObject component, Promise<Object> promise) {
+    private void enrichComponentWithDocs(JsonObject component) {
         JsonArray additionalDocLinks = new JsonArray();
         String directoryPath = FSUtils.getComponentDirPath(component);
         for (String pattern : patterns) {
@@ -94,7 +97,6 @@ public class EnrichDocumentationLinksVerticle extends AbstractAggregationTaskVer
         if (!documentation.isEmpty()) {
             docsPtr.writeJson(component, documentation, true);
         }
-        promise.complete();
     }
 
 }

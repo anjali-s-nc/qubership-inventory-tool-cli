@@ -18,7 +18,6 @@ package org.qubership.itool.tasks.repository;
 
 import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
@@ -48,7 +47,7 @@ public class RepositoriesCopyToSuperRepositoryVerticle extends AbstractAggregati
                 .map(fileContents -> new JsonObject(fileContents))
                 .compose(jsonResult -> {
                     @SuppressWarnings("rawtypes")
-                    List<Future> copiedResultsFutures = jsonResult.stream().map(
+                    List<Future<?>> copiedResultsFutures = jsonResult.stream().map(
                             entry -> {
                                 Path targetPath = ConfigUtils.getSuperRepoFilePath(config(), (String) entry.getValue());
                                 String targetDir = targetPath.toString();
@@ -56,7 +55,7 @@ public class RepositoriesCopyToSuperRepositoryVerticle extends AbstractAggregati
                                         .compose(exists -> {
                                             Future<Void> result = Future.succeededFuture();
                                             if (exists) {
-                                                result = vertx.fileSystem().deleteRecursive(targetDir, true);
+                                                result = vertx.fileSystem().deleteRecursive(targetDir);
                                             }
                                             return result;
                                         })
@@ -72,7 +71,7 @@ public class RepositoriesCopyToSuperRepositoryVerticle extends AbstractAggregati
                                 return copiedResultFuture;
                             })
                             .collect(Collectors.toList());
-                    return CompositeFuture.join(copiedResultsFutures);
+                    return Future.join(copiedResultsFutures);
                 })
                 .onSuccess(r -> {
                     LOG.info("{} entries copied", r.size());

@@ -18,7 +18,6 @@ package org.qubership.itool.tasks.export;
 
 import org.qubership.itool.tasks.FlowTask;
 
-import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.json.JsonArray;
@@ -98,19 +97,17 @@ public class ExcelExportVerticle extends FlowTask {
                 , 60
                 , TimeUnit.MINUTES);
         String finalExportPath = exportPath;
-        Future<?> blockingFuture = Future.future(promise -> executor.executeBlocking(o -> {
+        executor.executeBlocking(() -> {
             try {
                 buildInventorizationXls(finalExportPath);
             } catch (IOException e) {
-                promise.fail(e);
+                throw new RuntimeException(
+                        "Failed to build Excel export " + finalExportPath + ": " + e.getMessage());
             }
+            return null;
+        }).onSuccess(r -> taskCompleted(taskPromise)).onFailure(r -> {
+            report.exceptionThrown(new JsonObject().put("id", "iTool"), (Exception) r);
             taskCompleted(taskPromise);
-        }, promise));
-        blockingFuture
-        .onSuccess(r -> taskCompleted(taskPromise))
-        .onFailure(r -> {
-           report.exceptionThrown(new JsonObject().put("id", "iTool"), (Exception) r);
-           taskCompleted(taskPromise);
         });
 
     }
@@ -228,7 +225,9 @@ public class ExcelExportVerticle extends FlowTask {
         if (dependencies.size() == 0) {
             return "N/A";
         } else {
-            return String.join(", ", dependencies.stream().map(d -> ((JsonObject) d).getString("artifactId")).collect(Collectors.toList()));
+            return String.join(", ",
+                    dependencies.stream().map(d -> ((JsonObject) d).getString("artifactId"))
+                            .collect(Collectors.toList()));
         }
     }
 
@@ -261,7 +260,8 @@ public class ExcelExportVerticle extends FlowTask {
                 reFormatSheet(sheet, domain);
             }
 
-            try (OutputStream os = new FileOutputStream(reportFolder + File.separator + getFileName(exportFileLocation))) {
+            try (OutputStream os = new FileOutputStream(
+                    reportFolder + File.separator + getFileName(exportFileLocation))) {
                 book.write(os);
             }
         }
@@ -322,7 +322,8 @@ public class ExcelExportVerticle extends FlowTask {
     protected void addDetailsRow(Sheet sheet, List<JsonObject> components, String propertyName, int rowIndex) {
         addPropertyRow(sheet, components, propertyName, rowIndex,
                 component -> {
-                    Object obj = component.getJsonObject("details").getValue(readablePropertyToFieldNameMap.get(propertyName));
+                    Object obj = component.getJsonObject("details")
+                            .getValue(readablePropertyToFieldNameMap.get(propertyName));
                     if (obj instanceof String) {
                         return (String)obj;
                     } else if (obj instanceof JsonArray) {
@@ -337,7 +338,8 @@ public class ExcelExportVerticle extends FlowTask {
                 });
     }
 
-    protected void addPropertyRow(Sheet sheet, List<JsonObject> components, String propertyName, int rowIndex, Function<JsonObject, String> cellValueProducer) {
+    protected void addPropertyRow(Sheet sheet, List<JsonObject> components, String propertyName,
+            int rowIndex, Function<JsonObject, String> cellValueProducer) {
         addRow(sheet, components, rowIndex, cell -> {
                     cell.setCellStyle(cellStylesMap.get(PROPERTY_STYLE));
                     cell.setCellValue(propertyName);

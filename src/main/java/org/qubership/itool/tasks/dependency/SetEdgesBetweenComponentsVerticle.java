@@ -82,7 +82,7 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
             .<String>values("/C/id", "/F/groupId", "/F/version").dedup()
             .group().by(F_ID).next();
 
-        vertx.executeBlocking(promise -> {
+        vertx.executeBlocking(() -> {
             for (JsonObject component : components) {
                 String componentId = component.getString(F_ID);
                 getLogger().debug("{}: Set outgoing Edges", componentId);
@@ -122,13 +122,14 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
                     this.report.exceptionThrown(component, ex);
                 }
             }
-            promise.complete();
-        }, res -> {
+            return null;
+        }).onComplete(res -> {
             taskCompleted(taskPromise);
         });
     }
 
-    private void processLanguageArtifactDependencies(JsonObject component, Map<String, List<String>> librariesArtifacts) {
+    private void processLanguageArtifactDependencies(JsonObject component,
+            Map<String, List<String>> librariesArtifacts) {
         if (LanguageUtils.hasLanguage(graph, component, "GoLang")){
             processGoDependencies(component, librariesArtifacts);
         } else {
@@ -178,8 +179,8 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
                     String dependencyGroupId = dependency.getString("groupId");
                     String dependencyArtifactId = dependency.getString("artifactId");
                     if (driverGroupId != null && driverGroupId.equals(dependencyGroupId)
-                     && driverArtifactId != null && driverArtifactId.equals(dependencyArtifactId))
-                    {
+                            && driverArtifactId != null
+                            && driverArtifactId.equals(dependencyArtifactId)) {
                         graph.addEdge(component, vertex,
                             new JsonObject().put("type", "fromDependency")
                                 .put("thirdParty", vertex.getString(F_ID))
@@ -257,7 +258,8 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
 
     }
 
-    private void extractDependency(Map<String, List<String>> librariesArtifacts, List<String> dependencies, Set<String> refSet) {
+    private void extractDependency(Map<String, List<String>> librariesArtifacts,
+            List<String> dependencies, Set<String> refSet) {
         for (String artifactId : dependencies) {
             List<String> libraryIds = librariesArtifacts.get(artifactId);
             if (libraryIds != null && !libraryIds.isEmpty()) {
@@ -266,7 +268,8 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
         }
     }
 
-    private void processDetailsProperty(JsonObject component, List<Map> frameworks, String detailsType, String edgeType) {
+    private void processDetailsProperty(JsonObject component, List<Map> frameworks,
+            String detailsType, String edgeType) {
         StringBuilder builder = new StringBuilder();
         boolean isFirst = true;
         for (Map framework : frameworks) {
@@ -330,7 +333,8 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
         Set<String> gateways = new HashSet<>();
         Graph graph = this.graph;
 
-        JsonObject deployOptions = (JsonObject) JsonPointer.from("/details/deploymentConfiguration/deployOptions").queryJson(component);
+        JsonObject deployOptions = (JsonObject) JsonPointer
+                .from("/details/deploymentConfiguration/deployOptions").queryJson(component);
         if (deployOptions != null) {
             if (!deployOptions.getString("generateFacadeGateway", "false").equals("false")){
                 gateways.add("FACADE");
@@ -370,7 +374,8 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
      * **if** they have not been created by setEdgesToInfraVertexes() from maven dependencies
      */
     private void processDatabases(JsonObject component) {
-        JsonArray databaseList = JsonUtils.getOrCreateJsonArray(component, JsonPointer.from("/details/database/database"));
+        JsonArray databaseList = JsonUtils.getOrCreateJsonArray(component,
+                JsonPointer.from("/details/database/database"));
         if (databaseList.isEmpty()) {
             return;
         }
@@ -379,10 +384,12 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
             createDatabaseEdge(component, (JsonObject) tmp, "database", "mandatory");
         }
 
-        JsonObject externalIndices = (JsonObject) JsonPointer.from("/details/database/externalIndices").queryJson(component);
+        JsonObject externalIndices = (JsonObject) JsonPointer
+                .from("/details/database/externalIndices").queryJson(component);
         createDatabaseEdge(component, externalIndices, "indexation", "mandatory");
 
-        JsonObject externalCache = (JsonObject) JsonPointer.from("/details/database/externalCache").queryJson(component);
+        JsonObject externalCache = (JsonObject) JsonPointer.from("/details/database/externalCache")
+                .queryJson(component);
         createDatabaseEdge(component, externalCache, "caching", "optional");
     }
 
@@ -398,7 +405,8 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
         return value;
     }
 
-    private void createDatabaseEdge(JsonObject sourceComponent, JsonObject detailsJson, String vertexType, String edgeType) {
+    private void createDatabaseEdge(JsonObject sourceComponent, JsonObject detailsJson,
+            String vertexType, String edgeType) {
         if (detailsJson == null) {
             return;
         }
@@ -430,23 +438,28 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
             return;
         }
 
-        JsonArray rabbitMQProducer = (JsonArray) JsonPointer.from("/details/messageQueues/rabbitMQ/producer").queryJson(component);
-        JsonArray rabbitMQConsumer = (JsonArray) JsonPointer.from("/details/messageQueues/rabbitMQ/consumer").queryJson(component);
+        JsonArray rabbitMQProducer = (JsonArray) JsonPointer
+                .from("/details/messageQueues/rabbitMQ/producer").queryJson(component);
+        JsonArray rabbitMQConsumer = (JsonArray) JsonPointer
+                .from("/details/messageQueues/rabbitMQ/consumer").queryJson(component);
 
         Graph graph = this.graph;
         JsonObject rabbitMQComponent = graph.getVertex("RabbitMQ");
         createMessageQueueEdge(graph, component, rabbitMQComponent, rabbitMQProducer, "producer");
         createMessageQueueEdge(graph, rabbitMQComponent, component, rabbitMQConsumer, "consumer");
 
-        JsonArray kafkaProducer = (JsonArray) JsonPointer.from("/details/messageQueues/kafka/producer").queryJson(component);
-        JsonArray kafkaConsumer = (JsonArray) JsonPointer.from("/details/messageQueues/kafka/consumer").queryJson(component);
+        JsonArray kafkaProducer = (JsonArray) JsonPointer
+                .from("/details/messageQueues/kafka/producer").queryJson(component);
+        JsonArray kafkaConsumer = (JsonArray) JsonPointer
+                .from("/details/messageQueues/kafka/consumer").queryJson(component);
 
         JsonObject kafkaComponent = graph.getVertex("Kafka");
         createMessageQueueEdge(graph, component, kafkaComponent, kafkaProducer, "producer");
         createMessageQueueEdge(graph, kafkaComponent, component, kafkaConsumer, "consumer");
     }
 
-    private void createMessageQueueEdge(Graph graph, JsonObject sourceComponent, JsonObject mqComponent, JsonArray list, String type) {
+    private void createMessageQueueEdge(Graph graph, JsonObject sourceComponent,
+            JsonObject mqComponent, JsonArray list, String type) {
         if (mqComponent == null || list == null) {
             return;
         }
@@ -486,9 +499,10 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
             }
 
             List<JsonObject> destinationComponents = V(V_ROOT).out().hasType(V_DOMAIN).out()
-                    .or(
-                            __.<JsonObject>has(F_MOCK_FLAG, P.neq(true)).has(P_DETAILS_DNS_NAMES, P.containing(dependency))
-                            , __.<JsonObject>has(F_MOCK_FLAG, P.eq(true)).has(P_DETAILS_DNS_NAMES, P.eq(dependency)))
+                    .or(__.<JsonObject>has(F_MOCK_FLAG, P.neq(true)).has(P_DETAILS_DNS_NAMES,
+                            P.containing(dependency)),
+                            __.<JsonObject>has(F_MOCK_FLAG, P.eq(true)).has(P_DETAILS_DNS_NAMES,
+                                    P.eq(dependency)))
                     .toList();
             JsonObject destinationComponent;
             String edgeType = null;
