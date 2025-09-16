@@ -48,10 +48,6 @@ public class ParseComponentConfFilesVerticle extends AbstractParseFileTask {
     @Resource
     Provider<YamlParser> yamlParserProvider;
 
-    final String REGEX_PATTERN = "\\{\\{[^{}]*?\\$?\\.Values\\.(\\w+(?:[-\\w]*))[^{}]*?\\}\\}|" +
-            "\\{\\{\\s*include\\s+\"([^\"]+)\"[^{}]*?\\}\\}|" +
-            "(\\w+:\\s*)['\"](.*?)\\{\\{\\s*\\$([a-zA-Z_]\\w*)\\s*\\}\\}(.*?)[\\'\"]";
-
     protected String[] getFilePatterns() {
         return new String[]{
             "Dockerfile",
@@ -146,9 +142,8 @@ public class ParseComponentConfFilesVerticle extends AbstractParseFileTask {
         vertex.put("content", content);
         try {
             if (fileName.endsWith(".yaml") || fileName.endsWith(".yml")) {
-                String sanitizedContent = sanitizeHelmTemplates(content);
                 YamlParser yamlParser = yamlParserProvider.get();
-                List<Object> structuredJson = yamlParser.parseYamlData(sanitizedContent, fileName);
+                List<Object> structuredJson = yamlParser.parseYamlData(content, fileName);
                 if (isSpringYamlFile(fileName)) {
                     yamlParser.fixSpringYamlModels(structuredJson);
                 }
@@ -162,22 +157,6 @@ public class ParseComponentConfFilesVerticle extends AbstractParseFileTask {
                     "Exception was thrown while handling '" + fileName
                             + "': " + e.getMessage() + "\nStacktrace:\n" + ExceptionUtils.getStackTrace(e));
         }
-    }
-    private String sanitizeHelmTemplates(String yaml) {
-        StringBuilder sanitized = new StringBuilder();
-        String[] lines = yaml.split("\\r?\\n");
-        for (String line : lines) {
-            String trimmed = line.trim();
-
-            // Commenting lines with only helm template
-            if (trimmed.matches("^\\{\\{.*}}$")) {
-                sanitized.append("# ").append(line).append("\n");
-                continue;
-            }
-            line = line.replaceAll(REGEX_PATTERN, "$1$2$3$4$5$6");
-            sanitized.append(line).append("\n");
-        }
-        return sanitized.toString();
     }
 
     @Override
