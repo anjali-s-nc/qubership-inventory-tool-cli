@@ -137,6 +137,16 @@ public class TestYamlParser {
         assertEquals( "  censored: '${ SOME_VALUE ? SOME_VALUE : __}'",
                 normalizeLine("  censored: ${ SOME_VALUE ? SOME_VALUE : ''}"));
 
+
+        assertEquals( "'{{- $censored := $.Values.SOME_VALUES -}}'",
+                        normalizeLine("{{- $censored := $.Values.SOME_VALUES -}}"));
+        assertEquals( "'{{ censored \"test-value.value\" . | value 4 | value }}'",
+                        normalizeLine("{{ censored \"test-value.value\" . | value 4 | value }}"));
+        assertEquals( "'{{- $isCensored := or (eq $.Values.SOME_VALUE true) (gt $censored 1)  -}}'",
+                        normalizeLine("{{- $isCensored := or (eq $.Values.SOME_VALUE true) (gt $censored 1)  -}}"));
+        assertEquals( "'{{ filter \"some-value.value.data\" . | action 4 | action }}'",
+                                normalizeLine("{{ filter \"some-value.value.data\" . | action 4 | action }}"));
+
     }
 
     private boolean acceptLine(String s) {
