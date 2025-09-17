@@ -55,10 +55,11 @@ public class YamlParser {
           + "\\s*$");
     protected static final String BRACE_PROTECTOR_KEY_REPLACEMENT = "$1'$2$3'";
 
-    protected static final Pattern HELM_PROTECTOR = Pattern.compile(
-        "\\{\\{[^{}]*?\\$?\\.Values\\.(\\w+(?:[-\\w]*))[^{}]*?\\}\\}|" +
-            "\\{\\{\\s*include\\s+\"([^\"]+)\"[^{}]*?\\}\\}|" +
-            "(\\w+:\\s*)['\"](.*?)\\{\\{\\s*\\$([a-zA-Z_]\\w*)\\s*\\}\\}(.*?)[\\'\"]");
+    private static final Pattern HELM_TEMPLATE = Pattern.compile(
+        "^(\\s*)(\\{\\{.*?\\}\\})(\\s*)$"
+            + "|"
+            + "^(?!\\s*\\w+\\s*:)\\s*(.*?\\{\\{.*?\\}\\}.*?)\\s*$"
+    );
 
     protected static final Pattern BRACE_PROTECTOR_DASH = Pattern.compile(
             // $1 = spaces, dash, start of value without braces and quotes
@@ -207,9 +208,14 @@ public class YamlParser {
             return s1;
         }
 
-        // New: sanitize Helm inline templates
-        s1 = HELM_PROTECTOR.matcher(s).replaceAll("$1$2$3$4$5$6");
-        if (!s1.equals(s)) return s1;
+        //Sanitize Helm inline templates
+        Matcher helm = HELM_TEMPLATE.matcher(s);
+        if (helm.matches()) {
+            if (helm.group(2) != null) {
+                // standalone
+                return helm.group(1) + "'" + helm.group(2) + "'" + helm.group(3);
+            }
+        }
 
         return s;
     }
