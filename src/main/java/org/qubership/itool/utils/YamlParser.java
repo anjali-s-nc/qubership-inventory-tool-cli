@@ -57,8 +57,10 @@ public class YamlParser {
     protected static final String BRACE_PROTECTOR_KEY_REPLACEMENT = "$1'$2$3'";
 
     private static final Pattern HELM_TEMPLATE = Pattern.compile(
+        // case 1: standalone helm template, with indent + expr + trailing spaces
         "^(\\s*)(\\{\\{.*?\\}\\})(\\s*)$"
             + "|"
+            //case 2: inline helm template inside a value"
             + "^(?!\\s*\\w+\\s*:)\\s*(.*?\\{\\{.*?\\}\\}.*?)\\s*$"
     );
 
