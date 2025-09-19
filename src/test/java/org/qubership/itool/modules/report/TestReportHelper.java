@@ -101,7 +101,9 @@ public class TestReportHelper {
 
         Assertions.assertEquals(1, report.size());
         Assertions.assertEquals("test:1", record.getString("component"));
-        Assertions.assertEquals("Component duplicated. Id: test:1", record.getString("message"));
+        Assertions.assertEquals("Component duplicated. Source [Id: test:1, Type: null, Name: test_1, " +
+            "Repository: null, Directory: null] Duplicate [Id: test:1, Type: null, Name: test_2, " +
+            "Repository: null, Directory: null]", record.getString("message"));
     }
 
     @Test
@@ -114,7 +116,8 @@ public class TestReportHelper {
 
         Assertions.assertEquals(1, report.size());
         Assertions.assertEquals("test:1", record.getString("component"));
-        Assertions.assertEquals("Value does not match the convention. Value: 'Quarkus 1.4.*'. Pattern: [\\w+\\s+]+\\s+[\\d\\.]+$", record.getString("message"));
+        Assertions.assertEquals("Value does not match the convention. Value: 'Quarkus 1.4.*'. Pattern: " +
+            "[\\w+\\s+]+\\s+[\\d\\.]+$", record.getString("message"));
     }
 
     @Test
@@ -128,7 +131,8 @@ public class TestReportHelper {
         Assertions.assertEquals(1, report.size());
         Assertions.assertEquals("test:1", record.getString("component"));
         Assertions.assertTrue(record.getString("message")
-                .matches("Exception was thrown while handling 'test:1': Test Exception\\nStacktrace:\\n\\[.*testExceptionThrown\\(TestReportHelper.java.*"));
+                .matches("Exception was thrown while handling 'test:1': Test Exception\\nStacktrace:\\n" +
+                    "\\[.*testExceptionThrown\\(TestReportHelper.java.*"));
     }
 
     @Test
