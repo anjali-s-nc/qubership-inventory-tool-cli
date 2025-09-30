@@ -125,7 +125,7 @@ public class CoreModule extends AbstractModule {
     @Provides
     @Singleton
     public TemplateService provideTemplateService(DiagramService diagramService,
-            @Named("application.config") JsonObject config) {
+                                                  @Named("application.config") JsonObject config) {
         return new TemplateServiceImpl(diagramService, config);
     }
 }
