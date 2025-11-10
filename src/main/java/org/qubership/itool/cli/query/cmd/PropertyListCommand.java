@@ -31,7 +31,7 @@ public class PropertyListCommand extends AbstractCliCommand {
 
     public PropertyListCommand(CliContext context) {
         super(context);
-        this.props = (Properties)context.getValue(PROPERTIES);
+        this.props = (Properties) context.getValue(PROPERTIES);
     }
 
     @Override

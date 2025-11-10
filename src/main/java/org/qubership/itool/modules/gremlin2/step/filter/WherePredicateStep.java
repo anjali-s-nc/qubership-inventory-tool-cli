@@ -32,7 +32,8 @@ public class WherePredicateStep<S> extends FilterStep<S> implements ByModulating
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "(" + startKey + "," + predicate + ((innerTraversal == null) ? "" : ",traversal") + ")";
+        return getClass().getSimpleName() + "(" + startKey + "," + predicate
+                + ((innerTraversal == null) ? "" : ",traversal") + ")";
     }
 
     @Override
@@ -63,7 +64,8 @@ public class WherePredicateStep<S> extends FilterStep<S> implements ByModulating
     }
 
     private boolean filterByTraversal(Traverser.Admin<S> traverser) {
-        Traversal.Admin<?, ?> cloneTraversal = prepareInnerTraversal((Traversal.Admin<?, S>) this.innerTraversal, traverser);
+        Traversal.Admin<?, ?> cloneTraversal =
+                prepareInnerTraversal((Traversal.Admin<?, S>) this.innerTraversal, traverser);
         Object result = cloneTraversal.next();
         return (result != null);
     }
@@ -71,7 +73,7 @@ public class WherePredicateStep<S> extends FilterStep<S> implements ByModulating
     private boolean filterByPredicate(Traverser.Admin<S> traverser) {
         P<Object> clonePredicate = this.predicate.clone();
         if (startKey == null) {
-            String origPredicateValue = (String)clonePredicate.getValue();
+            String origPredicateValue = (String) clonePredicate.getValue();
             Object predicateObject = traverser.path().get(origPredicateValue);
             clonePredicate.setOriginalValue(predicateObject);
         }

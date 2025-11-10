@@ -23,7 +23,7 @@ import org.qubership.itool.modules.gremlin2.step.AbstractStep;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FoldStep<S, E> extends ReducingBarrierStep<S, E>{
+public class FoldStep<S, E> extends ReducingBarrierStep<S, E> {
 
     public FoldStep(Traversal.Admin traversal) {
         super(traversal);
@@ -35,7 +35,7 @@ public class FoldStep<S, E> extends ReducingBarrierStep<S, E>{
         for (Traverser<S> traverser : previousTraversers) {
             result.add(traverser.get());
         }
-        return (E)result;
+        return (E) result;
     }
 
     @Override

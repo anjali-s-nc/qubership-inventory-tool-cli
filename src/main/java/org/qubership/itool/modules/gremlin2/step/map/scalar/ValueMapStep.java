@@ -16,19 +16,19 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.scalar;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.step.AbstractStep;
 import org.qubership.itool.modules.gremlin2.step.ByModulating;
 import org.qubership.itool.modules.gremlin2.util.ValueHelper;
-import io.vertx.core.json.JsonObject;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class
-ValueMapStep <K,E, E2> extends ScalarMapStep<E2, Map<K, E>> implements ByModulating {
+ValueMapStep<K, E, E2> extends ScalarMapStep<E2, Map<K, E>> implements ByModulating {
 
     private String[] propertyKeys;
 
@@ -37,7 +37,7 @@ ValueMapStep <K,E, E2> extends ScalarMapStep<E2, Map<K, E>> implements ByModulat
         return getClass().getSimpleName() + "(" + Arrays.asList(propertyKeys) + ")";
     }
 
-    public <S, E> ValueMapStep(Traversal.Admin<S,E> traversal, String[] propertyKeys) {
+    public <S, E> ValueMapStep(Traversal.Admin<S, E> traversal, String[] propertyKeys) {
         super(traversal);
         this.propertyKeys = propertyKeys;
     }
@@ -61,13 +61,13 @@ ValueMapStep <K,E, E2> extends ScalarMapStep<E2, Map<K, E>> implements ByModulat
             }
 
         } else if (obj instanceof Map) {
-            Map tmpMap = (Map)obj;
+            Map tmpMap = (Map) obj;
             if (propertyKeys.length == 0) {
                 map = (Map<K, E>) tmpMap;
 
             } else {
                 for (String key : this.propertyKeys) {
-//                    E tmp = (E) tmpMap.get(key);
+                    //                    E tmp = (E) tmpMap.get(key);
                     E tmp = (E) ValueHelper.getObjectValue(key, tmpMap);
                     if (tmp != null) {
                         map.put((K) ValueHelper.getPropertyKey(key), tmp);

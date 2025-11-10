@@ -16,13 +16,13 @@
 
 package org.qubership.itool.modules.gremlin2.step.barrier;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.step.AbstractStep;
 import org.qubership.itool.modules.gremlin2.step.ByModulating;
 import org.qubership.itool.modules.gremlin2.structure.MapElement;
 import org.qubership.itool.modules.gremlin2.util.Order;
-import io.vertx.core.json.JsonObject;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,9 +37,9 @@ public class OrderStep<S, E> extends ReducingBarrierStep<S, S> implements ByModu
     @Override
     public String toString() {
         return getClass().getSimpleName() + "("
-            + (orderBy == null ? "": orderBy)
-            + (orderByKey == null ? "": orderByKey)
-            + (orderByMapElement == null ? "": orderByMapElement)
+            + (orderBy == null ? "" : orderBy)
+            + (orderByKey == null ? "" : orderByKey)
+            + (orderByMapElement == null ? "" : orderByMapElement)
             + ")";
     }
 
@@ -70,13 +70,13 @@ public class OrderStep<S, E> extends ReducingBarrierStep<S, S> implements ByModu
                 if (firstObj instanceof JsonObject) {
                     firstValue = ((JsonObject) firstObj).getValue(orderByKey);
                 } else if (firstObj instanceof Map) {
-                    firstValue = ((Map)firstObj).get(orderByKey);
+                    firstValue = ((Map) firstObj).get(orderByKey);
                 }
 
                 if (secondObj instanceof JsonObject) {
                     secondValue = ((JsonObject) secondObj).getValue(orderByKey);
                 } else if (firstObj instanceof Map) {
-                    secondValue = ((Map)secondObj).get(orderByKey);
+                    secondValue = ((Map) secondObj).get(orderByKey);
                 }
 
                 if (firstValue == null && secondValue == null) {
@@ -91,7 +91,7 @@ public class OrderStep<S, E> extends ReducingBarrierStep<S, S> implements ByModu
                 return orderBy.compare(firstValue, secondValue);
             });
 
-        } else if(this.orderByMapElement != null) {
+        } else if (this.orderByMapElement != null) {
             Collections.sort(result, (first, second) -> {
                 S firstObj = first == null ? null : first.get();
                 S secondObj = second == null ? null : second.get();
@@ -111,12 +111,12 @@ public class OrderStep<S, E> extends ReducingBarrierStep<S, S> implements ByModu
                 if ((firstObj instanceof Map) && (secondObj instanceof Map)) {
                     switch (this.orderByMapElement) {
                     case key:
-                        firstValue = ((Map)firstObj).keySet().iterator().next();
-                        secondValue = ((Map)secondObj).keySet().iterator().next();
+                        firstValue = ((Map) firstObj).keySet().iterator().next();
+                        secondValue = ((Map) secondObj).keySet().iterator().next();
                         break;
                     case value:
-                        firstValue = ((Map)firstObj).values().iterator().next();
-                        secondValue = ((Map)secondObj).values().iterator().next();
+                        firstValue = ((Map) firstObj).values().iterator().next();
+                        secondValue = ((Map) secondObj).values().iterator().next();
                         break;
                     default:    // No idea what to do
                         break;

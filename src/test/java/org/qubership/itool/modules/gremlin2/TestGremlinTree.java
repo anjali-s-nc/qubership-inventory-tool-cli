@@ -20,7 +20,6 @@ import io.vertx.core.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
 import org.qubership.itool.modules.gremlin2.step.util.Tree;
 
 public class TestGremlinTree extends AbstractGremlinTest {
@@ -30,7 +29,7 @@ public class TestGremlinTree extends AbstractGremlinTest {
         Tree<String> tree = new Tree<>();
         tree.add("A");
         tree.add("B");
-//        System.out.println(tree);
+        //System.out.println(tree);
         Assertions.assertEquals(2, tree.size());
     }
 
@@ -39,7 +38,7 @@ public class TestGremlinTree extends AbstractGremlinTest {
         Tree<String> tree = new Tree<>();
         tree.add("A").add("A1").add(("A2"));
         tree.add("B");
-//        System.out.println(tree);
+        //System.out.println(tree);
         Assertions.assertEquals(2, tree.size());
         Assertions.assertEquals(1, tree.get("A").size());
         Assertions.assertEquals(1, tree.get("A").get("A1").size());
@@ -52,13 +51,14 @@ public class TestGremlinTree extends AbstractGremlinTest {
         Tree<String> b2Tree = tree.add("B").add("B2");
         b2Tree.add("B2_1");
         b2Tree.add("B2_2");
-//        System.out.println(tree);
+        //System.out.println(tree);
         Assertions.assertEquals(2, tree.size());
         Assertions.assertEquals(1, tree.get("A").size());
         Assertions.assertEquals(1, tree.get("A").get("A1").size());
         Assertions.assertEquals(1, tree.get("B").size());
         Assertions.assertEquals(2, tree.get("B").get("B2").size());
     }
+
     @Test
     @Disabled
     void test_level_z() {
@@ -72,13 +72,13 @@ public class TestGremlinTree extends AbstractGremlinTest {
         b211Tree.add("B2_1_1_3");
         b2Tree.add("B2_2");
         bTree.add("B3");
-//        System.out.println(tree);
+        //System.out.println(tree);
     }
 
     @Test
     void test_tree() {
         Tree<JsonObject> tree = V().hasNotId("root").out().out().tree().next();
-//        System.out.println(tree);
+        //System.out.println(tree);
         Assertions.assertEquals(1, tree.size());
         Assertions.assertEquals(1, tree.get(graph.getVertex("v1")).size());
         Assertions.assertEquals(3, tree.get(graph.getVertex("v1")).get(graph.getVertex("v4")).size());
@@ -87,7 +87,7 @@ public class TestGremlinTree extends AbstractGremlinTest {
     @Test
     void test_tree_by() {
         Tree<String> tree = V().hasNotId("root").out().out().tree().by("name").next();
-//        System.out.println(tree);
+        //System.out.println(tree);
         Assertions.assertEquals(1, tree.size());
         Assertions.assertEquals(1, tree.get("marko").size());
         Assertions.assertEquals(3, tree.get("marko").get("josh").size());

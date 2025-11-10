@@ -70,12 +70,15 @@ public class FalloutDto {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         FalloutDto other = (FalloutDto) obj;
         return Objects.equals(appName, other.appName) && Objects.equals(appVersion, other.appVersion)
                 && Objects.equals(mSName, other.mSName);

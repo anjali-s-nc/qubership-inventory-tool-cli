@@ -23,7 +23,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class QueryFileParser {
-    private enum STATE { init, method, description, query };
+
+    private enum STATE { init, method, description, query }
 
     public void parse(List<QueryItem> queryItems, String fileName) {
         String source;
@@ -61,8 +62,14 @@ public class QueryFileParser {
 
             switch (state) {
                 case init:
-                case method: method = row; state = STATE.description; break;
-                case description: description = row; state = STATE.query; break;
+                case method:
+                    method = row;
+                    state = STATE.description;
+                    break;
+                case description:
+                    description = row;
+                    state = STATE.query;
+                    break;
                 case query: query = query + row + "\n";
             }
         }

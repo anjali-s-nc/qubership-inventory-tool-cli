@@ -16,12 +16,10 @@
 
 package org.qubership.itool.tasks.parsing.java;
 
-import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
-
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
+import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
 import org.qubership.itool.utils.FSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +33,11 @@ import java.util.stream.Collectors;
 
 public class ParseRouteAnnotationVerticle extends AbstractParseFileTask {
 
-    protected Logger LOG = LoggerFactory.getLogger(ParseRouteAnnotationVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParseRouteAnnotationVerticle.class);
 
-    final Pattern GATEWAY_TYPE_PATTERN = Pattern.compile("(PUBLIC|PRIVATE|INTERNAL|FACADE)", Pattern.CASE_INSENSITIVE);
-    final String ROUTE_ANNOTATION = "@Route";
+    static final Pattern GATEWAY_TYPE_PATTERN =
+            Pattern.compile("(PUBLIC|PRIVATE|INTERNAL|FACADE)", Pattern.CASE_INSENSITIVE);
+    static final String ROUTE_ANNOTATION = "@Route";
 
     @Override
     protected String[] getFilePatterns() {
@@ -67,7 +66,8 @@ public class ParseRouteAnnotationVerticle extends AbstractParseFileTask {
                 if (matcher.find()) {
                     String gateway = matcher.group().toLowerCase();
                     gatewaysSet.add(gateway);
-                    getLogger().debug("{}: Route configuration '{}' is found in file '{}'", componentId, gateway, fileName);
+                    getLogger().debug("{}: Route configuration '{}' is found in file '{}'",
+                            componentId, gateway, fileName);
                     break;
                 }
             }

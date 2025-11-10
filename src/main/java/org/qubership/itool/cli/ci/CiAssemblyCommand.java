@@ -16,16 +16,18 @@
 
 package org.qubership.itool.cli.ci;
 
-import static org.qubership.itool.cli.ci.CiConstants.P_APP_NAME;
-import static org.qubership.itool.cli.ci.CiConstants.P_APP_VERSION;
-import static org.qubership.itool.cli.ci.CiConstants.P_OUTPUT_FILE;
-import static org.qubership.itool.utils.ConfigProperties.PROFILE_POINTER;
-import java.util.Properties;
 import org.qubership.itool.utils.ConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import java.util.Properties;
+
+import static org.qubership.itool.cli.ci.CiConstants.P_APP_NAME;
+import static org.qubership.itool.cli.ci.CiConstants.P_APP_VERSION;
+import static org.qubership.itool.cli.ci.CiConstants.P_OUTPUT_FILE;
+import static org.qubership.itool.utils.ConfigProperties.PROFILE_POINTER;
 
 /**
  * A command for executing CI assembly.

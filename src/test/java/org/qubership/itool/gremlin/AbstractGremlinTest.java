@@ -63,15 +63,20 @@ public class AbstractGremlinTest {
 
     protected void createSimpleGraph() {
         /*
-        v1_marko -knows-> v4_josh -created->    v3_lop
-                                  -created->    v5_ripple
-                                  -maintained-> v6_linux
+         * v1_marko -knows-> v4_josh -created->    v3_lop
+         *                           -created->    v5_ripple
+         *                           -maintained-> v6_linux
          */
-        JsonObject vertex_1_marko = new JsonObject().put("id", "v1").put("name", "marko").put("age", 29).put("type", "person");
-        JsonObject vertex_4_josh = new JsonObject().put("id", "v4").put("name", "josh").put("age", 32).put("type", "person");
-        JsonObject vertex_3_lop = new JsonObject().put("id", "v3").put("name", "lop").put("lang", "java").put("type", "soft");
-        JsonObject vertex_5_ripple = new JsonObject().put("id", "v5").put("name", "ripple").put("lang", "java").put("type", "soft");
-        JsonObject vertex_6_linux = new JsonObject().put("id", "v6").put("name", "linux").put("type", "os").put("active", true);
+        JsonObject vertex_1_marko = new JsonObject().put("id", "v1").put("name", "marko")
+                .put("age", 29).put("type", "person");
+        JsonObject vertex_4_josh = new JsonObject().put("id", "v4").put("name", "josh")
+                .put("age", 32).put("type", "person");
+        JsonObject vertex_3_lop = new JsonObject().put("id", "v3").put("name", "lop")
+                .put("lang", "java").put("type", "soft");
+        JsonObject vertex_5_ripple = new JsonObject().put("id", "v5").put("name", "ripple")
+                .put("lang", "java").put("type", "soft");
+        JsonObject vertex_6_linux = new JsonObject().put("id", "v6").put("name", "linux")
+                .put("type", "os").put("active", true);
 
         JsonObject json_1 = new JsonObject().put("document", "123456789").put("weight", 78);
         vertex_1_marko.put("details", json_1);
@@ -93,7 +98,8 @@ public class AbstractGremlinTest {
         JsonObject edge_1_knows = new JsonObject().put("id", "e1").put("type", "knows").put("relation", "parent");
         JsonObject edge_2_created = new JsonObject().put("id", "e2").put("type", "created");
         JsonObject edge_3_created = new JsonObject().put("id", "e3").put("type", "created");
-        JsonObject edge_4_maintained = new JsonObject().put("id", "e4").put("type", "maintained").put("yearFrom", "2000");
+        JsonObject edge_4_maintained =
+                new JsonObject().put("id", "e4").put("type", "maintained").put("yearFrom", "2000");
 
         this.graph.addVertexUnderRoot(vertex_1_marko);
         this.graph.addEdge(vertex_1_marko, vertex_4_josh, edge_1_knows);
@@ -106,12 +112,18 @@ public class AbstractGremlinTest {
     https://tinkerpop.apache.org/docs/3.4.10/images/tinkerpop-modern.png
      */
     protected void createComplexGraph() {
-        JsonObject vertex_1_marko = new JsonObject().put("id", "v1").put("name", "marko").put("age", 29).put("type", "person");
-        JsonObject vertex_2_vadas = new JsonObject().put("id", "v2").put("name", "vadas").put("age", 27).put("type", "person");
-        JsonObject vertex_3_lop = new JsonObject().put("id", "v3").put("name", "lop").put("lang", "java").put("type", "software");
-        JsonObject vertex_4_josh = new JsonObject().put("id", "v4").put("name", "josh").put("age", 32).put("type", "person");
-        JsonObject vertex_5_ripple = new JsonObject().put("id", "v5").put("name", "ripple").put("lang", "java").put("type", "software");
-        JsonObject vertex_6_peter = new JsonObject().put("id", "v6").put("name", "peter").put("age", 35).put("type", "person");
+        JsonObject vertex_1_marko = new JsonObject().put("id", "v1").put("name", "marko")
+                .put("age", 29).put("type", "person");
+        JsonObject vertex_2_vadas = new JsonObject().put("id", "v2").put("name", "vadas")
+                .put("age", 27).put("type", "person");
+        JsonObject vertex_3_lop = new JsonObject().put("id", "v3").put("name", "lop")
+                .put("lang", "java").put("type", "software");
+        JsonObject vertex_4_josh = new JsonObject().put("id", "v4").put("name", "josh")
+                .put("age", 32).put("type", "person");
+        JsonObject vertex_5_ripple = new JsonObject().put("id", "v5").put("name", "ripple")
+                .put("lang", "java").put("type", "software");
+        JsonObject vertex_6_peter = new JsonObject().put("id", "v6").put("name", "peter")
+                .put("age", 35).put("type", "person");
 
         JsonObject edge_7_knows = new JsonObject().put("id", "e7").put("type", "knows").put("weight", 0.5);
         JsonObject edge_8_knows = new JsonObject().put("id", "e8").put("type", "knows").put("weight", 1.0);
@@ -220,7 +232,7 @@ public class AbstractGremlinTest {
     }
 
     protected void assertPath(Path path, Object ... values) {
-        for (int i=0 ; i<values.length ; i++) {
+        for (int i = 0; i < values.length; i++) {
             Assertions.assertEquals(path.get(i), values[i]);
         }
     }

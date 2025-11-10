@@ -21,9 +21,7 @@ import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-
 import io.vertx.core.json.JsonObject;
-import jakarta.inject.Provider;
 import org.qubership.itool.modules.processor.GraphMerger;
 import org.qubership.itool.modules.processor.MergerApi;
 import org.qubership.itool.modules.processor.matchers.CompoundVertexMatcher;
@@ -33,17 +31,17 @@ import org.qubership.itool.modules.processor.matchers.MatcherById;
 import org.qubership.itool.modules.processor.matchers.MockFieldExtractor;
 import org.qubership.itool.modules.processor.matchers.SourceMocksMatcher;
 import org.qubership.itool.modules.processor.matchers.TargetMocksMatcher;
+import org.qubership.itool.modules.processor.tasks.CreateAppVertexTask;
+import org.qubership.itool.modules.processor.tasks.CreateTransitiveHttpDependenciesTask;
+import org.qubership.itool.modules.processor.tasks.CreateTransitiveQueueDependenciesTask;
 import org.qubership.itool.modules.processor.tasks.GraphProcessorTask;
 import org.qubership.itool.modules.processor.tasks.PatchAppVertexTask;
 import org.qubership.itool.modules.processor.tasks.PatchIsMicroserviceFieldTask;
+import org.qubership.itool.modules.processor.tasks.PatchLanguagesNormalizationTask;
 import org.qubership.itool.modules.processor.tasks.PatchMockedComponentsNormalizationTask;
 import org.qubership.itool.modules.processor.tasks.PatchVertexDnsNamesNormalizationTask;
-import org.qubership.itool.modules.processor.tasks.PatchLanguagesNormalizationTask;
-import org.qubership.itool.modules.processor.tasks.CreateAppVertexTask;
-import org.qubership.itool.modules.processor.tasks.RecreateHttpDependenciesTask;
-import org.qubership.itool.modules.processor.tasks.CreateTransitiveQueueDependenciesTask;
-import org.qubership.itool.modules.processor.tasks.CreateTransitiveHttpDependenciesTask;
 import org.qubership.itool.modules.processor.tasks.RecreateDomainsStructureTask;
+import org.qubership.itool.modules.processor.tasks.RecreateHttpDependenciesTask;
 
 import java.util.List;
 import java.util.function.Function;
@@ -124,7 +122,8 @@ public class MergerModule extends AbstractModule {
      * @return CompoundVertexMatcher with all matchers in the correct order
      */
     @Provides
-    public CompoundVertexMatcher provideCompoundVertexMatcher(TargetMocksMatcher targetMocksMatcher, SourceMocksMatcher sourceMocksMatcher) {
+    public CompoundVertexMatcher provideCompoundVertexMatcher(TargetMocksMatcher targetMocksMatcher,
+            SourceMocksMatcher sourceMocksMatcher) {
         return new CompoundVertexMatcher(
             new MatcherById(),  // Shall be the first in list
             targetMocksMatcher,

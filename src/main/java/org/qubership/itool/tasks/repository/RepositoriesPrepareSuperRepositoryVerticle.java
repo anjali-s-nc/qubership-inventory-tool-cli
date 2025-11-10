@@ -16,34 +16,32 @@
 
 package org.qubership.itool.tasks.repository;
 
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-import javax.annotation.Resource;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.qubership.itool.modules.git.GitAdapter;
-import org.qubership.itool.modules.git.GitFileRetriever;
-import org.qubership.itool.utils.ConfigUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
-
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.impl.future.SucceededFuture;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.qubership.itool.modules.git.GitAdapter;
+import org.qubership.itool.modules.git.GitFileRetriever;
+import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
+import org.qubership.itool.utils.ConfigUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import javax.annotation.Resource;
 
 import static org.qubership.itool.utils.ConfigProperties.PRIOR_RELEASE_POINTER;
 import static org.qubership.itool.utils.ConfigProperties.RELEASE_POINTER;
 
 public class RepositoriesPrepareSuperRepositoryVerticle extends AbstractAggregationTaskVerticle {
-    protected Logger LOGGER = LoggerFactory.getLogger(RepositoriesPrepareSuperRepositoryVerticle.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(RepositoriesPrepareSuperRepositoryVerticle.class);
 
     @Resource
     @Nullable

@@ -34,7 +34,7 @@ public enum Compare implements BiPredicate<Object, Object> {
             } else if (bothAreNumber(first, second)) {
                 return compareNumber((Number) first, (Number) second) == 0;
             } else if (second instanceof List) {
-                List list = (List)second;
+                List list = (List) second;
                 if (list.size() == 1) {
                     return list.get(0).equals(first);
                 } else {
@@ -127,14 +127,14 @@ public enum Compare implements BiPredicate<Object, Object> {
             }
             String firstVersion = (String) first;
             String secondVersion = (String) second;
-            Matcher firstMatcher = versionPattern.matcher(firstVersion);
-            Matcher secondMatcher = versionPattern.matcher(secondVersion);
+            Matcher firstMatcher = VERSION_PATTERN.matcher(firstVersion);
+            Matcher secondMatcher = VERSION_PATTERN.matcher(secondVersion);
             firstMatcher.matches();
             secondMatcher.matches();
             int firstGroupCount = firstMatcher.groupCount();
             int secondGroupCount = secondMatcher.groupCount();
             int groupCount = (firstGroupCount >= secondGroupCount) ? firstGroupCount : secondGroupCount;
-            for (int i=1 ; i< groupCount ; i++) {
+            for (int i = 1; i < groupCount; i++) {
                 if (firstMatcher.group(i) == null || secondMatcher.group(i) == null) {
                     continue;
                 }
@@ -162,14 +162,14 @@ public enum Compare implements BiPredicate<Object, Object> {
             }
             String firstVersion = (String) first;
             String secondVersion = (String) second;
-            Matcher firstMatcher = versionPattern.matcher(firstVersion);
-            Matcher secondMatcher = versionPattern.matcher(secondVersion);
+            Matcher firstMatcher = VERSION_PATTERN.matcher(firstVersion);
+            Matcher secondMatcher = VERSION_PATTERN.matcher(secondVersion);
             firstMatcher.matches();
             secondMatcher.matches();
             int firstGroupCount = firstMatcher.groupCount();
             int secondGroupCount = secondMatcher.groupCount();
             int groupCount = (firstGroupCount >= secondGroupCount) ? firstGroupCount : secondGroupCount;
-            for (int i=1 ; i< groupCount ; i++) {
+            for (int i = 1; i < groupCount; i++) {
                 int firstValue = Integer.parseInt(firstMatcher.group(i));
                 int secondValue = Integer.parseInt(secondMatcher.group(i));
                 if (firstValue == secondValue) {
@@ -190,7 +190,7 @@ public enum Compare implements BiPredicate<Object, Object> {
         @Override
         public boolean test(Object first, Object second) {
             if (second instanceof List) {
-                List secondList = (List)second;
+                List secondList = (List) second;
                 return secondList.contains(first);
             }
             return false;
@@ -207,7 +207,7 @@ public enum Compare implements BiPredicate<Object, Object> {
         @Override
         public boolean test(Object first, Object second) {
             if (second instanceof List) {
-                List secondList = (List)second;
+                List secondList = (List) second;
                 return !secondList.contains(first);
             }
             return false;
@@ -252,9 +252,9 @@ public enum Compare implements BiPredicate<Object, Object> {
         @Override
         public boolean test(Object first, Object second) {
             if (bothAreString(first, second)) {
-                return ((String)first).contains((String)second);
+                return ((String) first).contains((String) second);
             } else if (first instanceof JsonArray) {
-                return ((JsonArray)first).contains(second);
+                return ((JsonArray) first).contains(second);
             }
             return false;
         }
@@ -269,9 +269,9 @@ public enum Compare implements BiPredicate<Object, Object> {
         @Override
         public boolean test(Object first, Object second) {
             if (bothAreString(first, second)) {
-                return !((String)first).contains((String)second);
+                return !((String) first).contains((String) second);
             } else if (first instanceof JsonArray) {
-                return !((JsonArray)first).contains(second);
+                return !((JsonArray) first).contains(second);
             }
             return false;
         }
@@ -286,10 +286,11 @@ public enum Compare implements BiPredicate<Object, Object> {
         @Override
         public boolean test(Object first, Object second) {
             if (bothAreString(first, second)) {
-                return ((String)first).startsWith((String)second);
+                return ((String) first).startsWith((String) second);
             }
             return false;
         }
+
         @Override
         public Compare negate() {
             return notStartingWith;
@@ -300,10 +301,11 @@ public enum Compare implements BiPredicate<Object, Object> {
         @Override
         public boolean test(Object first, Object second) {
             if (bothAreString(first, second)) {
-                return !((String)first).startsWith((String)second);
+                return !((String) first).startsWith((String) second);
             }
             return false;
         }
+
         @Override
         public Compare negate() {
             return startingWith;
@@ -314,10 +316,11 @@ public enum Compare implements BiPredicate<Object, Object> {
         @Override
         public boolean test(Object first, Object second) {
             if (bothAreString(first, second)) {
-                return ((String)first).endsWith((String)second);
+                return ((String) first).endsWith((String) second);
             }
             return false;
         }
+
         @Override
         public Compare negate() {
             return notEndingWith;
@@ -328,10 +331,11 @@ public enum Compare implements BiPredicate<Object, Object> {
         @Override
         public boolean test(Object first, Object second) {
             if (bothAreString(first, second)) {
-                return !((String)first).endsWith((String)second);
+                return !((String) first).endsWith((String) second);
             }
             return false;
         }
+
         @Override
         public Compare negate() {
             return endingWith;
@@ -349,7 +353,8 @@ public enum Compare implements BiPredicate<Object, Object> {
         if (firstLong == secondLong) {
             // XXX Does not support floating-point numbers, though SumStep supports them
             return 0;
-        } if (firstLong > secondLong) {
+        }
+        if (firstLong > secondLong) {
             return 1;
         }
         return -1;
@@ -382,14 +387,15 @@ public enum Compare implements BiPredicate<Object, Object> {
         return false;
     }
 
-    private static final Pattern versionPattern = Pattern.compile("^\\D*(\\d+)(?:[\\._](\\d+))?(?:[\\._](\\d+))?(?:[\\._](\\d+))?.*$");
+    private static final Pattern VERSION_PATTERN =
+            Pattern.compile("^\\D*(\\d+)(?:[\\._](\\d+))?(?:[\\._](\\d+))?(?:[\\._](\\d+))?.*$");
 
     public static boolean isVersion(Object version) {
         if (!(version instanceof String)) {
             return false;
         }
         String ver = (String) version;
-        return versionPattern.matcher(ver).matches();
+        return VERSION_PATTERN.matcher(ver).matches();
     }
 
     public static boolean bothAreJsonObject(Object first, Object second) {

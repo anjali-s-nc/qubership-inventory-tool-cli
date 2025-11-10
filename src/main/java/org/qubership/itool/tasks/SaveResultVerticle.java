@@ -17,13 +17,13 @@
 package org.qubership.itool.tasks;
 
 import io.vertx.core.Promise;
-import java.io.File;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 public class SaveResultVerticle extends FlowTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(SaveResultVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaveResultVerticle.class);
 
     @Override
     protected String[] features() {

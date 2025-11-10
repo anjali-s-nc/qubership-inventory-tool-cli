@@ -16,8 +16,11 @@
 
 package org.qubership.itool.context;
 
+import com.google.inject.Injector;
+import com.google.inject.Key;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import jakarta.inject.Inject;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphClassifier;
 import org.qubership.itool.modules.graph.GraphClassifierBuilder;
@@ -28,12 +31,6 @@ import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Injector;
-import com.google.inject.Key;
-
-import javax.annotation.Nullable;
-import javax.annotation.Resource;
-import jakarta.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -44,6 +41,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
+import javax.annotation.Resource;
 
 public class FlowContextImpl implements FlowContext {
     private static final Logger LOG = LoggerFactory.getLogger(FlowContextImpl.class);
@@ -122,9 +121,11 @@ public class FlowContextImpl implements FlowContext {
                 .setWithReport(true)
                 .build();
             graphService.putGraph(graphClassifier, this.graph);
-            LOG.info("[fiid={}]: Graph @{} created for {}", flowInstanceId, System.identityHashCode(graph), graphClassifier);
+            LOG.info("[fiid={}]: Graph @{} created for {}", flowInstanceId,
+                    System.identityHashCode(graph), graphClassifier);
         } else {
-            LOG.info("[fiid={}]: Graph @{} created, not attached to graph service", flowInstanceId, System.identityHashCode(graph));
+            LOG.info("[fiid={}]: Graph @{} created, not attached to graph service", flowInstanceId,
+                    System.identityHashCode(graph));
         }
 
     }
@@ -165,7 +166,8 @@ public class FlowContextImpl implements FlowContext {
             } else if (field.getDeclaredAnnotation(Nullable.class) != null) {
                 LOG.warn("No resource provided for " + fieldType + " in " + obj.getClass().getName());
             } else {
-                throw new IllegalArgumentException("Resource not found for " + fieldType + " in " + obj.getClass().getName());
+                throw new IllegalArgumentException(
+                        "Resource not found for " + fieldType + " in " + obj.getClass().getName());
             }
         }
     }
@@ -175,7 +177,8 @@ public class FlowContextImpl implements FlowContext {
             field.setAccessible(true);
             field.set(obj, value);
         } catch (Exception e) {
-            LOG.error("Can't initialize " + field.getType() + " in the " + obj.getClass().getName() + ". Reason: " + e.getMessage(), e);
+            LOG.error("Can't initialize " + field.getType() + " in the " + obj.getClass().getName()
+                    + ". Reason: " + e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }

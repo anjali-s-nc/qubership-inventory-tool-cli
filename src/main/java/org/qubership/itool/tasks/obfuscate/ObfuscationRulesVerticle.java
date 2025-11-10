@@ -16,27 +16,32 @@
 
 package org.qubership.itool.tasks.obfuscate;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
+import io.vertx.core.Promise;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.pointer.JsonPointer;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
+import org.qubership.itool.cli.ci.CiConstants;
 import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.FSUtils;
 import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.qubership.itool.cli.ci.CiConstants;
-import org.qubership.itool.tasks.FlowTask;
-
-import io.vertx.core.Promise;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.pointer.JsonPointer;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.modules.graph.Graph.F_TYPE;
@@ -44,7 +49,7 @@ import static org.qubership.itool.modules.graph.Graph.F_TYPE;
 /** Initialize domains without components */
 public class ObfuscationRulesVerticle extends FlowTask {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(ObfuscationRulesVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObfuscationRulesVerticle.class);
 
     protected Map<String, Trie<String, Boolean>> prefixesByType = new HashMap<>();
 
@@ -56,17 +61,14 @@ public class ObfuscationRulesVerticle extends FlowTask {
     //------------------------------------------------------
     // Hard-coded part of logics
 
-    protected static final String[] processByTypes = {
-            "root", "domain", "errorCode", "module", "library",
-            "database", "indexation", "caching", "mq", "framework",
-            "language", "tmf", "file", "directory", "gateway"
+    protected static final String[] PROCESS_BY_TYPES = {
+        "root", "domain", "errorCode", "module", "library",
+        "database", "indexation", "caching", "mq", "framework",
+        "language", "tmf", "file", "directory", "gateway"
     };
 
     // Ensure safety of these attributes
-    protected static final String[] alwaysPreserve = {
-            "/id/", "/type/", "/name/", "/isMock/"
-    };
-
+    protected static final String[] ALWAYS_PRESERVE = {"/id/", "/type/", "/name/", "/isMock/"};
 
     @Override
     protected void taskStart(Promise<?> taskPromise) throws Exception {
@@ -79,7 +81,7 @@ public class ObfuscationRulesVerticle extends FlowTask {
 
         Set<String> processedIds = new HashSet<>();
 
-        for (String type: processByTypes) {
+        for (String type : PROCESS_BY_TYPES) {
             processedIds.addAll(processAllNodesByType(rules, type));
         }
         // Let them be processed after by-type
@@ -89,7 +91,7 @@ public class ObfuscationRulesVerticle extends FlowTask {
 
         // Remove everything else
         Graph graph = this.graph;
-        for (JsonObject vertex: graph.vertexList()) {
+        for (JsonObject vertex : graph.vertexList()) {
             String vertexId = vertex.getString(F_ID);
             if (! processedIds.contains(vertexId)) {
                 getLogger().info("Unknown vertex {} dropped", vertexId);
@@ -109,7 +111,8 @@ public class ObfuscationRulesVerticle extends FlowTask {
     protected Collection<String> processUtilities(JsonObject allRules) {
         List<JsonObject> vertices = V("Info", "Infra", "Spec").toList();
         return vertices.stream()
-                .flatMap(vertex -> processNodes(allRules, vertex.getString(F_TYPE), Collections.singletonList(vertex)).stream())
+                .flatMap(vertex -> processNodes(allRules, vertex.getString(F_TYPE),
+                        Collections.singletonList(vertex)).stream())
                 .collect(Collectors.toSet());
     }
 
@@ -165,7 +168,7 @@ public class ObfuscationRulesVerticle extends FlowTask {
 
     protected Trie<String, Boolean> generateTrie(JsonArray allowList) {
         Trie<String, Boolean> trie = new PatriciaTrie<>();
-        for (Object prefix: allowList.getList()) {
+        for (Object prefix : allowList.getList()) {
             /* Canonical paths in the trie look like this: "/details/name/".
              * The final slash protects from false positives like matching attribute
              * "/details/name1" against prefix "/details/name".
@@ -174,7 +177,7 @@ public class ObfuscationRulesVerticle extends FlowTask {
              */
             trie.put(("/" + prefix + "/").replaceAll("/+",  "/"), Boolean.TRUE);
         }
-        for (String prefix: alwaysPreserve) {
+        for (String prefix : ALWAYS_PRESERVE) {
             trie.put(prefix, Boolean.TRUE);
         }
         return trie;
@@ -198,7 +201,7 @@ public class ObfuscationRulesVerticle extends FlowTask {
     }
 
     protected void truncateListRecursively(List<Object> list, Trie<String, Boolean> wlPrefixes, String path) {
-        for (Object o: list) {
+        for (Object o : list) {
             truncateObjectRecursively(o, wlPrefixes, path);
         }
     }
@@ -206,13 +209,13 @@ public class ObfuscationRulesVerticle extends FlowTask {
     @SuppressWarnings("unchecked")
     protected void truncateObjectRecursively(Object value, Trie<String, Boolean> wlPrefixes, String path) {
         if (value instanceof Map) {
-            truncateMapRecursively((Map<String, Object>)value, wlPrefixes, path);
+            truncateMapRecursively((Map<String, Object>) value, wlPrefixes, path);
         } else if (value instanceof JsonObject) {
-            truncateMapRecursively(((JsonObject)value).getMap(), wlPrefixes, path);
+            truncateMapRecursively(((JsonObject) value).getMap(), wlPrefixes, path);
         } else if (value instanceof List) {
-            truncateListRecursively((List<Object>)value, wlPrefixes, path);
+            truncateListRecursively((List<Object>) value, wlPrefixes, path);
         } else if (value instanceof JsonArray) {
-            truncateListRecursively(((JsonArray)value).getList(), wlPrefixes, path);
+            truncateListRecursively(((JsonArray) value).getList(), wlPrefixes, path);
         }
         // Keep it
     }

@@ -16,19 +16,19 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.flat;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.BasicGraph;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.step.AbstractStep;
 import org.qubership.itool.modules.gremlin2.structure.Direction;
-import io.vertx.core.json.JsonObject;
-
-import static org.qubership.itool.modules.graph.Graph.F_ID;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+
+import static org.qubership.itool.modules.graph.Graph.F_ID;
 
 public class VertexStep<E extends JsonObject> extends FlatMapStep<JsonObject, E> {
 
@@ -37,7 +37,7 @@ public class VertexStep<E extends JsonObject> extends FlatMapStep<JsonObject, E>
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "(" + direction + "," + Arrays.asList(edgeLabels)+ ")";
+        return getClass().getSimpleName() + "(" + direction + "," + Arrays.asList(edgeLabels) + ")";
     }
 
     public VertexStep(Traversal.Admin traversal, Direction direction, String... edgeLabels) {
@@ -56,14 +56,18 @@ public class VertexStep<E extends JsonObject> extends FlatMapStep<JsonObject, E>
         // Note: this code produces multiple traverses if there exist multiple edges between this vertex and that one
         switch (this.direction) {
             case OUT:
-                fillResult(graph.getSuccessorEdges(sourceVertex.getString(F_ID)), result, edge -> graph.getEdgeTarget(edge.getString(F_ID)));
+                fillResult(graph.getSuccessorEdges(sourceVertex.getString(F_ID)), result,
+                        edge -> graph.getEdgeTarget(edge.getString(F_ID)));
                 break;
             case IN:
-                fillResult(graph.getPredecessorEdges(sourceVertex.getString(F_ID)), result, edge -> graph.getEdgeSource(edge.getString(F_ID)));
+                fillResult(graph.getPredecessorEdges(sourceVertex.getString(F_ID)), result,
+                        edge -> graph.getEdgeSource(edge.getString(F_ID)));
                 break;
             case BOTH:
-                fillResult(graph.getSuccessorEdges(sourceVertex.getString(F_ID)), result, edge -> graph.getEdgeTarget(edge.getString(F_ID)));
-                fillResult(graph.getPredecessorEdges(sourceVertex.getString(F_ID)), result, edge -> graph.getEdgeSource(edge.getString(F_ID)));
+                fillResult(graph.getSuccessorEdges(sourceVertex.getString(F_ID)), result,
+                        edge -> graph.getEdgeTarget(edge.getString(F_ID)));
+                fillResult(graph.getPredecessorEdges(sourceVertex.getString(F_ID)), result,
+                        edge -> graph.getEdgeSource(edge.getString(F_ID)));
         }
         return result;
     }

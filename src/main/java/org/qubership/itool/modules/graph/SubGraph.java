@@ -16,10 +16,16 @@
 
 package org.qubership.itool.modules.graph;
 
-import org.qubership.itool.modules.gremlin2.graph.GraphTraversalSource;
 import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.gremlin2.graph.GraphTraversalSource;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,7 +48,7 @@ public class SubGraph implements BasicGraph {
         this.edges = edgeList.stream().collect(Collectors.toMap(edge -> edge.getString(F_ID), Function.identity()));
 
         this.vertices = new LinkedHashMap<>();
-        for (JsonObject edge: edgeList) {
+        for (JsonObject edge : edgeList) {
             String edgeId = edge.getString(F_ID);
             JsonObject edgeSource = graph.getEdgeSource(edgeId);
             this.vertices.put(edgeSource.getString(F_ID), edgeSource);
@@ -171,7 +177,7 @@ public class SubGraph implements BasicGraph {
 
     @Override
     public List<JsonObject> getEdgesBetween(String vertexFromId, String vertexToId) {
-        if (! vertices.containsKey(vertexFromId) || ! vertices.containsKey(vertexToId) ) {
+        if (! vertices.containsKey(vertexFromId) || ! vertices.containsKey(vertexToId)) {
             return Collections.emptyList();
         }
         return origGraph.getEdgesBetween(vertexFromId, vertexToId)

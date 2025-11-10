@@ -16,24 +16,24 @@
 
 package org.qubership.itool.tasks.confluence.summary;
 
+import io.vertx.core.json.JsonObject;
+import jakarta.inject.Provider;
 import org.qubership.itool.modules.template.ConfluencePage;
 import org.qubership.itool.tasks.confluence.AbstractConfluenceGenerationPageVerticle;
-import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import jakarta.inject.Provider;
-
 import javax.annotation.Resource;
 
-import static org.qubership.itool.modules.gremlin2.graph.__.*;
+import static org.qubership.itool.modules.gremlin2.graph.__.hasType;
+import static org.qubership.itool.modules.gremlin2.graph.__.in;
+import static org.qubership.itool.modules.gremlin2.graph.__.not;
 
 public class ConfluenceSummaryLibrariesVerticle extends AbstractConfluenceGenerationPageVerticle {
-    protected Logger LOG = LoggerFactory.getLogger(ConfluenceSummaryLibrariesVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfluenceSummaryLibrariesVerticle.class);
 
     @Resource
     protected Provider<ConfluencePage> confluencePageProvider;

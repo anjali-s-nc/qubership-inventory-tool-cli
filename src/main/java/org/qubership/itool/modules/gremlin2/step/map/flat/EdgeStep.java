@@ -16,19 +16,19 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.flat;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.BasicGraph;
 import org.qubership.itool.modules.gremlin2.GremlinException;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.step.AbstractStep;
 import org.qubership.itool.modules.gremlin2.structure.Direction;
-import io.vertx.core.json.JsonObject;
-
-import static org.qubership.itool.modules.graph.Graph.F_ID;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.qubership.itool.modules.graph.Graph.F_ID;
 
 public class EdgeStep<E extends JsonObject> extends FlatMapStep<JsonObject, E> {
 
@@ -37,7 +37,7 @@ public class EdgeStep<E extends JsonObject> extends FlatMapStep<JsonObject, E> {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "(" + direction + "," + Arrays.asList(edgeLabels)+ ")";
+        return getClass().getSimpleName() + "(" + direction + "," + Arrays.asList(edgeLabels) + ")";
     }
 
     public EdgeStep(Traversal.Admin traversal, Direction direction, String... edgeLabels) {
@@ -99,7 +99,7 @@ public class EdgeStep<E extends JsonObject> extends FlatMapStep<JsonObject, E> {
 
     @Override
     public AbstractStep<JsonObject, E> clone() {
-        EdgeStep clone = (EdgeStep)super.clone();
+        EdgeStep clone = (EdgeStep) super.clone();
         clone.edgeLabels = this.edgeLabels;
         clone.direction = this.direction;
         return clone;

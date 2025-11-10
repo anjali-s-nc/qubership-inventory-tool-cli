@@ -17,8 +17,8 @@
 package org.qubership.itool.modules.gremlin2;
 
 import io.vertx.core.json.JsonObject;
-import org.junit.jupiter.api.*;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 import org.qubership.itool.modules.gremlin2.graph.__;
 
@@ -34,8 +34,8 @@ public class TestsGremlinComplex extends AbstractGremlinTest {
         GraphTraversal<JsonObject, JsonObject> traversal =
             V().has("name", "marko").out().out("maintained")
             .has("name", "linux");
-        Assertions.assertEquals(1 , traversal.toList().size());
-        Assertions.assertEquals("v6" , traversal.next().getString("id"));
+        Assertions.assertEquals(1, traversal.toList().size());
+        Assertions.assertEquals("v6", traversal.next().getString("id"));
     }
 
     @Test
@@ -45,8 +45,8 @@ public class TestsGremlinComplex extends AbstractGremlinTest {
 
         List<String> result = V("v4")
             .union(
-                __.inE("knows").outV() // marko
-                , __.out("created") // ripple, lop
+                __.inE("knows").outV(), // marko
+                __.out("created") // ripple, lop
             )
             .<String>value("name")
             .toList();
@@ -54,9 +54,9 @@ public class TestsGremlinComplex extends AbstractGremlinTest {
         this.graph.traversal().V().union(outE());
 
         Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals("marko" , result.get(0));
-        Assertions.assertEquals("ripple" , result.get(1));
-        Assertions.assertEquals("lop" , result.get(2));
+        Assertions.assertEquals("marko", result.get(0));
+        Assertions.assertEquals("ripple", result.get(1));
+        Assertions.assertEquals("lop", result.get(2));
     }
 
     @Test
@@ -72,9 +72,9 @@ public class TestsGremlinComplex extends AbstractGremlinTest {
             .toList();
 
         Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals("marko" , result.get(0));
-        Assertions.assertEquals("ripple" , result.get(1));
-        Assertions.assertEquals("lop" , result.get(2));
+        Assertions.assertEquals("marko", result.get(0));
+        Assertions.assertEquals("ripple", result.get(1));
+        Assertions.assertEquals("lop", result.get(2));
     }
 
     @Test
@@ -90,12 +90,11 @@ public class TestsGremlinComplex extends AbstractGremlinTest {
             .toList();
 
         Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals("marko" , result.get(0).get("name"));
-        Assertions.assertEquals("ripple" , result.get(1).get("name"));
-        Assertions.assertEquals("lop" , result.get(2).get("name"));
-        Assertions.assertEquals("person" , result.get(0).get("type"));
-        Assertions.assertEquals("software" , result.get(1).get("type"));
-        Assertions.assertEquals("software" , result.get(2).get("type"));
+        Assertions.assertEquals("marko", result.get(0).get("name"));
+        Assertions.assertEquals("ripple", result.get(1).get("name"));
+        Assertions.assertEquals("lop", result.get(2).get("name"));
+        Assertions.assertEquals("person", result.get(0).get("type"));
+        Assertions.assertEquals("software", result.get(1).get("type"));
+        Assertions.assertEquals("software", result.get(2).get("type"));
     }
-
 }

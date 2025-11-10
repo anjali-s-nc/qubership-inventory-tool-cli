@@ -16,6 +16,11 @@
 
 package org.qubership.itool.cli;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+
 import static org.qubership.itool.utils.ConfigProperties.DISABLED_FEATURES_PROPERTY;
 import static org.qubership.itool.utils.ConfigProperties.EXCEL_EXPORT_PROPERTY;
 import static org.qubership.itool.utils.ConfigProperties.INCLUDE_DOMAINS_PROPERTY;
@@ -29,11 +34,6 @@ import static org.qubership.itool.utils.ConfigProperties.RELEASE_POINTER;
 import static org.qubership.itool.utils.ConfigProperties.SAVE_PROGRESS_PROPERTY;
 import static org.qubership.itool.utils.ConfigProperties.START_STEP_PROPERTY;
 import static org.qubership.itool.utils.ConfigProperties.UPLOAD_CONFLUENCE_PAGES_POINTER;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 /**
  * Main flow execution command.
@@ -60,8 +60,8 @@ public class ExecCommand extends AbstractCommand {
     }
 
     @Option(names = {"-u", "--uploadConfluencePages"},
-            description = "List of the page titles to be uploaded to Confluence. " +
-                    "Delimiter is ','. Examples: all; none; type:report; \"Tech of DOMAIN1, Cloud Libraries list\"")
+            description = "List of the page titles to be uploaded to Confluence. "
+                    + "Delimiter is ','. Examples: all; none; type:report; \"Tech of DOMAIN1, Cloud Libraries list\"")
     public void setUploadConfluencePages(String uploadConfluencePages) {
         properties.put(UPLOAD_CONFLUENCE_PAGES_POINTER, uploadConfluencePages);
     }
@@ -73,8 +73,8 @@ public class ExecCommand extends AbstractCommand {
     }
 
     @Option(names = {"-ss", "--startStep"},
-            description = "Start execution from the specified step if progress was saved before. " +
-                    "See 'saveProgress' property.")
+            description = "Start execution from the specified step if progress was saved before. "
+                    + "See 'saveProgress' property.")
     public void setStartStep(String startStep) {
         properties.put(START_STEP_PROPERTY, startStep);
     }
@@ -92,8 +92,8 @@ public class ExecCommand extends AbstractCommand {
     }
 
     @Option(names = {"-df", "--disabledFeatures"},
-            description = "List of the disabled features. Delimiter is ','. " +
-                    "Examples: confluenceGenerate,confluenceUpload,excelExport,mavenDependency,repositoryUpdate")
+            description = "List of the disabled features. Delimiter is ','. "
+                    + "Examples: confluenceGenerate,confluenceUpload,excelExport,mavenDependency,repositoryUpdate")
     public void setDisabledFeatures(String disabledFeatures) {
         properties.put(DISABLED_FEATURES_PROPERTY, disabledFeatures);
     }

@@ -18,7 +18,11 @@ package org.qubership.itool.modules.graph;
 
 import org.qubership.itool.modules.artifactory.AppVersionDescriptor;
 import org.qubership.itool.modules.artifactory.GraphSnapshot;
-import java.util.*;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public interface GraphFetcher {
 
@@ -33,7 +37,7 @@ public interface GraphFetcher {
      */
     default Map<String, AppVersionDescriptor> resolveAppVersions(Collection<String> appVersionIds) {
         Map<String, AppVersionDescriptor> result = new LinkedHashMap<>();
-        for (String appVersionId: appVersionIds) {
+        for (String appVersionId : appVersionIds) {
             AppVersionDescriptor desc = resolveAppVersion(appVersionId);
             result.put(appVersionId, desc);
         }
@@ -48,11 +52,12 @@ public interface GraphFetcher {
      * @param appVersions Artifact descriptors to fetch
      *
      * @return A map with some of the provided keys, possible {@code null} values or
-     * values without graphDump (they may still carry failure details).
+     *     values without graphDump (they may still carry failure details).
      */
-    default Map<AppVersionDescriptor, GraphSnapshot> fetchGraphDumpsByAppVersions(Collection<AppVersionDescriptor> appVersions) {
+    default Map<AppVersionDescriptor, GraphSnapshot> fetchGraphDumpsByAppVersions(
+            Collection<AppVersionDescriptor> appVersions) {
         Map<AppVersionDescriptor, GraphSnapshot> result = new LinkedHashMap<>();
-        for (AppVersionDescriptor appVersion: appVersions) {
+        for (AppVersionDescriptor appVersion : appVersions) {
             GraphSnapshot graphSnapshot = fetchGraphDumpByAppVersion(appVersion);
             result.put(appVersion, graphSnapshot);
         }
@@ -68,8 +73,8 @@ public interface GraphFetcher {
     }
 
     default boolean persistGraphByClassifier(GraphClassifier graphClassifier, GraphSnapshot graphSnapshot,
-            Map<AppVersionDescriptor, GraphSnapshot> sources, Map<AppVersionDescriptor, GraphSnapshot> unprocessedAppIds)
-    {
+            Map<AppVersionDescriptor, GraphSnapshot> sources,
+            Map<AppVersionDescriptor, GraphSnapshot> unprocessedAppIds) {
         return false;
     }
 

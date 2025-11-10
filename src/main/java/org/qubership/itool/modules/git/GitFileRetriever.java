@@ -17,7 +17,6 @@
 package org.qubership.itool.modules.git;
 
 import io.vertx.core.Future;
-
 import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.jgit.api.Git;
 

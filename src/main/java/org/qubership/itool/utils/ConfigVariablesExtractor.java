@@ -19,14 +19,17 @@ package org.qubership.itool.utils;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ConfigVariablesExtractor {
 
-    final static Pattern VALUES_EXTRACTION_PATTERN = Pattern.compile("\\.Values\\.(\\S+)\\s*");
-    final static Pattern PREPROCESSOR_EXPRESSION_PATTERN = Pattern.compile("\\{\\{(.+?)\\}\\}");
+    static final Pattern VALUES_EXTRACTION_PATTERN = Pattern.compile("\\.Values\\.(\\S+)\\s*");
+    static final Pattern PREPROCESSOR_EXPRESSION_PATTERN = Pattern.compile("\\{\\{(.+?)\\}\\}");
 
     public static Set<String> extractVariableNames(final Object jsonStructure) {
         Set<String> collector = new HashSet<>();

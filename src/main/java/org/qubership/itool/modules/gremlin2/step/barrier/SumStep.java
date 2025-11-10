@@ -33,13 +33,13 @@ public class SumStep<S> extends ReducingBarrierStep<S, Float> {
         for (Traverser<S> traverser : previousTraversers) {
             S obj = traverser.get();
             if (obj instanceof Integer) {
-                result += ((Integer)obj).floatValue();
+                result += ((Integer) obj).floatValue();
             } else if (obj instanceof Float) {
-                result += ((Float)obj).floatValue();
+                result += ((Float) obj).floatValue();
             } else if (obj instanceof Double) {
-                result += ((Double)obj).floatValue();
+                result += ((Double) obj).floatValue();
             } else if (obj instanceof Long) {
-                result += ((Long)obj).floatValue();
+                result += ((Long) obj).floatValue();
             }
         }
         return result;

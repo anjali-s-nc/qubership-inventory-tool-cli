@@ -16,16 +16,21 @@
 
 package org.qubership.itool.modules.graph;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversalSource;
 import org.qubership.itool.modules.processor.InvalidGraphException;
 import org.qubership.itool.modules.report.GraphReport;
-
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GraphImpl implements Graph {
@@ -116,23 +121,23 @@ public class GraphImpl implements Graph {
     @Override
     public synchronized boolean relocateVertex(JsonObject vertex, String newId) {
         String oldId = vertex.getString(F_ID);
-        if (   oldId == null
-            || ! vertices.containsKey(oldId)
-            || vertices.containsKey(newId))   // New id already exists, or relocation to the same id requested
-        {
+        // New id already exists, or relocation to the same id requested
+        if (oldId == null
+                || !vertices.containsKey(oldId)
+                || vertices.containsKey(newId)) {
             return false;
         }
 
         LOG.debug("Relocating vertex {} to {}", oldId, newId);
         Vertex vertexObj = moveVertexToNewId(vertex, newId, oldId);
-        for (String outgoingEdgeId: vertexObj.getEdgesOut()) {
+        for (String outgoingEdgeId : vertexObj.getEdgesOut()) {
             Edge outgoingEdge = this.edges.get(outgoingEdgeId);
             if (outgoingEdge != null) {
                 LOG.debug(" - Edge {} changed its source", outgoingEdgeId);
                 outgoingEdge.setSourceVertexId(newId);
             }
         }
-        for (String incomingEdgeId: vertexObj.getEdgesIn()) {
+        for (String incomingEdgeId : vertexObj.getEdgesIn()) {
             Edge incomingEdge = this.edges.get(incomingEdgeId);
             if (incomingEdge != null) {
                 LOG.debug(" - Edge {} changed its destination", incomingEdgeId);
@@ -164,7 +169,7 @@ public class GraphImpl implements Graph {
 
         Vertex vertexObj = this.vertices.get(vertexId);
 
-        for (String outgoingEdgeId: vertexObj.getEdgesOut()) {
+        for (String outgoingEdgeId : vertexObj.getEdgesOut()) {
             Edge outgoingEdge = this.edges.get(outgoingEdgeId);
             if (outgoingEdge != null) {
                 String destinationVertexId = outgoingEdge.getDestinationVertexId();
@@ -174,7 +179,7 @@ public class GraphImpl implements Graph {
             }
         }
 
-        for (String incomingEdgeId: vertexObj.getEdgesIn()) {
+        for (String incomingEdgeId : vertexObj.getEdgesIn()) {
             Edge incomingEdge = this.edges.get(incomingEdgeId);
             if (incomingEdge != null) {
                 String edgeFrom = incomingEdge.getSourceVertexId();
@@ -430,6 +435,7 @@ public class GraphImpl implements Graph {
 
     /**
      * Restore graph structure from dump for known model versions
+     *
      * @param dump Graph data dump.
      */
     @Override
@@ -514,14 +520,16 @@ public class GraphImpl implements Graph {
         int childLevel = level + 1;
         for (JsonObject edge : outgoingEdges) {
             System.out.println(
-                "\t".repeat(level + 1) +
-                    "--> " + this.getEdgeTarget(edge.getString(F_ID)).getString("id")
+                "\t".repeat(level + 1)
+                    + "--> " + this.getEdgeTarget(edge.getString(F_ID)).getString("id")
                     + " // " + edge);
             if (stack.contains(this.vertices.get(this.getEdgeTarget(edge.getString(F_ID)).getString(F_ID)))) {
                 System.out.println("\t".repeat(level + 1) + "^^^ circular reference");
                 continue;
             }
-            walkAndPrint(stack, this.vertices.get(this.getEdgeTarget(edge.getString(F_ID)).getString(F_ID)), childLevel);
+            walkAndPrint(stack,
+                    this.vertices.get(this.getEdgeTarget(edge.getString(F_ID)).getString(F_ID)),
+                    childLevel);
         }
         stack.remove(vertexObj);
     }

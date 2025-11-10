@@ -16,19 +16,17 @@
 
 package org.qubership.itool.tasks.dependency;
 
-import javax.annotation.Resource;
-
+import io.vertx.core.Promise;
+import jakarta.inject.Provider;
 import org.qubership.itool.modules.processor.tasks.CreateTransitiveHttpDependenciesTask;
 import org.qubership.itool.modules.processor.tasks.CreateTransitiveQueueDependenciesTask;
 import org.qubership.itool.modules.processor.tasks.RecreateDomainsStructureTask;
 import org.qubership.itool.modules.report.GraphReport;
+import org.qubership.itool.tasks.FlowTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.qubership.itool.tasks.FlowTask;
-
-import io.vertx.core.Promise;
-import jakarta.inject.Provider;
+import javax.annotation.Resource;
 
 /**
  * Add more edges after {@link SetEdgesBetweenComponentsVerticle} and assembly
@@ -47,7 +45,7 @@ public class SetTransitiveEdgesBetweenComponentsTask extends FlowTask {
     @Resource
     Provider<RecreateDomainsStructureTask> recreateDomainsStructureTaskProvider;
 
-    protected Logger LOG = LoggerFactory.getLogger(SetTransitiveEdgesBetweenComponentsTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SetTransitiveEdgesBetweenComponentsTask.class);
 
     @Override
     protected void taskStart(Promise<?> taskPromise) throws Exception {

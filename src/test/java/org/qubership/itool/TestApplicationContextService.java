@@ -14,29 +14,29 @@
 
 package org.qubership.itool;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Resource;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import com.google.inject.Module;
-
-import org.qubership.itool.context.FlowContext;
-import org.qubership.itool.di.ApplicationContext;
-import org.qubership.itool.di.QubershipModule;
-import org.qubership.itool.factories.JavaAppContextVerticleFactory;
-
-import io.vertx.core.*;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.ThreadingModel;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.spi.VerticleFactory;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.qubership.itool.context.FlowContext;
+import org.qubership.itool.di.ApplicationContext;
+import org.qubership.itool.di.QubershipModule;
+import org.qubership.itool.factories.JavaAppContextVerticleFactory;
 import org.qubership.itool.modules.graph.Graph;
+
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Resource;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(VertxExtension.class)
 public class TestApplicationContextService {

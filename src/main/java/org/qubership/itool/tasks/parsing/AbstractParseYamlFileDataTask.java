@@ -16,28 +16,28 @@
 
 package org.qubership.itool.tasks.parsing;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public abstract class AbstractParseYamlFileDataTask extends AbstractParseFileDataTask {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractParseYamlFileDataTask.class);
-
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(AbstractParseYamlFileDataTask.class);
 
     @Override
     protected void processFile(JsonObject domain, JsonObject component, JsonObject file) {
         JsonArray sections = file.getJsonArray("structured");
         String filePath = file.getString("path");
         if (sections == null) {
-            report.internalError("File " + filePath + " (" + file.getString("id") + ") contains no data or could not be parsed");
+            report.internalError("File " + filePath + " (" + file.getString("id")
+                    + ") contains no data or could not be parsed");
             return;
         }
         int index = 0;
-        for (Object section: sections) {
+        for (Object section : sections) {
             processYamlSection(domain, component, file, index++, section);
         }
     }
@@ -45,11 +45,12 @@ public abstract class AbstractParseYamlFileDataTask extends AbstractParseFileDat
     /* Process a single section of YAML document already stored in the graph. Assume that file data
      * are always JSON models rather than raw Maps and arrays/Lists.
      * */
-    protected void processYamlSection(JsonObject domain, JsonObject component, JsonObject file, int index, Object data) {
+    protected void processYamlSection(JsonObject domain, JsonObject component, JsonObject file,
+            int index, Object data) {
         if (data instanceof JsonObject) {
-            processYamlSection(domain, component, file, index, (JsonObject)data);
+            processYamlSection(domain, component, file, index, (JsonObject) data);
         } else if (data instanceof JsonArray) {
-            processYamlSection(domain, component, file, index, (JsonArray)data);
+            processYamlSection(domain, component, file, index, (JsonArray) data);
         } else if (data == null) {
             // An empty section. Just skip it.
         } else {
@@ -60,17 +61,25 @@ public abstract class AbstractParseYamlFileDataTask extends AbstractParseFileDat
     }
 
     /* Process a single Object section of YAML document */
-    protected void processYamlSection(JsonObject domain, JsonObject component, JsonObject file, int index, JsonObject data) {
+    protected void processYamlSection(JsonObject domain, JsonObject component, JsonObject file,
+            int index, JsonObject data) {
         String fileLink = file.getString("fileLink");
-        report.internalError("File " + fileLink + " (" + file.getString("id") + ") contains Object section at index " + index
-                + ", but task " + getClass().getName() + " does not support it");
+        report.internalError("File " + fileLink + " (" + file.getString("id")
+                + ") contains Object section at index " + index + ", but task "
+                + getClass().getName() + " does not support it");
     }
 
     /* Process a single List section of YAML document */
-    protected void processYamlSection(JsonObject domain, JsonObject component, JsonObject file, int index, JsonArray data) {
+    protected void processYamlSection(JsonObject domain, JsonObject component, JsonObject file,
+            int index, JsonArray data) {
         String fileLink = file.getString("fileLink");
-        report.internalError("File " + fileLink + " (" + file.getString("id") + ") contains Array section at index " + index
-                + ", but task " + getClass().getName() + " does not support it");
+        report.internalError("File " + fileLink + " (" + file.getString("id")
+                + ") contains Array section at index " + index + ", but task "
+                + getClass().getName() + " does not support it");
     }
 
+    @Override
+    protected Logger getLogger() {
+        return LOGGER;
+    }
 }

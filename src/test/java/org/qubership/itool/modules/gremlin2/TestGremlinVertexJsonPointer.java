@@ -17,8 +17,8 @@
 package org.qubership.itool.modules.gremlin2;
 
 import io.vertx.core.json.JsonObject;
-import org.junit.jupiter.api.*;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 
 import java.util.List;
@@ -63,7 +63,7 @@ public class TestGremlinVertexJsonPointer extends AbstractGremlinTest {
         Assertions.assertEquals(1, result.size());
         Object obj = result.get(0);
         Assertions.assertTrue(obj instanceof List);
-        List list = (List)obj;
+        List list = (List) obj;
         Assertions.assertEquals("1", list.get(0));
         Assertions.assertEquals("2", list.get(1));
     }

@@ -16,13 +16,11 @@
 
 package org.qubership.itool.tasks.repository;
 
-import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
-
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 import org.qubership.itool.utils.ConfigUtils;
 import org.qubership.itool.utils.FSUtils;
 import org.slf4j.Logger;
@@ -34,7 +32,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RepositoriesCopyToSuperRepositoryVerticle extends AbstractAggregationTaskVerticle {
-    protected Logger LOGGER = LoggerFactory.getLogger(RepositoriesCopyToSuperRepositoryVerticle.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(RepositoriesCopyToSuperRepositoryVerticle.class);
 
     @Override
     protected String[] features() {
@@ -74,7 +73,7 @@ public class RepositoriesCopyToSuperRepositoryVerticle extends AbstractAggregati
                     return Future.join(copiedResultsFutures);
                 })
                 .onSuccess(r -> {
-                    LOG.info("{} entries copied", r.size());
+                    getLogger().info("{} entries copied", r.size());
                     taskCompleted(taskPromise);
                 })
                 .onFailure(r -> {

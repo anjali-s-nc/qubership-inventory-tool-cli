@@ -16,13 +16,15 @@
 
 package org.qubership.itool;
 
-import java.io.*;
-
-import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.*;
-
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDumpSupport;
 import org.qubership.itool.modules.graph.GraphImpl;
@@ -30,6 +32,11 @@ import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.modules.report.GraphReportImpl;
 import org.qubership.itool.utils.FSUtils;
 import org.qubership.itool.utils.JsonUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestDumpRestore {
@@ -105,17 +112,17 @@ public class TestDumpRestore {
         this.graph.addEdge(vertex1, vertex2, new JsonObject().put("type", "edge"));
 
         JsonObject dump = this.graph.dumpGraphData(false);
-       // Assertions.assertEquals(4, dump.getInteger("edgeSupplierCounter"));
+        //Assertions.assertEquals(4, dump.getInteger("edgeSupplierCounter"));
         Assertions.assertEquals(3, dump.getJsonArray("vertexList").size());
-        AssertVertex(dump.getJsonArray("vertexList"), "1");
-        AssertVertex(dump.getJsonArray("vertexList"), "1_1");
-        AssertVertex(dump.getJsonArray("vertexList"), "2");
+        assertVertex(dump.getJsonArray("vertexList"), "1");
+        assertVertex(dump.getJsonArray("vertexList"), "1_1");
+        assertVertex(dump.getJsonArray("vertexList"), "2");
 
         Assertions.assertEquals(4, dump.getJsonArray("edgeList").size());
-        AssertEdge(dump.getJsonArray("edgeList"), "root", "1");
-        AssertEdge(dump.getJsonArray("edgeList"), "root", "2");
-        AssertEdge(dump.getJsonArray("edgeList"), "1", "1_1");
-        AssertEdge(dump.getJsonArray("edgeList"), "1", "2", "type", "edge");
+        assertEdge(dump.getJsonArray("edgeList"), "root", "1");
+        assertEdge(dump.getJsonArray("edgeList"), "root", "2");
+        assertEdge(dump.getJsonArray("edgeList"), "1", "1_1");
+        assertEdge(dump.getJsonArray("edgeList"), "1", "2", "type", "edge");
     }
 
     @Test
@@ -131,7 +138,7 @@ public class TestDumpRestore {
 
         JsonObject dump = this.graph.dumpGraphData(false);
         this.graph.clear();
-//        Assertions.assertEquals(4, dump.getInteger("edgeSupplierCounter"));
+        //Assertions.assertEquals(4, dump.getInteger("edgeSupplierCounter"));
         Assertions.assertEquals(3, dump.getJsonArray("vertexList").size());
         Assertions.assertEquals(4, dump.getJsonArray("edgeList").size());
 
@@ -140,20 +147,20 @@ public class TestDumpRestore {
 
         //Assertions.assertEquals(4, dump.getInteger("edgeSupplierCounter"));
         Assertions.assertEquals(3, dump.getJsonArray("vertexList").size());
-        AssertVertex(dump.getJsonArray("vertexList"), "1");
-        AssertVertex(dump.getJsonArray("vertexList"), "1_1");
-        AssertVertex(dump.getJsonArray("vertexList"), "2");
+        assertVertex(dump.getJsonArray("vertexList"), "1");
+        assertVertex(dump.getJsonArray("vertexList"), "1_1");
+        assertVertex(dump.getJsonArray("vertexList"), "2");
 
         Assertions.assertEquals(4, dump.getJsonArray("edgeList").size());
-        AssertEdge(dump.getJsonArray("edgeList"), "root", "1");
-        AssertEdge(dump.getJsonArray("edgeList"), "root", "2");
-        AssertEdge(dump.getJsonArray("edgeList"), "1", "1_1");
-        AssertEdge(dump.getJsonArray("edgeList"), "1", "2", "type", "edge");
+        assertEdge(dump.getJsonArray("edgeList"), "root", "1");
+        assertEdge(dump.getJsonArray("edgeList"), "root", "2");
+        assertEdge(dump.getJsonArray("edgeList"), "1", "1_1");
+        assertEdge(dump.getJsonArray("edgeList"), "1", "2", "type", "edge");
     }
 
     @Test
     @Disabled
-    public void test_large() throws IOException {
+    public void testLarge() throws IOException {
         String source;
         try (InputStream inputStream = FSUtils.openUrlStream(getClass(), "task.result.json")) {
             InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
@@ -190,11 +197,11 @@ public class TestDumpRestore {
         System.out.println("Dump to file: " + (endTime - startTime) + " ms");
     }
 
-    private void AssertEdge(JsonArray edgeList, String source, String target, String field, String value) {
+    private void assertEdge(JsonArray edgeList, String source, String target, String field, String value) {
         boolean result = false;
         for (Object obj : edgeList) {
-            JsonObject edge = (JsonObject)obj;
-            if(edge.getString("source").equals(source) && edge.getString("target").equals(target)
+            JsonObject edge = (JsonObject) obj;
+            if (edge.getString("source").equals(source) && edge.getString("target").equals(target)
             && edge.getJsonObject("edge") != null && edge.getJsonObject("edge").getString(field).equals(value)) {
                 result = true;
                 break;
@@ -203,11 +210,11 @@ public class TestDumpRestore {
         Assertions.assertTrue(result);
     }
 
-    private void AssertEdge(JsonArray edgeList, String source, String target) {
+    private void assertEdge(JsonArray edgeList, String source, String target) {
         boolean result = false;
         for (Object obj : edgeList) {
-            JsonObject edge = (JsonObject)obj;
-            if(edge.getString("source").equals(source) && edge.getString("target").equals(target)) {
+            JsonObject edge = (JsonObject) obj;
+            if (edge.getString("source").equals(source) && edge.getString("target").equals(target)) {
                 result = true;
                 break;
             }
@@ -215,10 +222,10 @@ public class TestDumpRestore {
         Assertions.assertTrue(result);
     }
 
-    private void AssertVertex(JsonArray vertexList, String s) {
+    private void assertVertex(JsonArray vertexList, String s) {
         boolean result = false;
         for (Object obj : vertexList) {
-            JsonObject vertex = (JsonObject)obj;
+            JsonObject vertex = (JsonObject) obj;
             if (vertex.getString("id").equals(s)) {
                 result = true;
                 break;

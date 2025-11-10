@@ -16,13 +16,28 @@
 
 package org.qubership.itool.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.jackson.DatabindCodec;
 import io.vertx.core.json.pointer.JsonPointer;
+import org.apache.commons.collections4.CollectionUtils;
+import org.qubership.itool.modules.graph.FalloutDto;
+import org.qubership.itool.modules.graph.GraphDataConstants;
+import org.qubership.itool.modules.processor.GraphMetaInfoSupport;
+import org.qubership.itool.modules.processor.MergerApi;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.List;
@@ -31,41 +46,31 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.collections4.CollectionUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.qubership.itool.modules.graph.FalloutDto;
-import org.qubership.itool.modules.graph.GraphDataConstants;
-import org.qubership.itool.modules.processor.GraphMetaInfoSupport;
-import org.qubership.itool.modules.processor.MergerApi;
-
 public class JsonUtils {
 
     public static final Charset UTF_8 = Charset.forName("UTF-8");
 
-    private static final ObjectMapper mapper;
-    private static final ObjectMapper prettyMapper;
+    private static final ObjectMapper MAPPER;
+    private static final ObjectMapper PRETTY_MAPPER;
 
     static {
-        mapper = DatabindCodec.mapper().copy();
-        prettyMapper = DatabindCodec.mapper().copy();
+        MAPPER = DatabindCodec.mapper().copy();
+        PRETTY_MAPPER = DatabindCodec.mapper().copy();
 
         SimpleModule module = new SimpleModule();
         module.addDeserializer(JsonObject.class, new JsonObjectDeserializer());
         module.addDeserializer(JsonArray.class, new JsonArrayDeserializer());
-        mapper.registerModule(module);
-        prettyMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        prettyMapper.registerModule(module);
+        MAPPER.registerModule(module);
+        PRETTY_MAPPER.enable(SerializationFeature.INDENT_OUTPUT);
+        PRETTY_MAPPER.registerModule(module);
     }
 
     public static ObjectMapper mapper() {
-        return mapper;
+        return MAPPER;
     }
 
     public static ObjectMapper prettyMapper() {
-        return prettyMapper;
+        return PRETTY_MAPPER;
     }
 
 
@@ -110,20 +115,20 @@ public class JsonUtils {
                 return null;
             }
             Reader reader = new InputStreamReader(fis, UTF_8);
-            return mapper.readValue(reader, dataType);
+            return MAPPER.readValue(reader, dataType);
         }
     }
 
     public static JsonObject bytesToJsonObject(byte[] bytes) throws IOException {
         InputStream is = new ByteArrayInputStream(bytes);
         Reader reader = new InputStreamReader(is, UTF_8);
-        return mapper.readValue(reader, JsonObject.class);
+        return MAPPER.readValue(reader, JsonObject.class);
     }
 
     public static JsonObject gzipBytesToJsonObject(byte[] bytes) throws IOException {
         InputStream is = new GZIPInputStream(new ByteArrayInputStream(bytes));
         Reader reader = new InputStreamReader(is, UTF_8);
-        return mapper.readValue(reader, JsonObject.class);
+        return MAPPER.readValue(reader, JsonObject.class);
     }
 
     public static byte[] jsonObjectToGzipBytes(JsonObject dump) throws IOException {
@@ -143,24 +148,25 @@ public class JsonUtils {
     public static <T> T readJsonFromBuffer(Buffer buffer, Class<T> clazz) throws IOException {
         InputStream is = new ByteArrayInputStream(buffer.getBytes());
         Reader reader = new InputStreamReader(is, UTF_8);
-        return mapper.readValue(reader, clazz);
+        return MAPPER.readValue(reader, clazz);
     }
 
     public static <T> T readJsonFromGzipBuffer(Buffer buffer, Class<T> clazz) throws IOException {
         InputStream is = new GZIPInputStream(new ByteArrayInputStream(buffer.getBytes()));
         Reader reader = new InputStreamReader(is, UTF_8);
-        return mapper.readValue(reader, clazz);
+        return MAPPER.readValue(reader, clazz);
     }
 
-    public static void saveJsonToStream(OutputStream out, Object data, boolean pretty) throws IOException {
-        ObjectMapper m = pretty ? prettyMapper : mapper;
+    public static void saveJsonToStream(OutputStream out, Object data, boolean pretty)
+            throws IOException {
+        ObjectMapper m = pretty ? PRETTY_MAPPER : MAPPER;
         try (OutputStreamWriter writer = new OutputStreamWriter(out, UTF_8)) {
             m.writeValue(writer, data);
         }
     }
 
     public static void saveJson(Path path, Object data, boolean pretty) throws IOException {
-        ObjectMapper m = pretty ? prettyMapper : mapper;
+        ObjectMapper m = pretty ? PRETTY_MAPPER : MAPPER;
         try (OutputStream os = FSUtils.createFileOutputStream(path)) {
             m.writeValue(new OutputStreamWriter(os, UTF_8), data);
         }
@@ -258,10 +264,10 @@ public class JsonUtils {
             return (String) value;
         }
         if (value instanceof JsonArray) {
-            value = ((JsonArray)value).getList();
+            value = ((JsonArray) value).getList();
         }
         if (value instanceof List) {
-            return ((List<Object>)value).stream()
+            return ((List<Object>) value).stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(", "));
         }
@@ -274,10 +280,10 @@ public class JsonUtils {
             return (String) value;  // Do not filter it for now
         }
         if (value instanceof JsonArray) {
-            value = ((JsonArray)value).getList();
+            value = ((JsonArray) value).getList();
         }
         if (value instanceof List) {
-            return ((List<Object>)value).stream()
+            return ((List<Object>) value).stream()
                 .map(String::valueOf)
                 .filter(s -> ! GraphDataConstants.NOS_TO_RECOGNIZE.contains(s))
                 .collect(Collectors.joining(", "));
@@ -292,7 +298,7 @@ public class JsonUtils {
         } else if (value instanceof JsonObject) {
             return (JsonObject) value;
         } else if (value instanceof Map) {
-            return new JsonObject( (Map)value );
+            return new JsonObject((Map) value);
         } else {
             throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as "
                     + JsonObject.class.getName());
@@ -306,7 +312,7 @@ public class JsonUtils {
         } else if (value instanceof Map) {
             return (Map) value;
         } else if (value instanceof JsonObject) {
-            return (Map) ((JsonObject)value).getMap();
+            return (Map) ((JsonObject) value).getMap();
         } else {
             throw new ClassCastException("Cannot represent " + value.getClass().getName() + " as "
                     + Map.class.getName());
@@ -314,7 +320,7 @@ public class JsonUtils {
     }
 
     @SuppressWarnings({ "unchecked" })
-    public static <K> List <K> asList(Object value) {
+    public static <K> List<K> asList(Object value) {
         if (value == null) {
             return null;
         } else if (value instanceof List) {

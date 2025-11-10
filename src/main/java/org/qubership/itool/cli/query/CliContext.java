@@ -19,7 +19,11 @@ package org.qubership.itool.cli.query;
 import org.qubership.itool.cli.query.cmd.CliCommand;
 import org.qubership.itool.modules.graph.Graph;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public class CliContext {
 
@@ -43,7 +47,7 @@ public class CliContext {
         return this.contextMap.get(key);
     }
 
-    public void setValue (String key, Object value) {
+    public void setValue(String key, Object value) {
         this.contextMap.put(key, value);
     }
 

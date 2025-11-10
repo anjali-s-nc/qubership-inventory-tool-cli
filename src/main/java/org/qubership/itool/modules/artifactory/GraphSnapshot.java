@@ -20,7 +20,7 @@ import io.vertx.core.json.JsonObject;
 
 public class GraphSnapshot extends Snapshot {
 
-    transient private JsonObject graphDump; // transient field is skipped by toString()
+    private transient JsonObject graphDump; // transient field is skipped by toString()
 
     // Let them stay here for now, not in superclass
     private FailureStage failureStage;

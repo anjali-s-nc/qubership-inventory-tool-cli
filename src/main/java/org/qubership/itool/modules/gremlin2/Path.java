@@ -25,19 +25,23 @@ import java.util.function.BiConsumer;
 public interface Path extends Cloneable, Iterable<Object> {
 
     /**
-     * An ordered list of the labels associated with the path The set of labels for a particular step are ordered by the order in which extend(Object, Set) was called.
+     * An ordered list of the labels associated with the path The set of labels for a particular
+     * step are ordered by the order in which extend(Object, Set) was called.
+     *
      * @return list of labels
      */
     List<Set<String>> labels();
 
     /**
      * An ordered list of the objects in the path.
+     *
      * @return list of objects
      */
     List objects();
 
     /**
      * Add a new step to the path.
+     *
      * @param obj new step
      * @return path
      */
@@ -45,23 +49,28 @@ public interface Path extends Cloneable, Iterable<Object> {
 
     /**
      * Add a new step to the path with an object and any number of associated labels.
+     *
      * @param obj new step
      * @param labels array of labels
      * @return path
      */
     Path extend(Object obj, String ... labels);
+
     Path extend(Object obj, Set<String> labels);
 
     /**
      * Add labels to the head of the path.
+     *
      * @param labels array of labels
      * @return path
      */
     Path extend(String ... labels);
+
     Path extend(Set<String> labels);
 
     /**
      * Get the object associated with the specified index into the path.
+     *
      * @param <A> return type
      * @param index index
      * @return object
@@ -72,6 +81,7 @@ public interface Path extends Cloneable, Iterable<Object> {
 
     /**
      * Get the object associated with the particular label of the path.
+     *
      * @param <A> return type
      * @param label label of the path
      * @return object
@@ -80,14 +90,14 @@ public interface Path extends Cloneable, Iterable<Object> {
         final List<Object> objects = this.objects();
         final List<Set<String>> labels = this.labels();
         Object result = null;
-        for (int i=0 ; i<labels.size() ; i++) {
+        for (int i = 0; i < labels.size(); i++) {
             if (!labels.get(i).contains(label)) {
                 continue;
             }
             if (result == null) {
                 result = objects.get(i);
             } else if (result instanceof List) {
-                ((List)result).add(objects.get(i));
+                ((List) result).add(objects.get(i));
             } else {
                 List tmp = new ArrayList();
                 tmp.add(result);
@@ -103,6 +113,7 @@ public interface Path extends Cloneable, Iterable<Object> {
 
     /**
      * Return true if the path has the specified label, else return false.
+     *
      * @param label path label
      * @return true if the path has the specified label, false otherwise
      */
@@ -112,6 +123,7 @@ public interface Path extends Cloneable, Iterable<Object> {
 
     /**
      * Get the head of the path.
+     *
      * @return the head of the path
      */
     default Object head() {
@@ -120,6 +132,7 @@ public interface Path extends Cloneable, Iterable<Object> {
 
     /**
      * Determine if the path is empty or not.
+     *
      * @return true if path is empty, false otherwise
      */
     default boolean isEmpty() {
@@ -128,6 +141,7 @@ public interface Path extends Cloneable, Iterable<Object> {
 
     /**
      * Get the number of steps in the path.
+     *
      * @return number of steps in the path
      */
     default int size() {

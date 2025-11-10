@@ -16,21 +16,20 @@
 
 package org.qubership.itool.modules.git;
 
-import static org.qubership.itool.utils.ConfigProperties.LOGIN_PROPERTY;
-import javax.annotation.Nullable;
-
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.report.GraphReport;
+import org.qubership.itool.utils.ConfigProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.qubership.itool.modules.report.GraphReport;
-import org.qubership.itool.utils.ConfigProperties;
+import javax.annotation.Nullable;
 
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
+import static org.qubership.itool.utils.ConfigProperties.LOGIN_PROPERTY;
 
 public class GitAdapterBuilder {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(GitAdapterBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GitAdapterBuilder.class);
 
     @Nullable
     public static GitAdapter create(Vertx vertx, GraphReport report, JsonObject config) {
@@ -42,7 +41,7 @@ public class GitAdapterBuilder {
 
         String password = config.getString("password");
         String login = config.getString(LOGIN_PROPERTY);
-        if (login==null || password==null) {
+        if (login == null || password == null) {
             LOG.warn("No login or password provided, GIT facilities will not be available");
             return null;
         }

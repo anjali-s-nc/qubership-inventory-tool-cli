@@ -19,6 +19,7 @@ package org.qubership.itool.tasks.confluence;
 import freemarker.template.TemplateMethodModelEx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import jakarta.inject.Provider;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openapi4j.core.exception.ResolutionException;
@@ -34,17 +35,21 @@ import org.qubership.itool.utils.TechNormalizationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Provider;
-
-import javax.annotation.Resource;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Resource;
 
-import static org.qubership.itool.modules.gremlin2.P.*;
-import static org.qubership.itool.modules.gremlin2.graph.__.*;
+import static org.qubership.itool.modules.gremlin2.P.eq;
+import static org.qubership.itool.modules.gremlin2.P.gt;
+import static org.qubership.itool.modules.gremlin2.P.neq;
+import static org.qubership.itool.modules.gremlin2.P.without;
+import static org.qubership.itool.modules.gremlin2.graph.__.in;
+import static org.qubership.itool.modules.gremlin2.graph.__.out;
+import static org.qubership.itool.modules.gremlin2.graph.__.outE;
+import static org.qubership.itool.modules.gremlin2.graph.__.value;
 import static org.qubership.itool.modules.gremlin2.structure.MapElement.both;
 import static org.qubership.itool.modules.gremlin2.structure.MapElement.key;
 
@@ -56,7 +61,7 @@ public class ConfluenceGenerateComponentPagesVerticle extends AbstractConfluence
 
     public static final List<String> BACKEND_TYPES = Arrays.asList("backend", "ui backend");
 
-    protected Logger LOG = LoggerFactory.getLogger(ConfluenceGenerateComponentPagesVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfluenceGenerateComponentPagesVerticle.class);
 
 
     @Override

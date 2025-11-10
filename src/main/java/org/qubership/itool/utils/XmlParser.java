@@ -16,23 +16,25 @@
 
 package org.qubership.itool.utils;
 
+import io.vertx.core.buffer.Buffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import io.netty.buffer.ByteBufInputStream;
-import io.vertx.core.buffer.Buffer;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.StringReader;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 public class XmlParser {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(XmlParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlParser.class);
 
-    static final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
 
     /** Parse XML document from a file.
      *
@@ -41,7 +43,7 @@ public class XmlParser {
      * @throws Exception Parse exception
      */
     public static Document parseXmlFile(String fileName) throws Exception {
-        DocumentBuilder builder = factory.newDocumentBuilder();
+        DocumentBuilder builder = FACTORY.newDocumentBuilder();
         try (InputStream is = new BufferedInputStream(new FileInputStream(fileName))) {
             return builder.parse(is, fileName);
         }
@@ -55,7 +57,7 @@ public class XmlParser {
      * @throws Exception Parse exception
      */
     public static Document parseXmlString(String xmlData, String inputId) throws Exception {
-        DocumentBuilder builder = factory.newDocumentBuilder();
+        DocumentBuilder builder = FACTORY.newDocumentBuilder();
         InputSource source = new InputSource(new StringReader(xmlData));
         source.setSystemId(inputId);
         return builder.parse(source);
@@ -69,7 +71,7 @@ public class XmlParser {
      * @throws Exception Parse exception
      */
     public static Document parseXmlData(InputStream is, String inputId) throws Exception {
-        DocumentBuilder builder = factory.newDocumentBuilder();
+        DocumentBuilder builder = FACTORY.newDocumentBuilder();
         return builder.parse(is, inputId);
     }
 
@@ -80,7 +82,7 @@ public class XmlParser {
      * @return Parsed document
      * @throws Exception Parse exception
      */
-    public static Document parseXmlData(byte bytes[], String inputId) throws Exception {
+    public static Document parseXmlData(byte[] bytes, String inputId) throws Exception {
         InputStream is = new ByteArrayInputStream(bytes);
         return parseXmlData(is, inputId);
     }

@@ -16,7 +16,10 @@
 
 package org.qubership.itool.cli.query;
 
-import org.jline.reader.*;
+import org.jline.reader.EndOfFileException;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
 import org.jline.reader.impl.completer.AggregateCompleter;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.NullCompleter;
@@ -47,22 +50,22 @@ public class CliQuery {
         this.context = new CliContext(graph);
 
         Class[] commands = new Class[] {
-            DoPredefinedQueryCommand.class
-            , ExitCommand.class
-            , GremlinQueryCommand.class
-            , HelpCommand.class
-            , ListPredefinedQueriesCommand.class
-            , NothingCommand.class
-            , PropertyListCommand.class
-            , PropertySetCommand.class
-            , SavePredefinedQueryCommand.class
-            , SaveResultCommand.class
+            DoPredefinedQueryCommand.class,
+            ExitCommand.class,
+            GremlinQueryCommand.class,
+            HelpCommand.class,
+            ListPredefinedQueriesCommand.class,
+            NothingCommand.class,
+            PropertyListCommand.class,
+            PropertySetCommand.class,
+            SavePredefinedQueryCommand.class,
+            SaveResultCommand.class
         };
 
         for (Class clazz : commands) {
             try {
                 Constructor constructor = clazz.getDeclaredConstructor(CliContext.class);
-                CliCommand command = (CliCommand)constructor.newInstance(this.context);
+                CliCommand command = (CliCommand) constructor.newInstance(this.context);
                 this.context.getCommands().add(command);
 
             } catch (Exception e) {
@@ -76,9 +79,15 @@ public class CliQuery {
             .completer(
                 new AggregateCompleter(
                     new ArgumentCompleter(new StringsCompleter("show"), new NullCompleter()),
-                    new ArgumentCompleter(new StringsCompleter("show"), new StringsCompleter("aaa", "access-expression", "access-lists", "accounting", "adjancey"), new NullCompleter()),
-                    new ArgumentCompleter(new StringsCompleter("show"), new StringsCompleter("ip"), new StringsCompleter("access-lists", "accounting", "admission", "aliases", "arp"), new NullCompleter()),
-                    new ArgumentCompleter(new StringsCompleter("show"), new StringsCompleter("ip"), new StringsCompleter("interface"), new StringsCompleter("ATM", "Async", "BVI"), new NullCompleter())
+                    new ArgumentCompleter(new StringsCompleter("show"),
+                            new StringsCompleter("aaa", "access-expression", "access-lists", "accounting", "adjancey"),
+                            new NullCompleter()),
+                    new ArgumentCompleter(new StringsCompleter("show"), new StringsCompleter("ip"),
+                            new StringsCompleter("access-lists", "accounting", "admission", "aliases", "arp"),
+                            new NullCompleter()),
+                    new ArgumentCompleter(new StringsCompleter("show"), new StringsCompleter("ip"),
+                            new StringsCompleter("interface"), new StringsCompleter("ATM", "Async", "BVI"),
+                            new NullCompleter())
                 )
             )
             .parser(new MultilineParser())
@@ -95,7 +104,7 @@ public class CliQuery {
 
                 try {
                     executeGremlinQuery(userInput);
-                } catch (GremlinException ge) {
+                } catch (GremlinException ex) {
                     System.out.println("Unknown userInput:");
                     System.out.println(userInput);
                 }

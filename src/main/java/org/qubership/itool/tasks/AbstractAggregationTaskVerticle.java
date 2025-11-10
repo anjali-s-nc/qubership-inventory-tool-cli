@@ -37,7 +37,7 @@ import static org.qubership.itool.modules.gremlin2.graph.__.hasType;
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractAggregationTaskVerticle extends FlowTask {
-    protected Logger LOG = LoggerFactory.getLogger(AbstractAggregationTaskVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractAggregationTaskVerticle.class);
 
     protected List<Future<?>> processGraph(
             Function<JsonObject, List<Future<?>>> domainProcessor,
@@ -58,6 +58,7 @@ public abstract class AbstractAggregationTaskVerticle extends FlowTask {
 
     /**
      * Get the maven dependency components for a given domain.
+     *
      * @param graph the graph
      * @param domain the domain
      * @return the maven dependency components

@@ -16,12 +16,12 @@
 
 package org.qubership.itool.modules.graphExtractor.impl;
 
-import org.qubership.itool.modules.graph.Graph;
-import org.qubership.itool.modules.graphExtractor.AbstractGraphDataExtractor;
-import org.qubership.itool.utils.TechNormalizationHelper;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.modules.graphExtractor.AbstractGraphDataExtractor;
+import org.qubership.itool.utils.TechNormalizationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,8 @@ import static org.qubership.itool.modules.graph.Graph.V_ROOT;
 import static org.qubership.itool.modules.graph.Graph.V_UNKNOWN;
 
 public class LanguageAndFrameworkExtractor extends AbstractGraphDataExtractor {
-    protected static final Logger LOGGER = LoggerFactory.getLogger(LanguageAndFrameworkExtractor.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(LanguageAndFrameworkExtractor.class);
 
     @Override
     public JsonObject getDataFromGraph(Graph graph) {

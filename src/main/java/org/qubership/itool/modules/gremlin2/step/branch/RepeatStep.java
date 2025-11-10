@@ -84,8 +84,9 @@ public class RepeatStep<S> extends AbstractStep implements TimesModulating {
 
             List<Traverser<S>> tmpList = new ArrayList<>();
             for (Traverser<S> traverser : tmpResultList) {
-                Traversal.Admin<?, S> cloneTraversal_02 = prepareInnerTraversal(repeatTraversal, (Traverser.Admin)traverser);
-                tmpList.addAll(cloneTraversal_02.getEndStep().getTraversers());
+                Traversal.Admin<?, S> innerCloneTraversal =
+                        prepareInnerTraversal(repeatTraversal, (Traverser.Admin) traverser);
+                tmpList.addAll(innerCloneTraversal.getEndStep().getTraversers());
             }
 
             if (!this.untilFirst && this.untilTraversal != null) {
@@ -112,7 +113,7 @@ public class RepeatStep<S> extends AbstractStep implements TimesModulating {
         }
         List<Traverser<S>> result = new ArrayList<>();
         int size = tmpResultList.size();
-        for (int i=0 ; i<size ; i++) {
+        for (int i = 0; i < size; i++) {
             Traverser<S> traverser = tmpResultList.get(i);
             if (!path.contains(traverser.get())) {
                 result.add(traverser);
@@ -143,7 +144,7 @@ public class RepeatStep<S> extends AbstractStep implements TimesModulating {
 
     private void doEmit(List result, List<Traverser<S>> tmpResultList) {
         for (Traverser<S> traverser : tmpResultList) {
-            if (filterByTraversal(this.emitTraversal, (Traverser.Admin)traverser)) {
+            if (filterByTraversal(this.emitTraversal, (Traverser.Admin) traverser)) {
                 result.add(traverser);
             }
         }

@@ -16,10 +16,10 @@
 
 package org.qubership.itool.modules.gremlin2.util;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.Path;
 import org.qubership.itool.modules.gremlin2.Step;
 import org.qubership.itool.modules.gremlin2.Traverser;
-import io.vertx.core.json.JsonObject;
 
 public class EmptyTraverser<T> implements Traverser.Admin<T> {
     private static final EmptyTraverser INSTANCE = new EmptyTraverser<>();
@@ -53,17 +53,17 @@ public class EmptyTraverser<T> implements Traverser.Admin<T> {
 
     @Override
     public <R> Admin<R> split(Step<T, R> step) {
-        return (Admin<R>)this;
+        return (Admin<R>) this;
     }
 
     @Override
     public <R> Admin<R> split(R r, Step<T, R> step) {
-        return (Admin<R>)this;
+        return (Admin<R>) this;
     }
 
     @Override
     public <R> Admin<R> split(JsonObject source, R r, Step<T, R> step) {
-        return (Admin<R>)this;
+        return (Admin<R>) this;
     }
 
 }

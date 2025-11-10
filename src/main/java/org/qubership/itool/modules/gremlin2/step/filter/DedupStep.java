@@ -48,7 +48,7 @@ public class DedupStep<S> extends FilterStep<S> implements ByModulating {
     protected boolean filter(Traverser.Admin<S> traverser) {
         S obj = traverser.get();
         if (this.modulateBy != null) {
-            obj = (S)ValueHelper.getObjectValue(this.modulateBy, obj);
+            obj = (S) ValueHelper.getObjectValue(this.modulateBy, obj);
             if (obj == null) {
                 return false;
             }

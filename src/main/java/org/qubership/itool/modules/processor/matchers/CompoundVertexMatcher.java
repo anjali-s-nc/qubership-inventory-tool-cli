@@ -16,26 +16,26 @@
 
 package org.qubership.itool.modules.processor.matchers;
 
-import java.util.List;
-
-import org.qubership.itool.modules.graph.Graph;
 import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.graph.Graph;
+
+import java.util.List;
 
 public class CompoundVertexMatcher implements VertexMatcher {
 
-    private final VertexMatcher delegates[];
+    private final VertexMatcher[] delegates;
 
     public CompoundVertexMatcher(VertexMatcher... delegates) {
         this.delegates = delegates;
     }
 
     public CompoundVertexMatcher(List<VertexMatcher> delegates) {
-        this(delegates.toArray( new VertexMatcher[delegates.size()]) );
+        this(delegates.toArray(new VertexMatcher[delegates.size()]));
     }
 
     @Override
     public JsonObject findExistingVertex(Graph sourceGraph, JsonObject newVertex, Graph targetGraph) {
-        for (VertexMatcher delegate: delegates) {
+        for (VertexMatcher delegate : delegates) {
             JsonObject existing = delegate.findExistingVertex(sourceGraph, newVertex, targetGraph);
             if (existing != null) {
                 return existing;

@@ -19,10 +19,12 @@ package org.qubership.itool.modules.gremlin2;
 import io.vertx.core.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import org.qubership.itool.modules.gremlin2.graph.__;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TestGremlinGlob extends AbstractGremlinTest {

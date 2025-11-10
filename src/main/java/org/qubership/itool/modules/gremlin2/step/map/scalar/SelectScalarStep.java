@@ -16,13 +16,12 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.scalar;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.BasicGraph;
 import org.qubership.itool.modules.gremlin2.Path;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.step.AbstractStep;
-
-import io.vertx.core.json.JsonObject;
 
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 

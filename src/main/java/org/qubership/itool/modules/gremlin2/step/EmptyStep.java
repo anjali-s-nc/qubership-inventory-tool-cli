@@ -21,7 +21,9 @@ import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.util.EmptyTraversal;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class EmptyStep<S, E> implements Step<S, E> {
     private static final EmptyStep INSTANCE = new EmptyStep<>();

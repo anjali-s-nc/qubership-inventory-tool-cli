@@ -16,11 +16,7 @@
 
 package org.qubership.itool.tasks.parsing;
 
-import org.junit.jupiter.api.Disabled;
-import org.qubership.itool.context.FlowContext;
-import org.qubership.itool.di.ApplicationContext;
-import org.qubership.itool.di.QubershipModule;
-
+import com.google.inject.Module;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -30,16 +26,18 @@ import io.vertx.junit5.VertxTestContext;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.qubership.itool.context.FlowContext;
+import org.qubership.itool.di.ApplicationContext;
+import org.qubership.itool.di.QubershipModule;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-
-import com.google.inject.Module;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -75,7 +73,8 @@ class AbstractParseFileTaskTest {
     public static void setUp() {
         vertx = Vertx.vertx();
         config = new JsonObject();
-        ApplicationContext appContext = new ApplicationContext(vertx, config, new Module[] {new QubershipModule(vertx)});
+        ApplicationContext appContext =
+                new ApplicationContext(vertx, config, new Module[] {new QubershipModule(vertx)});
         flowContext = appContext.getInstance(FlowContext.class);
         flowContext.initialize(vertx, config);
     }
@@ -111,49 +110,55 @@ class AbstractParseFileTaskTest {
     }
 
     @Test
-    void findAllFiles_1() {
+    void testFindAllFilesSimple() {
         List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT, List.of(), List.of(), List.of());
-        assertEquals( 0, result.size());
+        assertEquals(0, result.size());
     }
 
     @Test
-    void findAllFiles_2() {
-        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT, List.of(), List.of(Pattern.compile("^.*$")), List.of());
-        assertEquals( 3, result.size());
+    void testFindAllFilesWithPattern() {
+        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT, List.of(),
+                List.of(Pattern.compile("^.*$")), List.of());
+        assertEquals(3, result.size());
     }
 
     @Test
-    void findAllFiles_3() {
-        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT, List.of(), List.of(Pattern.compile("^.*$")), List.of());
-        assertEquals( 3, result.size());
+    void testFindAllFilesWithRegex() {
+        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT, List.of(),
+                List.of(Pattern.compile("^.*$")), List.of());
+        assertEquals(3, result.size());
     }
 
     @Test
-    void findAllFiles_4() {
-        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT, List.of("t2_inventory.json"), List.of(Pattern.compile("^.*$")), List.of());
+    void testFindAllFilesWithName() {
+        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT,
+                List.of("t2_inventory.json"), List.of(Pattern.compile("^.*$")), List.of());
         // Are simple patterns supposed to overlap with other kinds of patterns?
-        assertEquals( 4, result.size());
+        assertEquals(4, result.size());
     }
 
     @Disabled("provide proper test folder structure")
     @Test
-    void findAllFiles_5() {
-        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT_2, List.of(), List.of(), List.of("chains/*/*.yaml"));
-        assertEquals( 1, result.size());
+    void testFindAllFilesWithGlob() {
+        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT_2, List.of(), List.of(),
+                List.of("chains/*/*.yaml"));
+        assertEquals(1, result.size());
     }
 
     @Disabled("provide proper test folder structure")
     @Test
-    void findAllFiles_6() {
-        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT_2, List.of(), List.of(), List.of("**/chain-*.yaml"));
-        assertEquals( 1, result.size());
+    void testFindAllFilesWithRecursiveGlob() {
+        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT_2, List.of(), List.of(),
+                List.of("**/chain-*.yaml"));
+        assertEquals(1, result.size());
     }
 
     @Disabled("provide proper test folder structure")
     @Test
-    void findAllFiles_7() {
-        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT_WITH_EXCLUDE_DIRS, List.of(), List.of(), List.of("**/chain-*.yaml"));
-        assertEquals( 0, result.size());
+    void testFindAllFilesWithExcludeDirs() {
+        List<String> result = testParseFileTask.findAllFiles(TEST_COMPONENT_WITH_EXCLUDE_DIRS,
+                List.of(), List.of(), List.of("**/chain-*.yaml"));
+        assertEquals(0, result.size());
     }
 
     class TestParseFileTask extends AbstractInclusiveParseFileTask {

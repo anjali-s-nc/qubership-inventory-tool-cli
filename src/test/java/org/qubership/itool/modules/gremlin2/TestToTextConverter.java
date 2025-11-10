@@ -16,15 +16,19 @@
 
 package org.qubership.itool.modules.gremlin2;
 
-import org.qubership.itool.modules.query.converter.ResultConverter;
-import org.qubership.itool.modules.query.converter.ToTextConverter;
 import io.vertx.core.json.JsonObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.qubership.itool.modules.query.converter.ResultConverter;
+import org.qubership.itool.modules.query.converter.ToTextConverter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestToTextConverter {
@@ -57,7 +61,7 @@ public class TestToTextConverter {
 
     @Test
     void testScalar() {
-        String result = resultConverter.convert(14l);
+        String result = resultConverter.convert(14L);
         System.out.println(result);
     }
 

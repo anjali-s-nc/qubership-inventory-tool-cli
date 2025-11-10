@@ -16,8 +16,6 @@
 
 package org.qubership.itool.tasks.other;
 
-import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
-
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.WorkerExecutor;
@@ -25,7 +23,7 @@ import io.vertx.core.impl.cpu.CpuCoreSensor;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
+import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 import org.qubership.itool.utils.FSUtils;
 import org.qubership.itool.utils.GitUtils;
 import org.qubership.itool.utils.JsonUtils;
@@ -42,7 +40,7 @@ import static org.qubership.itool.modules.graph.Graph.F_DIRECTORY;
 import static org.qubership.itool.modules.graph.Graph.V_DOMAIN;
 
 public class EnrichDocumentationLinksVerticle extends AbstractAggregationTaskVerticle {
-    protected Logger LOGGER = LoggerFactory.getLogger(EnrichDocumentationLinksVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnrichDocumentationLinksVerticle.class);
 
     @Override
     protected Logger getLogger() {
@@ -60,10 +58,10 @@ public class EnrichDocumentationLinksVerticle extends AbstractAggregationTaskVer
     @Override
     protected void taskStart(Promise<?> taskPromise) throws Exception {
         Integer coresCount = CpuCoreSensor.availableProcessors();
-        WorkerExecutor executor = vertx.createSharedWorkerExecutor("enrichment-worker-pool"
-                , coresCount
-                , 10
-                , TimeUnit.MINUTES);
+        WorkerExecutor executor = vertx.createSharedWorkerExecutor("enrichment-worker-pool",
+                coresCount,
+                10,
+                TimeUnit.MINUTES);
 
         List<JsonObject> components = V().hasType(V_DOMAIN)
                 .out().hasKeys(F_DIRECTORY)

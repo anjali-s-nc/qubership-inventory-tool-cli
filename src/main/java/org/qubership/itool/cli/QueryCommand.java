@@ -21,7 +21,12 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import static org.qubership.itool.utils.ConfigProperties.*;
+import static org.qubership.itool.utils.ConfigProperties.LOGIN_PROPERTY;
+import static org.qubership.itool.utils.ConfigProperties.OFFLINE_MODE_PROPERTY;
+import static org.qubership.itool.utils.ConfigProperties.PASSWORD_SOURCE_PROPERTY;
+import static org.qubership.itool.utils.ConfigProperties.QUERY_FILE_POINTER;
+import static org.qubership.itool.utils.ConfigProperties.QUERY_PROGRESS_PATH_POINTER;
+import static org.qubership.itool.utils.ConfigProperties.QUERY_STEP_POINTER;
 
 /**
  * Execute Gremlin query against the graph data.

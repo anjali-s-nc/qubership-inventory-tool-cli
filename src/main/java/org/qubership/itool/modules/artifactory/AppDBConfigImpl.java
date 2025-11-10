@@ -18,8 +18,9 @@ package org.qubership.itool.modules.artifactory;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-import static org.qubership.itool.utils.ConfigProperties.LOGIN_PROPERTY;
 import org.qubership.itool.utils.ConfigProperties;
+
+import static org.qubership.itool.utils.ConfigProperties.LOGIN_PROPERTY;
 
 public class AppDBConfigImpl implements AppDBConfig {
 

@@ -16,18 +16,18 @@
 
 package org.qubership.itool.cli;
 
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.spi.VerticleFactory;
+import org.qubership.itool.cli.spi.ModuleProvider;
 import org.qubership.itool.context.FlowContext;
 import org.qubership.itool.di.ApplicationContext;
 import org.qubership.itool.di.QubershipModule;
 import org.qubership.itool.factories.JavaAppContextVerticleFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.inject.Module;
-import com.google.inject.util.Modules;
-import org.qubership.itool.cli.spi.ModuleProvider;
 
 import java.util.Optional;
 import java.util.ServiceLoader;

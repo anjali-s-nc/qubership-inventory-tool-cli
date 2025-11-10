@@ -16,21 +16,19 @@
 
 package org.qubership.itool.tasks.parsing.configuration;
 
-import java.io.IOException;
-
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.pointer.JsonPointer;
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
 import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
-
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.pointer.JsonPointer;
+import java.io.IOException;
 
 public class ProcessGitInfoFilesTask extends AbstractParseFileTask {
-    protected static final Logger LOGGER = LoggerFactory.getLogger(ProcessGitInfoFilesTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessGitInfoFilesTask.class);
 
     @Override
     protected Logger getLogger() {
@@ -44,8 +42,7 @@ public class ProcessGitInfoFilesTask extends AbstractParseFileTask {
 
     @Override
     protected void parseSingleFile(JsonObject domain, JsonObject component, String fileName)
-            throws IOException
-    {
+            throws IOException {
         JsonObject gitInfo = JsonUtils.readJsonFile(fileName);
         String branch = gitInfo.getString("branch");
         if (StringUtils.isNotEmpty(branch)) {

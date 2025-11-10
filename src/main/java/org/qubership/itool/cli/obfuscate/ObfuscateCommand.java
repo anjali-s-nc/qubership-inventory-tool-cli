@@ -25,8 +25,14 @@ import picocli.CommandLine.Option;
 
 import java.util.Properties;
 
-import static org.qubership.itool.cli.ci.CiConstants.*;
-import static org.qubership.itool.utils.ConfigProperties.*;
+import static org.qubership.itool.cli.ci.CiConstants.OBFUSCATION_RULES;
+import static org.qubership.itool.cli.ci.CiConstants.P_INPUT_DIRECTORY;
+import static org.qubership.itool.cli.ci.CiConstants.P_INPUT_FILE;
+import static org.qubership.itool.cli.ci.CiConstants.P_OUTPUT_DIRECTORY;
+import static org.qubership.itool.cli.ci.CiConstants.P_OUTPUT_FILE;
+import static org.qubership.itool.utils.ConfigProperties.OFFLINE_MODE_PROPERTY;
+import static org.qubership.itool.utils.ConfigProperties.PROFILE_POINTER;
+import static org.qubership.itool.utils.ConfigProperties.SAVE_PROGRESS_PROPERTY;
 
 /**
  * A command for obfuscation of CI run or assembly.

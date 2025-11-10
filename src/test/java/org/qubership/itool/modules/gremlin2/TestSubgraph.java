@@ -16,17 +16,17 @@
 
 package org.qubership.itool.modules.gremlin2;
 
-import java.util.*;
-
+import io.vertx.core.json.JsonObject;
 import org.junit.jupiter.api.Test;
-
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.SubGraph;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversalSource;
 
-import io.vertx.core.json.JsonObject;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestSubgraph extends AbstractGremlinTest {
 
@@ -36,8 +36,8 @@ public class TestSubgraph extends AbstractGremlinTest {
 
         GraphTraversalSource tr = new GraphTraversalSource(result);
 
-        assertEquals(2l, tr.E().count().next());
-        assertEquals(3l, tr.V().count().next());
+        assertEquals(2L, tr.E().count().next());
+        assertEquals(3L, tr.V().count().next());
     }
 
     @Test

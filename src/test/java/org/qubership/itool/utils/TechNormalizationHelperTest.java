@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TechNormalizationHelperTest {
 
@@ -34,7 +34,8 @@ class TechNormalizationHelperTest {
     @Test
     void normalizeTech() {
         assertEquals("Java", TechNormalizationHelper.normalizeTech("JaVa  69").orElse(null));
-        assertEquals("Elasticsearch", TechNormalizationHelper.normalizeTech("opendistro elasticsearch 4.20").orElse(null));
+        assertEquals("Elasticsearch", TechNormalizationHelper
+                .normalizeTech("opendistro elasticsearch 4.20").orElse(null));
         assertEquals("Unknown", TechNormalizationHelper.normalizeTech("GoShLang").orElse("Unknown"));
     }
 

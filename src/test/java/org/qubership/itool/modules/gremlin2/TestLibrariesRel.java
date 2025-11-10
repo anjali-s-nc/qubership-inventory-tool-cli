@@ -16,6 +16,13 @@
 
 package org.qubership.itool.modules.gremlin2;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDumpSupport;
 import org.qubership.itool.modules.graph.GraphImpl;
@@ -24,17 +31,16 @@ import org.qubership.itool.modules.gremlin2.graph.GraphTraversalSource;
 import org.qubership.itool.modules.gremlin2.structure.MapElement;
 import org.qubership.itool.utils.JsonUtils;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-
-import org.junit.jupiter.api.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.qubership.itool.modules.gremlin2.P.*;
+import static org.qubership.itool.modules.gremlin2.P.containing;
+import static org.qubership.itool.modules.gremlin2.P.eq;
+import static org.qubership.itool.modules.gremlin2.P.gte;
+import static org.qubership.itool.modules.gremlin2.P.gteVersion;
+import static org.qubership.itool.modules.gremlin2.P.neq;
 import static org.qubership.itool.modules.gremlin2.graph.__.has;
 import static org.qubership.itool.modules.gremlin2.graph.__.out;
 import static org.qubership.itool.modules.gremlin2.graph.__.outE;
@@ -185,8 +191,8 @@ public class TestLibrariesRel {
             .has("component", eq(select("C").id()))
             .inV()
             .or(
-                has("groupId", eq("org.springframework.boot"))
-                , has("groupId", eq("io.quarkus"))
+                has("groupId", eq("org.springframework.boot")),
+                has("groupId", eq("io.quarkus"))
             ).as("F")
             .select("C", "F")
             .<String>values("/C/id", "/F/groupId", "/F/version").dedup()
@@ -207,7 +213,8 @@ public class TestLibrariesRel {
     @Test
     @Disabled
     void testInfra() {
-        List<JsonObject> result = V("Infrastructure").value("env").unfold().by(MapElement.value).value("items").<JsonObject>unfold().toList();
+        List<JsonObject> result = V("Infrastructure").value("env").unfold().by(MapElement.value)
+                .value("items").<JsonObject>unfold().toList();
         System.out.println(result);
         for (JsonObject json : result) {
             System.out.println("#  " + json);
@@ -259,7 +266,8 @@ public class TestLibrariesRel {
                     System.out.println("groupId: " + dependencyGroupId + ", artifactId: " + dependencyArtifactId);
                     if (driverGroupId != null && driverGroupId.equals(dependencyGroupId)) {
                         if (driverArtifactId != null && driverArtifactId.equals(dependencyArtifactId)) {
-                            System.out.println("FOUND: groupId: " + driverGroupId + ", artifactId: " + driverArtifactId);
+                            System.out.println("FOUND: groupId: " + driverGroupId + ", artifactId: "
+                                    + driverArtifactId);
                         }
                     }
                 }

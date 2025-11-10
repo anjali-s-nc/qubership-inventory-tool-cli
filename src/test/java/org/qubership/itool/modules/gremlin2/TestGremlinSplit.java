@@ -39,7 +39,7 @@ public class TestGremlinSplit extends AbstractGremlinTest {
     @Test
     void test_Split() {
         List<String> result = V("v10").value("content").<String>split().toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(4, result.size());
         Assertions.assertEquals("Some multiline", result.get(0));
         Assertions.assertEquals("Content", result.get(1));
@@ -50,7 +50,7 @@ public class TestGremlinSplit extends AbstractGremlinTest {
     @Test
     void test_SplitBy() {
         List<String> result = V("v10").value("database").<String>split().by(",\\s*").toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(3, result.size());
         Assertions.assertEquals("postgresql", result.get(0));
         Assertions.assertEquals("mongodb", result.get(1));

@@ -16,8 +16,8 @@
 
 package org.qubership.itool.utils;
 
-import org.qubership.itool.modules.graph.Graph;
 import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.graph.Graph;
 
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.modules.gremlin2.P.within;

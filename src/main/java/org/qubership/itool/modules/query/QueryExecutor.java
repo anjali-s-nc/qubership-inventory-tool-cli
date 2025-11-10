@@ -16,14 +16,13 @@
 
 package org.qubership.itool.modules.query;
 
+import groovy.lang.Binding;
+import groovy.lang.GroovyRuntimeException;
+import groovy.lang.GroovyShell;
 import org.qubership.itool.modules.graph.BasicGraph;
 import org.qubership.itool.modules.gremlin2.GremlinException;
 import org.qubership.itool.modules.query.converter.ResultConverter;
 import org.qubership.itool.modules.query.converter.ToTextConverter;
-
-import groovy.lang.Binding;
-import groovy.lang.GroovyRuntimeException;
-import groovy.lang.GroovyShell;
 
 import java.util.Properties;
 

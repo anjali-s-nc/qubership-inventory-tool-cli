@@ -16,8 +16,8 @@
 
 package org.qubership.itool.modules.graph;
 
-import org.qubership.itool.modules.gremlin2.graph.GraphTraversalSource;
 import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.gremlin2.graph.GraphTraversalSource;
 
 import java.util.List;
 

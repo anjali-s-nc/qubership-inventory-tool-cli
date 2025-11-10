@@ -16,20 +16,17 @@
 
 package org.qubership.itool.cli;
 
-import org.qubership.itool.cli.query.CliQuery;
-import org.qubership.itool.tasks.FlowTask;
-
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-
 import jakarta.inject.Provider;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.qubership.itool.cli.query.CliQuery;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDumpSupport;
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.ConfigUtils;
 import org.qubership.itool.utils.FSUtils;
 import org.qubership.itool.utils.JsonUtils;
@@ -40,16 +37,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.Resource;
 
 import static org.qubership.itool.utils.ConfigProperties.QUERY_FILE_POINTER;
+import static org.qubership.itool.utils.ConfigProperties.QUERY_PROGRESS_PATH_POINTER;
 import static org.qubership.itool.utils.ConfigProperties.QUERY_STEP_POINTER;
 import static org.qubership.itool.utils.ConfigProperties.SUPER_REPOSITORY_DIR_POINTER;
-import static org.qubership.itool.utils.ConfigProperties.QUERY_PROGRESS_PATH_POINTER;
 
 public class QueryVerticle extends FlowMainVerticle {
-    protected static final Logger LOG = LoggerFactory.getLogger(QueryVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(QueryVerticle.class);
 
     @Resource
     protected Provider<Graph> graphProvider;
@@ -60,10 +56,10 @@ public class QueryVerticle extends FlowMainVerticle {
 
     @Override
     public void start() {
-        WorkerExecutor executor = vertx.createSharedWorkerExecutor("query-worker-pool"
-                , 1
-                , 60
-                , TimeUnit.DAYS);
+        WorkerExecutor executor = vertx.createSharedWorkerExecutor("query-worker-pool",
+                1,
+                60,
+                TimeUnit.DAYS);
 
         JsonObject config = config();
         String file = ConfigUtils.getConfigValue(QUERY_FILE_POINTER, config);
@@ -167,7 +163,7 @@ public class QueryVerticle extends FlowMainVerticle {
             if (!(json instanceof JsonObject)) {
                 throw new RuntimeException("JsonObject expected. Found scalar: " + json);
             }
-            JsonObject jsonObj = (JsonObject)json;
+            JsonObject jsonObj = (JsonObject) json;
             if (jsonObj.getValue(Graph.F_ID) == null) {
                 throw new RuntimeException("JsonObject should contain 'id' property");
             }

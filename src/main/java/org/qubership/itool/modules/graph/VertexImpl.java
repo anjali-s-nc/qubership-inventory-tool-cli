@@ -62,12 +62,12 @@ public class VertexImpl implements Vertex {
 
     @Override
     public String toString() {
-        return "Vertex{" +
-            "id=" + id +
-            ", value=" + value +
-            ", edgesIn=" + edgesIn +
-            ", edgesOut=" + edgesOut +
-            '}';
+        return "Vertex{"
+            + "id=" + id
+            + ", value=" + value
+            + ", edgesIn=" + edgesIn
+            + ", edgesOut=" + edgesOut
+            + '}';
     }
 
 }

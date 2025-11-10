@@ -20,21 +20,20 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
-
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
+import org.apache.commons.collections4.ListUtils;
 import org.qubership.itool.modules.artifactory.AppVersionDescriptor;
 import org.qubership.itool.modules.artifactory.FailureStage;
 import org.qubership.itool.modules.artifactory.GraphSnapshot;
-
 import org.qubership.itool.modules.processor.MergerApi;
 import org.qubership.itool.modules.report.GraphReport;
-
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
-
-import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,21 +42,16 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static org.qubership.itool.modules.processor.MergerApi.P_IS_APPLICATION;
 import static org.qubership.itool.modules.processor.MergerApi.P_APP_NAME;
 import static org.qubership.itool.modules.processor.MergerApi.P_APP_VERSION;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Provider;
-
-import java.io.IOException;
+import static org.qubership.itool.modules.processor.MergerApi.P_IS_APPLICATION;
 
 /**
  * Manager for graph operations.
  */
 public class GraphManager {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(GraphManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GraphManager.class);
 
     private final LoadingCache<String, GraphClassifier> graphClassifierCache;
 
@@ -70,8 +64,11 @@ public class GraphManager {
     private final Provider<MergerApi> graphMergerProvider;
 
     @Inject
-    public GraphManager(Vertx vertx, GraphFetcher fetcher, boolean failFast, Provider<Graph> graphProvider, Provider<GraphReport> graphReportProvider, Provider<MergerApi> graphMergerProvider) {
-        this(vertx, fetcher, defaultClassifierCacheBuilder(), failFast, graphProvider, graphReportProvider, graphMergerProvider);
+    public GraphManager(Vertx vertx, GraphFetcher fetcher, boolean failFast,
+            Provider<Graph> graphProvider, Provider<GraphReport> graphReportProvider,
+            Provider<MergerApi> graphMergerProvider) {
+        this(vertx, fetcher, defaultClassifierCacheBuilder(), failFast, graphProvider,
+                graphReportProvider, graphMergerProvider);
     }
 
     @SuppressWarnings("rawtypes")
@@ -83,8 +80,9 @@ public class GraphManager {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public GraphManager(Vertx vertx, GraphFetcher fetcher,
-            CacheBuilder classifierCacheBuilder, boolean failFast, Provider<Graph> graphProvider, Provider<GraphReport> graphReportProvider, Provider<MergerApi> graphMergerProvider) {
+    public GraphManager(Vertx vertx, GraphFetcher fetcher, CacheBuilder classifierCacheBuilder,
+            boolean failFast, Provider<Graph> graphProvider,
+            Provider<GraphReport> graphReportProvider, Provider<MergerApi> graphMergerProvider) {
         this.graphFetcher = fetcher;
         this.failFast = failFast;
         this.graphProvider = graphProvider;
@@ -115,9 +113,10 @@ public class GraphManager {
             graphFetcher.fetchAllApplicationVersionIds(classifier)
         );
 
-        Map<AppVersionDescriptor, GraphSnapshot> fetchedData = graphFetcher.fetchGraphDumpsByAppVersions(allAppVersionIds);
+        Map<AppVersionDescriptor, GraphSnapshot> fetchedData =
+                graphFetcher.fetchGraphDumpsByAppVersions(allAppVersionIds);
         Map<AppVersionDescriptor, GraphSnapshot> unprocessedAppIds = new HashMap<>();
-        for (AppVersionDescriptor applicationVersionId: allAppVersionIds) {
+        for (AppVersionDescriptor applicationVersionId : allAppVersionIds) {
             GraphSnapshot snapshot = fetchedData.get(applicationVersionId);
             if (snapshot == null) {
                 snapshot = new GraphSnapshot();
@@ -203,7 +202,9 @@ public class GraphManager {
         public GraphClassifier load(String graphClassifierId) throws Exception {
             GraphClassifier graphClassifier = resolveGraphClassifier(graphClassifierId);
             if (graphClassifier == null) {
-                throw new ExecutionException("GraphClassifier can't be loaded for: " + graphClassifierId, new NullPointerException());
+                throw new ExecutionException(
+                        "GraphClassifier can't be loaded for: " + graphClassifierId,
+                        new NullPointerException());
             }
             return graphClassifier;
         }

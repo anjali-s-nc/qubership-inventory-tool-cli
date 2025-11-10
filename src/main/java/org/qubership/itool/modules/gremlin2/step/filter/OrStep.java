@@ -48,7 +48,7 @@ public class OrStep<S> extends FilterStep<S> {
     @Override
     protected boolean filter(Traverser.Admin<S> traverser) {
         boolean founded = false;
-        for (Traversal.Admin<?, S> orTraversal: this.orTraversals) {
+        for (Traversal.Admin<?, S> orTraversal : this.orTraversals) {
             TraversalHelper.propagateSource(this.traversal, orTraversal);
             Traversal.Admin<?, S> cloneTraversal = prepareInnerTraversal(orTraversal, traverser);
             List<Traverser<S>> cloneResultList = cloneTraversal.getEndStep().getTraversers();

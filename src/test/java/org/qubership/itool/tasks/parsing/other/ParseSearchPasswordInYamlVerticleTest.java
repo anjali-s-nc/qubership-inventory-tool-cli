@@ -44,8 +44,10 @@ class ParseSearchPasswordInYamlVerticleTest {
             "password :pa$$w0rd123",
             "password: \"password\"",
             "MINIO_ROOT_PASSWORD: password",
-            "value: 'org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{ .Values.KAFKA_USERNAME }}\" password=\"pa$sword\";'",
-            "saslJaasConfig: \"org.apache.kafka.common.security.scram.ScramLoginModule required username=client password=client;\"",
+            "value: 'org.apache.kafka.common.security.scram.ScramLoginModule required username"
+                + "=\"{{ .Values.KAFKA_USERNAME }}\" password=\"pa$sword\";'",
+            "saslJaasConfig: \"org.apache.kafka.common.security.scram.ScramLoginModule required username"
+                + "=client password=client;\"",
             "- POSTGRES_PASSWORD=password",
             "password: \"multiline\\nmysecret\\ntest\"",
             "ROOT_PASSWORD: rootpassword",
@@ -60,7 +62,7 @@ class ParseSearchPasswordInYamlVerticleTest {
     }
 
     @Test
-    public void testParseSingleFile_PositiveScenario() {
+    public void testParseSingleFilePositiveScenario() {
         List<String> result = filterByPattern();
         assertEquals(positiveScenarios, result);
     }
@@ -79,7 +81,9 @@ class ParseSearchPasswordInYamlVerticleTest {
         // Create a parser instance
         parser = new ParseSearchPasswordInYamlVerticle();
 
-        try (InputStream inputStream = FSUtils.openUrlStream(ParseSearchPasswordInYamlVerticleTest.class, "classpath:/parsing/other/possiblePasswords.txt")) {
+        try (InputStream inputStream =
+                FSUtils.openUrlStream(ParseSearchPasswordInYamlVerticleTest.class,
+                        "classpath:/parsing/other/possiblePasswords.txt")) {
             if (inputStream == null) {
                 throw new IOException("Unable to open the URL stream");
             }
@@ -90,5 +94,4 @@ class ParseSearchPasswordInYamlVerticleTest {
             return bufferedReader.lines().collect(Collectors.toList());
         }
     }
-
 }

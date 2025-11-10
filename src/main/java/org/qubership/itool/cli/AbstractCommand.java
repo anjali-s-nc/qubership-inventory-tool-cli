@@ -19,18 +19,17 @@ package org.qubership.itool.cli;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import org.qubership.itool.context.FlowContext;
+import org.qubership.itool.di.ApplicationContext;
+import org.qubership.itool.modules.graph.GraphService;
+import org.qubership.itool.utils.FutureUtils;
+import org.slf4j.Logger;
 import picocli.CommandLine.Option;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-
-import org.qubership.itool.modules.graph.GraphService;
-import org.qubership.itool.utils.FutureUtils;
-import org.slf4j.Logger;
-
-import org.qubership.itool.context.FlowContext;
-import org.qubership.itool.di.ApplicationContext;
 
 import static org.qubership.itool.utils.ConfigProperties.CONFIG_PATH_POINTER;
 import static org.qubership.itool.utils.ConfigProperties.PROFILE_POINTER;
@@ -95,8 +94,8 @@ public abstract class AbstractCommand implements Callable<Integer> {
                 ApplicationContext context = getSharedApplicationContext();
                 if (context == null) {
                     throw new IllegalStateException(
-                            "Shared application context is not available. " +
-                            "This indicates a problem with the execution strategy.");
+                            "Shared application context is not available. "
+                            + "This indicates a problem with the execution strategy.");
                 }
 
                 FlowContext flowContext = context.getInstance(FlowContext.class);
@@ -122,8 +121,8 @@ public abstract class AbstractCommand implements Callable<Integer> {
         ApplicationContext context = ApplicationContextHolder.getInstance();
         if (context == null) {
             throw new IllegalStateException(
-                    "No application context available. " +
-                    "Ensure InventoryToolMain properly initialized the shared context.");
+                    "No application context available. "
+                    + "Ensure InventoryToolMain properly initialized the shared context.");
         }
         return context;
     }
@@ -178,9 +177,9 @@ public abstract class AbstractCommand implements Callable<Integer> {
      * @param profile the profile name or file
      */
     @Option(names = {"-p", "--profile"},
-            description = "Custom profile to be used. " +
-                    "By default uses properties format, in case of json, use file name with extension " +
-                    "(Examples: \"custom\", \"custom.properties\", \"custom_example.json\")",
+            description = "Custom profile to be used. "
+                    + "By default uses properties format, in case of json, use file name with extension "
+                    + "(Examples: \"custom\", \"custom.properties\", \"custom_example.json\")",
             required = false)
     public void setProfile(String profile) {
         properties.put(PROFILE_POINTER, profile);

@@ -21,8 +21,8 @@ import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.graph.DefaultGraphTraversal;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 import org.qubership.itool.modules.gremlin2.step.TraversalParent;
-import org.qubership.itool.modules.gremlin2.step.filter.OrStep;
 import org.qubership.itool.modules.gremlin2.step.filter.HasStep;
+import org.qubership.itool.modules.gremlin2.step.filter.OrStep;
 import org.qubership.itool.modules.gremlin2.step.util.HasContainer;
 import org.qubership.itool.modules.gremlin2.step.util.HasContainerHolder;
 
@@ -38,13 +38,14 @@ public class TraversalHelper {
 
     public static <S> void addToCollection(Collection<S> collection, S s) {
         if (s instanceof List) {
-            collection.addAll((List)s);
+            collection.addAll((List) s);
         } else {
             collection.add(s);
         }
     }
 
-    public static void applyTraversalRecursively(Consumer<Traversal.Admin<?, ?>> consumer, Traversal.Admin<?, ?> traversal) {
+    public static void applyTraversalRecursively(Consumer<Traversal.Admin<?, ?>> consumer,
+            Traversal.Admin<?, ?> traversal) {
         consumer.accept(traversal);
 
         List<Step> steps = traversal.getSteps();
@@ -69,7 +70,8 @@ public class TraversalHelper {
         return (T) traversal.addStep(new HasStep<>(traversal, hasContainer));
     }
 
-    public static <T extends Traversal.Admin<?, ?>> T addHasContainer(T traversal, String type, HasContainer hasContainer) {
+    public static <T extends Traversal.Admin<?, ?>> T addHasContainer(T traversal, String type,
+            HasContainer hasContainer) {
         if (traversal.getEndStep() instanceof HasContainerHolder) {
             ((HasContainerHolder) traversal.getEndStep()).addHasContainer(hasContainer);
             return traversal;
@@ -82,7 +84,7 @@ public class TraversalHelper {
             traversal.addStep(new OrStep<>(traversal));
         }
 
-        OrStep orStep = (OrStep)traversal.getEndStep();
+        OrStep orStep = (OrStep) traversal.getEndStep();
         orStep.appendOrTraversals(new DefaultGraphTraversal<>().addStep(new HasStep<>(traversal, hasContainer)));
 
         return traversal;
@@ -90,9 +92,9 @@ public class TraversalHelper {
 
     public static void propagateSource(Traversal source, Traversal target) {
         if (source instanceof GraphTraversal && target instanceof GraphTraversal) {
-            GraphTraversal.Admin targetAsAdmin = ((GraphTraversal)target).asAdmin();
+            GraphTraversal.Admin targetAsAdmin = ((GraphTraversal) target).asAdmin();
             if (targetAsAdmin.getSource() == null) {
-                targetAsAdmin.setSource(((GraphTraversal)source).asAdmin().getSource());
+                targetAsAdmin.setSource(((GraphTraversal) source).asAdmin().getSource());
             }
         }
 

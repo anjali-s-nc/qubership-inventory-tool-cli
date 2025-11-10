@@ -16,11 +16,11 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.flat;
 
+import org.apache.commons.lang3.StringUtils;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.step.AbstractStep;
 import org.qubership.itool.modules.gremlin2.step.ByModulating;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class SplitStep<S, E> extends FlatMapStep<S, E> implements ByModulating {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "("
-            + (modulateByProperty == null ? "": modulateByProperty)
+            + (modulateByProperty == null ? "" : modulateByProperty)
             + ")";
     }
 
@@ -45,10 +45,10 @@ public class SplitStep<S, E> extends FlatMapStep<S, E> implements ByModulating {
         List<E> result = new ArrayList<>();
         Object obj = traverser.get();
         if (!(obj instanceof String)) {
-            result.add((E)obj);
+            result.add((E) obj);
         }
 
-        String source = (String)obj;
+        String source = (String) obj;
         if (modulateByProperty != null) {
             for (String s : source.split(modulateByProperty)) {
                 if (StringUtils.isNoneBlank(s)) {

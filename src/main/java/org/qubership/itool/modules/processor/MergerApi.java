@@ -16,14 +16,13 @@
 
 package org.qubership.itool.modules.processor;
 
+import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.graph.Graph;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
-import org.qubership.itool.modules.graph.Graph;
-
-import io.vertx.core.json.JsonObject;
 
 public interface MergerApi extends Closeable {
 
@@ -51,17 +50,17 @@ public interface MergerApi extends Closeable {
      *
      * @param sourceDirectory Storage of source dumps
      * @param targetDesc Description of merging target and merging features. Supported keys:
-     * <ul><li>P_IS_APPLICATION: Boolean
-     * <li>P_APP_NAME: String
-     * <li>P_APP_VERSION: String
-     * <li>P_IS_NAMESPACE: Boolean
-     * <li>P_NAMESPACE_NAME: String
-     * </ul>
+     *                   <ul><li>P_IS_APPLICATION: Boolean
+     *                   <li>P_APP_NAME: String
+     *                   <li>P_APP_VERSION: String
+     *                   <li>P_IS_NAMESPACE: Boolean
+     *                   <li>P_NAMESPACE_NAME: String
+     *                   </ul>
      *
      * @return Dump of merged graph
      * @throws IOException IO or parsing exception
      * @throws InvalidGraphException Logical error: invalid graph or incompatible combination
-     * of source/target data/meta-info.
+     *                               of source/target data/meta-info.
      */
     JsonObject mergeComponentDumps(Path sourceDirectory, JsonObject targetDesc)
             throws IOException, InvalidGraphException;
@@ -72,16 +71,16 @@ public interface MergerApi extends Closeable {
      * into overview graph.
      *
      * @param sourceDumps Source dumps with meta-info.
-     * Supported keys of {@link DumpAndMetainfo#getDump()} :
-     * <ul><li>P_IS_APPLICATION: Boolean
-     * <li>P_APP_NAME: String
-     * <li>P_APP_VERSION: String
-     * <li>P_IS_NAMESPACE: Boolean
-     * <li>P_NAMESPACE_NAME: String
-     * </ul>
+     *     Supported keys of {@link DumpAndMetainfo#getDump()} :
+     *     <ul><li>P_IS_APPLICATION: Boolean
+     *     <li>P_APP_NAME: String
+     *     <li>P_APP_VERSION: String
+     *     <li>P_IS_NAMESPACE: Boolean
+     *     <li>P_NAMESPACE_NAME: String
+     *     </ul>
      *
-     * <b>Dumps are copied shallowly and may be altered later by manipulations with resulting graph,
-     * so they should not be reused after merging!</b>
+     *     <b>Dumps are copied shallowly and may be altered later by manipulations with resulting graph,
+     *     so they should not be reused after merging!</b>
      *
      * @param targetDesc Same as {@code targetDesc} in {@link #mergeComponentDumps(Path, JsonObject)}
      * @return Dump of merged graph
@@ -140,8 +139,9 @@ public interface MergerApi extends Closeable {
      * @param targetGraph Merging target
      * @param targetDesc Target descriptor
      * @param deepCopy Set it to {@code true} if either {@code sourceGraph} or {@code targetGraph}
-     * may be modified while another one is still used.
+     *                 may be modified while another one is still used.
      */
-    void mergeGraph(Graph sourceGraph, JsonObject sourceDesc, Graph targetGraph, JsonObject targetDesc, boolean deepCopy);
+    void mergeGraph(Graph sourceGraph, JsonObject sourceDesc, Graph targetGraph,
+            JsonObject targetDesc, boolean deepCopy);
 
 }

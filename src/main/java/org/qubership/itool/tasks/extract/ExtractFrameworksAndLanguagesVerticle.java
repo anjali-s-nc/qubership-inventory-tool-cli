@@ -16,11 +16,11 @@
 
 package org.qubership.itool.tasks.extract;
 
-import org.qubership.itool.tasks.FlowTask;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graphExtractor.GraphDataExtractor;
 import org.qubership.itool.modules.graphExtractor.impl.LanguageAndFrameworkExtractor;
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,8 @@ import static org.qubership.itool.cli.ci.CiConstants.P_OUTPUT_FILE;
 /** Extract frameworks and languages and save the results to output file */
 public class ExtractFrameworksAndLanguagesVerticle extends FlowTask {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(ExtractFrameworksAndLanguagesVerticle.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ExtractFrameworksAndLanguagesVerticle.class);
 
     @Override
     protected Logger getLogger() {

@@ -20,18 +20,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Provider;
-
-import org.qubership.itool.modules.report.GraphReport;
-import org.qubership.itool.modules.report.GraphReportImpl;
-import org.qubership.itool.modules.template.TemplateService;
-import org.qubership.itool.modules.template.TemplateServiceImpl;
-
-import java.util.Properties;
-
 import org.qubership.itool.modules.diagram.DiagramService;
 import org.qubership.itool.modules.diagram.DiagramServiceImpl;
 import org.qubership.itool.modules.diagram.providers.DomainDiagramProvider;
@@ -41,9 +32,16 @@ import org.qubership.itool.modules.diagram.providers.MicroserviceDiagramProvider
 import org.qubership.itool.modules.diagram.providers.QueueDiagramProvider;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphImpl;
+import org.qubership.itool.modules.report.GraphReport;
+import org.qubership.itool.modules.report.GraphReportImpl;
+import org.qubership.itool.modules.template.TemplateService;
+import org.qubership.itool.modules.template.TemplateServiceImpl;
+
+import java.util.Properties;
 
 import static org.qubership.itool.modules.diagram.providers.DiagramProvider.SKINPARAM_BACKGROUND_COLOR_CACHING;
 import static org.qubership.itool.modules.diagram.providers.DiagramProvider.SKINPARAM_BACKGROUND_COLOR_DATABASE;
+// editorconfig-checker-disable-next-line
 import static org.qubership.itool.modules.diagram.providers.DiagramProvider.SKINPARAM_BACKGROUND_COLOR_DEFAULT_COMPONENT;
 import static org.qubership.itool.modules.diagram.providers.DiagramProvider.SKINPARAM_BACKGROUND_COLOR_DEFAULT_DOMAIN;
 import static org.qubership.itool.modules.diagram.providers.DiagramProvider.SKINPARAM_BACKGROUND_COLOR_QUEUE;
@@ -102,7 +100,8 @@ public class CoreModule extends AbstractModule {
      */
     @Provides
     @Singleton
-    public DiagramService provideDiagramService(Provider<Graph> graphProvider, @Named("diagram.properties") Properties diagramProperties) {
+    public DiagramService provideDiagramService(Provider<Graph> graphProvider,
+            @Named("diagram.properties") Properties diagramProperties) {
         DiagramService diagramService = new DiagramServiceImpl(graphProvider.get(), diagramProperties);
 
         // Register all diagram providers

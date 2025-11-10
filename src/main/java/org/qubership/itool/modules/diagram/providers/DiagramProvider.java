@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024-2025 NetCracker Technology Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.qubership.itool.modules.diagram.providers;
 
 import io.vertx.core.json.JsonObject;
@@ -68,7 +84,8 @@ public interface DiagramProvider {
             .append(getProperties().getProperty(SKINPARAM_BACKGROUND_COLOR_CACHING, "MistyRose"))
             .append("\n");
         for (JsonObject d : graph.traversal().V().hasType("domain").toList()) {
-            String backgroundColor = getProperties().getProperty(SKINPARAM_BACKGROUND_COLOR_C + d.getString("id"), "Gainsboro");
+            String backgroundColor = getProperties()
+                    .getProperty(SKINPARAM_BACKGROUND_COLOR_C + d.getString("id"), "Gainsboro");
             result.append("  backgroundColor<<" + d.getString("id") + ">> " + backgroundColor + "\n");
         }
         return result.toString();
@@ -78,7 +95,8 @@ public interface DiagramProvider {
         return "\n@enduml\n";
     }
 
-    default String relation(String sourceId, String destinationId, String edgeType, String edgeName, boolean overrideType) {
+    default String relation(String sourceId, String destinationId, String edgeType, String edgeName,
+            boolean overrideType) {
         StringBuilder tmp = new StringBuilder();
         tmp.append(wrap(sourceId));
         if ("GQL".equals(destinationId)) {
@@ -87,7 +105,7 @@ public interface DiagramProvider {
             return null;
         } else if (sourceId.equals(destinationId)) {
             return null;
-        } else if("optional".equals(edgeType)) {
+        } else if ("optional".equals(edgeType)) {
             if (overrideType) {
                 tmp.append(" --> ");
             } else {
@@ -128,9 +146,11 @@ public interface DiagramProvider {
         if (domain == null && "domain".equals(component.getString("type"))) {
             domain = component.getString("id");
         }
-        if ((mainDomain == null && domain != null) || (domain != null && mainDomain != null && !mainDomain.equals(domain))) {
+        if ((mainDomain == null && domain != null)
+                || (domain != null && mainDomain != null && !mainDomain.equals(domain))) {
             builder.append(" <<").append(domain.toUpperCase()).append(">> ");
-        } else if ("caching".equals(componentType) || "database".equals(componentType) || "indexation".equals(componentType)) {
+        } else if ("caching".equals(componentType) || "database".equals(componentType)
+                || "indexation".equals(componentType)) {
                 builder.append(" <<").append(componentType).append(">>");
         }
         builder.append(" as ").append(wrap(component.getString("id")));

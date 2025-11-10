@@ -23,7 +23,13 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.qubership.itool.modules.gremlin2.P.neq;
-import static org.qubership.itool.modules.gremlin2.graph.__.*;
+import static org.qubership.itool.modules.gremlin2.graph.__.has;
+import static org.qubership.itool.modules.gremlin2.graph.__.hasKey;
+import static org.qubership.itool.modules.gremlin2.graph.__.hasType;
+import static org.qubership.itool.modules.gremlin2.graph.__.in;
+import static org.qubership.itool.modules.gremlin2.graph.__.out;
+import static org.qubership.itool.modules.gremlin2.graph.__.outE;
+import static org.qubership.itool.modules.gremlin2.graph.__.repeat;
 
 public class TestGremlinRepeat extends AbstractGremlinTest {
 
@@ -36,9 +42,9 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
     void test_repeat() {
         List<Path> result = V("v1").repeat(out()).times(2)
             .path().by("name").toList();
-//        System.out.println(result);
-        // ==>[marko,josh,ripple]
-        // ==>[marko,josh,lop]
+        //System.out.println(result);
+        //==>[marko,josh,ripple]
+        //==>[marko,josh,lop]
         Assertions.assertEquals(2, result.size());
         assertPath(result.get(0), "marko", "josh", "ripple");
         assertPath(result.get(1), "marko", "josh", "lop");
@@ -49,7 +55,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
         List<Path> result = V().hasNotId("root")
             .until(has("name", "ripple")).repeat(out())
             .path().by("name").toList();
-//        System.out.println(result);
+        //System.out.println(result);
         //==>[marko,josh,ripple]
         //==>[josh,ripple]
         //==>[ripple]
@@ -65,7 +71,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
             .repeat(out())
             .until(has("name", "ripple"))
             .path().by("name").toList();
-//        System.out.println(result);
+        //System.out.println(result);
         //==>[marko,josh,ripple]
         //==>[josh,ripple]
         Assertions.assertEquals(2, result.size());
@@ -77,7 +83,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
     void test_repeat_until() {
         List<Path> result = V("v1").repeat(out()).until(hasType("software"))
             .path().by("name").toList();
-//        System.out.println(result);
+        //System.out.println(result);
         //==>[marko,lop]
         //==>[marko,josh,ripple]
         //==>[marko,josh,lop]
@@ -90,7 +96,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
     @Test
     void test_repeat_until_count() {
         List<Path> result = V("v1").repeat(out()).until(outE().count().is(0)).path().by("name").toList();
-//        System.out.println(result);
+        //System.out.println(result);
         //==>[marko,vadas]
         //==>[marko,lop]
         //==>[marko,josh,ripple]
@@ -105,7 +111,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
     @Test
     void test_repeat_times_emit() {
         List<Path> result = V("v1").repeat(out()).times(2).emit().path().by("name").toList();
-//        System.out.println(result);
+        //System.out.println(result);
         //==>[marko,vadas]
         //==>[marko,josh]
         //==>[marko,lop]
@@ -122,7 +128,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
     @Test
     void test_emit_repeat_times() {
         List<Path> result = V("v1").emit().repeat(out()).times(2).path().by("name").toList();
-//        System.out.println(result);
+        //System.out.println(result);
         //==>[marko]
         //==>[marko,vadas]
         //==>[marko,josh]
@@ -141,7 +147,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
     @Test
     void test_repeat_times_emit_has() {
         List<Path> result = V("v1").repeat(out()).times(2).emit(hasKey("lang")).path().by("name").toList();
-//        System.out.println(result);
+        //System.out.println(result);
         //==>[marko,lop]
         //==>[marko,josh,ripple]
         //==>[marko,josh,lop]
@@ -157,7 +163,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
             .repeat(out("knows"))
             .until(repeat(out("created"))
             .emit(has("name", "lop"))).toList();
-//        System.out.println(result);
+        //System.out.println(result);
         //==>[v4]
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("v4", result.get(0).getString("id"));
@@ -166,7 +172,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
     @Test
     void test_emit_has_repeat() {
         List<Path> result = V("v1").emit(hasType("person")).repeat(out()).path().by("name").toList();
-//        System.out.println(result);
+        //System.out.println(result);
         //==>[marko]
         //==>[marko,vadas]
         //==>[marko,josh]
@@ -186,7 +192,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
             .until(in("module").where(neq("C")))
             .in("module")
             .id().toList();
-//        System.out.println(result);
+        //System.out.println(result);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("DOMAIN2-BACKEND1", result.get(0));
     }
@@ -201,7 +207,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
             .until(in("module").where(neq("C")))
             .in("module")
             .id().toList();
-//        System.out.println(result);
+        //System.out.println(result);
         Assertions.assertEquals(2, result.size());
         Assertions.assertEquals("DOMAIN2-LIB", result.get(0));
         Assertions.assertEquals("DOMAIN2-LIB", result.get(1));
@@ -217,7 +223,7 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
             .until(in("module").where(neq("C")))
             .in("module")
             .id().toList();
-//        System.out.println(result);
+        //System.out.println(result);
         Assertions.assertEquals(0, result.size());
     }
 
@@ -230,8 +236,8 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
             .repeat(out()).emit()
             .dedup()
             .id().toList();
-//        System.out.println(result);
-        // [LIB1_1, LIB2, LIB1, LIB2_1, DOMAIN2-LIB-M1]
+        //System.out.println(result);
+        //[LIB1_1, LIB2, LIB1, LIB2_1, DOMAIN2-LIB-M1]
         Assertions.assertEquals(5, result.size());
         Assertions.assertTrue(result.contains("LIB1_1"));
         Assertions.assertTrue(result.contains("LIB2"));
@@ -249,8 +255,8 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
             .out()
             .dedup()
             .id().toList();
-//        System.out.println(result);
-        // [LIB1_1]
+        //System.out.println(result);
+        //[LIB1_1]
         Assertions.assertEquals(1, result.size());
         Assertions.assertTrue(result.contains("LIB1_1"));
     }
@@ -265,8 +271,8 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
             .repeat(out("dependence").as("R")).emit()
             .dedup()
             .id().toList();
-        System.out.println(result);
-        // LIB1, LIB2_1, LIB1_1, DOMAIN2-LIB-M1, LIB2, DOMAIN2-LIB-M2
+        //System.out.println(result);
+        //LIB1, LIB2_1, LIB1_1, DOMAIN2-LIB-M1, LIB2, DOMAIN2-LIB-M2
         Assertions.assertEquals(6, result.size());
         Assertions.assertTrue(result.contains("LIB1"));
         Assertions.assertTrue(result.contains("LIB2_1"));
@@ -275,5 +281,4 @@ public class TestGremlinRepeat extends AbstractGremlinTest {
         Assertions.assertTrue(result.contains("LIB2"));
         Assertions.assertTrue(result.contains("DOMAIN2-LIB-M2"));
     }
-
 }

@@ -16,13 +16,13 @@
 
 package org.qubership.itool.modules.gremlin2.step.barrier;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.DefaultTraverser;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.step.AbstractStep;
 import org.qubership.itool.modules.gremlin2.step.ByModulating;
 import org.qubership.itool.modules.gremlin2.util.ValueHelper;
-import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,9 +38,9 @@ public class GroupStep<S, K, V> extends ReducingBarrierStep<S, Map<K, V>> implem
     @Override
     public String toString() {
         return getClass().getSimpleName() + "("
-            + (modulateBy == null ? "": modulateBy)
-            + (modulateByBy == null ? "": "," + modulateByBy)
-            + (modulateByTraversal == null ? "": "traversal")
+            + (modulateBy == null ? "" : modulateBy)
+            + (modulateByBy == null ? "" : "," + modulateByBy)
+            + (modulateByTraversal == null ? "" : "traversal")
             + ")";
     }
 
@@ -78,11 +78,11 @@ public class GroupStep<S, K, V> extends ReducingBarrierStep<S, Map<K, V>> implem
                 if (byKey == null) {
                     continue;
                 }
-                List resultByList = (List)resultBy.get(byKey);
-                for (Object obj : ((List)result.get(resultKey))) {
+                List resultByList = (List) resultBy.get(byKey);
+                for (Object obj : ((List) result.get(resultKey))) {
                     if (resultByList == null) {
                         resultByList = new ArrayList();
-                        resultBy.put((K)byKey, (V)resultByList);
+                        resultBy.put((K) byKey, (V) resultByList);
                     }
                     resultByList.add(resultKey);
                 }
@@ -93,9 +93,9 @@ public class GroupStep<S, K, V> extends ReducingBarrierStep<S, Map<K, V>> implem
         if (this.modulateByBy != null) {
             resultByBy = new HashMap<>();
             for (K resultKey : resultBy.keySet()) {
-                List resultList = (List)resultBy.get(resultKey);
+                List resultList = (List) resultBy.get(resultKey);
                 List newList = new ArrayList();
-                resultByBy.put(resultKey, (V)newList);
+                resultByBy.put(resultKey, (V) newList);
                 for (Object obj : resultList) {
                     Object value = extractByValue(obj, this.modulateByBy);
                     if (value != null) {
@@ -112,18 +112,18 @@ public class GroupStep<S, K, V> extends ReducingBarrierStep<S, Map<K, V>> implem
                 resultBy = result;
             }
             for (K resultKey : resultBy.keySet()) {
-                List resultList = (List)resultBy.get(resultKey);
+                List resultList = (List) resultBy.get(resultKey);
                 List<Traverser.Admin<S>> trList = new ArrayList<>();
                 for (Object obj : resultList) {
-                    trList.add(new DefaultTraverser<>((S)obj));
+                    trList.add(new DefaultTraverser<>((S) obj));
                 }
-//                Traversal.Admin cloneTraversal = this.modulateByTraversal.clone();
+                // Traversal.Admin cloneTraversal = this.modulateByTraversal.clone();
                 Traversal.Admin cloneTraversal = prepareInnerTraversal(this.modulateByTraversal, trList);
                 List modulateList = cloneTraversal.toList();
                 if (modulateList.size() > 1) {
-                    resultByBy.put(resultKey, (V)modulateList);
+                    resultByBy.put(resultKey, (V) modulateList);
                 } else if (modulateList.size() == 1) {
-                    resultByBy.put(resultKey, (V)modulateList.get(0));
+                    resultByBy.put(resultKey, (V) modulateList.get(0));
                 }
             }
         }
@@ -143,8 +143,8 @@ public class GroupStep<S, K, V> extends ReducingBarrierStep<S, Map<K, V>> implem
             result = extractByValue(obj, modulateBy[0]);
         } else {
             result = new HashMap();
-            for (int i=0 ; i<modulateBy.length ; i++) {
-                ((Map)result).put(modulateBy[i], extractByValue(obj, modulateBy[i]));
+            for (int i = 0; i < modulateBy.length; i++) {
+                ((Map) result).put(modulateBy[i], extractByValue(obj, modulateBy[i]));
             }
         }
         return result;
@@ -153,7 +153,7 @@ public class GroupStep<S, K, V> extends ReducingBarrierStep<S, Map<K, V>> implem
     private Object extractByValue(Object obj, String modulateBy) {
         Object result;
         if (obj instanceof JsonObject) {
-            JsonObject json = (JsonObject)obj;
+            JsonObject json = (JsonObject) obj;
             result = ValueHelper.getObjectValue(modulateBy, json);
 
         } else if (obj instanceof Map) {
@@ -161,7 +161,8 @@ public class GroupStep<S, K, V> extends ReducingBarrierStep<S, Map<K, V>> implem
             result = map.get(modulateBy);
 
         } else {
-            throw new UnsupportedOperationException("Modulation .by() not supported for " + obj.getClass().getSimpleName());
+            throw new UnsupportedOperationException(
+                    "Modulation .by() not supported for " + obj.getClass().getSimpleName());
         }
         return result;
     }
@@ -199,7 +200,7 @@ public class GroupStep<S, K, V> extends ReducingBarrierStep<S, Map<K, V>> implem
 
     @Override
     public AbstractStep<S, Map<K, V>> clone() {
-        GroupStep clone =  (GroupStep)super.clone();
+        GroupStep clone = (GroupStep) super.clone();
         clone.modulateBy = this.modulateBy;
         clone.modulateByBy = this.modulateByBy;
         clone.modulateByTraversal = this.modulateByTraversal;

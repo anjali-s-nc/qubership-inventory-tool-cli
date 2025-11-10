@@ -16,15 +16,6 @@
 
 package org.qubership.itool.modules.git;
 
-import org.eclipse.jgit.api.CreateBranchCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.RmCommand;
-import org.eclipse.jgit.api.Status;
-import org.eclipse.jgit.api.SubmoduleAddCommand;
-import org.qubership.itool.modules.report.GraphReport;
-import org.qubership.itool.utils.ConfigProperties;
-import org.qubership.itool.utils.ConfigUtils;
-
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -32,9 +23,13 @@ import io.vertx.core.WorkerExecutor;
 import io.vertx.core.impl.cpu.CpuCoreSensor;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.eclipse.jgit.api.CreateBranchCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.RmCommand;
+import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.SubmoduleAddCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
@@ -46,6 +41,9 @@ import org.eclipse.jgit.submodule.SubmoduleWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.qubership.itool.modules.report.GraphReport;
+import org.qubership.itool.utils.ConfigProperties;
+import org.qubership.itool.utils.ConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +66,7 @@ import static org.qubership.itool.utils.ConfigProperties.SUPER_REPOSITORY_URL_PO
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class GitAdapterImpl implements GitAdapter {
-    protected static final Logger LOG = LoggerFactory.getLogger(GitAdapterImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GitAdapterImpl.class);
 
     // TODO: @Resource is not working yet, ApplicationContext update required.
     //  Client and Vertx are passed in constructor so far;
@@ -94,10 +92,10 @@ public class GitAdapterImpl implements GitAdapter {
     public WorkerExecutor getWorkerExecutor() {
         if (executor == null) {
             Integer coresCount = CpuCoreSensor.availableProcessors();
-            executor = vertx.createSharedWorkerExecutor("repository-worker-pool"
-                    , coresCount
-                    , 15
-                    , TimeUnit.MINUTES);
+            executor = vertx.createSharedWorkerExecutor("repository-worker-pool",
+                    coresCount,
+                    15,
+                    TimeUnit.MINUTES);
         }
         return executor;
     }
@@ -257,9 +255,9 @@ public class GitAdapterImpl implements GitAdapter {
                         .setURI(repositoryLink)
                         .setPath(submoduleDir)
                         .call();
-            } catch (TransportException te) {
+            } catch (TransportException ex) {
                 LOG.warn("Error while trying to add submodule {}: {}. Trying again once",
-                        repositoryLink, te.getMessage());
+                        repositoryLink, ex.getMessage());
                 repository = submoduleAddCommand
                         .setCredentialsProvider(credentialsProvider)
                         .setURI(repositoryLink)
@@ -457,7 +455,7 @@ public class GitAdapterImpl implements GitAdapter {
             throw new RuntimeException("Repository directory path is empty");
         }
         LOG.info("Preparing repository {}", superRepositoryDir);
-        File gitFolder = Path.of(superRepositoryDir,".git").toFile();
+        File gitFolder = Path.of(superRepositoryDir, ".git").toFile();
         Git superRepository = null;
         if (gitFolder.exists()) {
             LOG.info("Repository already exist");
@@ -474,10 +472,10 @@ public class GitAdapterImpl implements GitAdapter {
                 LOG.warn("Clone of the super repository failed: {}", ExceptionUtils.getMessage(e));
                 try {
                     superRepository = prepareLocalRepo(superRepositoryDir);
-                } catch (GitAPIException e2) {
+                } catch (GitAPIException ex) {
                     LOG.error("Unable to init the new super repository {}", superRepositoryDir);
                     throw new RuntimeException("Unable to init the new super repository "
-                            + superRepositoryDir + ": " + e2.getMessage());
+                            + superRepositoryDir + ": " + ex.getMessage());
                 }
             }
         }

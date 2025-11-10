@@ -16,29 +16,37 @@
 
 package org.qubership.itool.tasks.confluence;
 
-import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
-
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
 import org.qubership.itool.modules.confluence.ConfluenceClient;
 import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 import org.qubership.itool.utils.ConfigUtils;
 import org.qubership.itool.utils.FSUtils;
 import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import javax.annotation.Resource;
 
 import static org.qubership.itool.utils.ConfigProperties.CONFLUENCE_SPACE_POINTER;
 import static org.qubership.itool.utils.ConfigProperties.RELEASE_POINTER;
@@ -99,7 +107,7 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
     public static final JsonPointer PAGE_POINTER_GENERATED_PAGE_ON_DISK_PATH =
             JsonPointer.create().append(PAGE_POINTER_GENERATED_PAGE).append(PAGE_ON_DISK_PATH);
 
-    protected Logger LOGGER = LoggerFactory.getLogger(ConfluenceUploadPagesVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfluenceUploadPagesVerticle.class);
     private String release = null;
     private String uploadConfluencePages = null;
 
@@ -123,7 +131,7 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
             return;
         }
 
-        if (!uploadRequired(uploadConfluencePages)){
+        if (!uploadRequired(uploadConfluencePages)) {
             taskCompleted(taskPromise);
             return;
         }
@@ -205,7 +213,7 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                                     (String) ACTION_POINTER_GENERATED_PAGE_PARENT_TITLE
                                             .queryJson(orphanAction);
                             String newPageTitle = result.getString(PAGE_TITLE);
-                            if (newPageTitle.equals(buildPageTitle(orphanActionParentTitle))){
+                            if (newPageTitle.equals(buildPageTitle(orphanActionParentTitle))) {
                                 orphanAction.put(PAGE_PARENT_ID, newPageId);
                                 getLogger().debug("'{}': New parent id set to {}",
                                         ACTION_POINTER_GENERATED_PAGE_TITLE.queryJson(orphanAction), newPageId);
@@ -216,14 +224,14 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                             ACTION_POINTER_GENERATED_PAGE_TITLE.queryJson(orphanAction));
                 }
             });
-            if(orphanActions.isEmpty()) {
+            if (orphanActions.isEmpty()) {
                 return Future.succeededFuture();
             }
             return createPagesFromActions(orphanActions, spaceKey, trashPage);
         });
     }
 
-    private void logActions(JsonArray actions){
+    private void logActions(JsonArray actions) {
         if (getLogger().isDebugEnabled()) {
             String actionsString = actions.stream().map(actionObj -> {
                 JsonObject action = (JsonObject) actionObj;
@@ -326,7 +334,7 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
         JsonObject generatedPage = action.getJsonObject(ACTION_KEY_GENERATED_PAGE);
         switch (action.getString(ACTION_KEY_ACTION)) {
             case ACTION_CREATE:
-                if (generatedPage.containsKey(PAGE_ON_DISK_PATH)){
+                if (generatedPage.containsKey(PAGE_ON_DISK_PATH)) {
                     // Upload new page (move page to new parent if parentId is present)
                     return confluenceClient.updateConfluencePage(spaceKey,
                             generatedPage.getString(PAGE_TITLE),
@@ -385,7 +393,7 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
         } else if (uploadPages.contains("type")) {
             Matcher matcher = Pattern.compile("type:\\s*(\\w+)").matcher(uploadPages);
             while (matcher.find()) {
-                if (matcher.group(1).equalsIgnoreCase(pageType)){
+                if (matcher.group(1).equalsIgnoreCase(pageType)) {
                     return true;
                 }
             }
@@ -451,7 +459,7 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                     PAGE_POINTER_CONFLUENCE_TITLE.queryJson(next),
                     ACTION_DELETE);
             // Add delete actions for all the children in case it requires a move operation
-            if (((JsonObject) PAGE_POINTER_CONFLUENCE.queryJson(next)).containsKey(STRUCT_CHILDREN)){
+            if (((JsonObject) PAGE_POINTER_CONFLUENCE.queryJson(next)).containsKey(STRUCT_CHILDREN)) {
                 JsonArray children = (JsonArray) PAGE_POINTER_CONFLUENCE_CHILDREN.queryJson(next);
                 children.stream()
                         .map(child -> (JsonObject) child)
@@ -516,7 +524,7 @@ public class ConfluenceUploadPagesVerticle extends AbstractAggregationTaskVertic
                 .filter(structChild -> structChild.containsKey(STRUCT_TYPE))
                 .forEach(structChild -> {
                     // Get all generated pages of this type
-                    if ( !existingChildPages.isEmpty()) {
+                    if (!existingChildPages.isEmpty()) {
                         // Trying to match existing pages with generated pages
                         Iterator existingChildPagesIterator = existingChildPages.iterator();
                         while (existingChildPagesIterator.hasNext()) {

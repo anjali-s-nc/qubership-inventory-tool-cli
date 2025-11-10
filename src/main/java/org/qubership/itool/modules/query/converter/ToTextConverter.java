@@ -16,11 +16,17 @@
 
 package org.qubership.itool.modules.query.converter;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.step.filter.RangeLimitStep;
-import io.vertx.core.json.JsonObject;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ToTextConverter implements ResultConverter<String> {
@@ -44,34 +50,34 @@ public class ToTextConverter implements ResultConverter<String> {
         int count = 0;
 
         if (gremlinResult instanceof Traversal) {
-            if ((Integer)this.props.getOrDefault("result.limit", -1) != -1) {
-                Traversal.Admin<?,?> traversal = (Traversal.Admin<?, ?>) gremlinResult;
+            if ((Integer) this.props.getOrDefault("result.limit", -1) != -1) {
+                Traversal.Admin<?, ?> traversal = (Traversal.Admin<?, ?>) gremlinResult;
                 traversal.addStep(
                         new RangeLimitStep<>(
                                 traversal,
                                 Optional.empty(),
-                                Optional.of((Integer)this.props.get("result.limit")))
+                                Optional.of((Integer) this.props.get("result.limit")))
                 );
             }
             gremlinResult = ((Traversal<?, ?>) gremlinResult).toList();
         }
 
         if (gremlinResult instanceof List) {
-            List list = (List)gremlinResult;
+            List list = (List) gremlinResult;
             if (list.size() == 1 && (list.get(0) instanceof Map)) {
-                convertMap(builder, (Map)list.get(0));
-                count = ((Map)list.get(0)).size();
+                convertMap(builder, (Map) list.get(0));
+                count = ((Map) list.get(0)).size();
             } else {
                 convertList(builder, (List) gremlinResult);
                 count = ((List) gremlinResult).size();
             }
 
         } else if (gremlinResult instanceof Map) {
-            convertMap(builder, (Map)gremlinResult);
-            count = ((Map)gremlinResult).size();
+            convertMap(builder, (Map) gremlinResult);
+            count = ((Map) gremlinResult).size();
 
         } else if (gremlinResult instanceof JsonObject) {
-            convertJsonObject(builder, (JsonObject)gremlinResult);
+            convertJsonObject(builder, (JsonObject) gremlinResult);
             count = 1;
 
         } else {
@@ -96,7 +102,7 @@ public class ToTextConverter implements ResultConverter<String> {
             Set headerSet = new LinkedHashSet();
             for (Object row : list) {
                 if (row instanceof Map) {
-                    Iterator iter = ((Map)row).keySet().iterator();
+                    Iterator iter = ((Map) row).keySet().iterator();
                     while (iter.hasNext()) {
                         headerSet.add(iter.next());
                     }
@@ -112,7 +118,7 @@ public class ToTextConverter implements ResultConverter<String> {
             for (Object row : list) {
                 builder.append("|");
                 if (row instanceof Map) {
-                    Map map = (Map)row;
+                    Map map = (Map) row;
                     for (Object key : headerSet) {
                         Object value = map.get(key);
                         builder.append(value).append("|");
@@ -131,13 +137,13 @@ public class ToTextConverter implements ResultConverter<String> {
         while (iter.hasNext()) {
             Object obj = iter.next();
             if (obj instanceof List) {
-                convertList(builder, (List)obj);
+                convertList(builder, (List) obj);
 
             } else if (obj instanceof Map) {
-                convertMap(builder, (Map)obj);
+                convertMap(builder, (Map) obj);
 
             } else if (obj instanceof JsonObject) {
-                convertJsonObject(builder, (JsonObject)obj);
+                convertJsonObject(builder, (JsonObject) obj);
 
             } else {
                 convertScalar(builder, obj);
@@ -179,7 +185,7 @@ public class ToTextConverter implements ResultConverter<String> {
                 builder.append(key).append(" = ");
                 Object value = map.get(key);
                 if (value instanceof List) {
-                    flatArray(builder, (List)value);
+                    flatArray(builder, (List) value);
                 } else if (value instanceof JsonObject) {
                     convertJsonObject(builder, (JsonObject) value);
                 } else {
@@ -206,7 +212,7 @@ public class ToTextConverter implements ResultConverter<String> {
                 builder.append(key).append(" = ");
                 Object value = map.get(key);
                 if (value instanceof List) {
-                    flatArray(builder, (List)value);
+                    flatArray(builder, (List) value);
                 } else if (value instanceof JsonObject) {
                     convertJsonObject(builder, (JsonObject) value);
                 } else {
@@ -231,11 +237,11 @@ public class ToTextConverter implements ResultConverter<String> {
 
     private void convertScalar(StringBuilder builder, Object scalar) {
         builder.append(scalar);
-//        if (scalar instanceof String) {
-//            builder.append("\"").append(scalar).append("\"");
-//        } else {
-//            builder.append(scalar);
-//        }
+        //        if (scalar instanceof String) {
+        //            builder.append("\"").append(scalar).append("\"");
+        //        } else {
+        //            builder.append(scalar);
+        //        }
     }
 
 

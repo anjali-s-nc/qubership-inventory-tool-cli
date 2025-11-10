@@ -16,13 +16,13 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.scalar;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
-import io.vertx.core.json.JsonObject;
 
 import java.util.regex.Pattern;
 
-public class ValueReplaceStep<S extends JsonObject> extends ScalarMapStep<S, String>{
+public class ValueReplaceStep<S extends JsonObject> extends ScalarMapStep<S, String> {
 
     private String regex;
     private String replacement;
@@ -40,7 +40,7 @@ public class ValueReplaceStep<S extends JsonObject> extends ScalarMapStep<S, Str
         if (obj instanceof String) {
             String str = (String) obj;
             return Pattern.compile(regex).matcher(str).replaceFirst(replacement);
-//            return str.replaceFirst(this.regex, this.replacement);
+            //            return str.replaceFirst(this.regex, this.replacement);
         }
 
         return null;

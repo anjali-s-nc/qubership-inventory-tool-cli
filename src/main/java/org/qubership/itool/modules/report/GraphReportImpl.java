@@ -16,30 +16,28 @@
 
 package org.qubership.itool.modules.report;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import org.apache.commons.text.StringSubstitutor;
+import org.qubership.itool.modules.graph.GraphDataConstants;
+import org.qubership.itool.modules.processor.InvalidGraphException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
-import org.apache.commons.text.StringSubstitutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.modules.graph.GraphDataConstants;
-import org.qubership.itool.modules.processor.InvalidGraphException;
-
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-
+import static org.qubership.itool.modules.graph.Graph.F_DIRECTORY;
 import static org.qubership.itool.modules.graph.Graph.F_ID;
-import static org.qubership.itool.modules.graph.Graph.F_TYPE;
 import static org.qubership.itool.modules.graph.Graph.F_NAME;
 import static org.qubership.itool.modules.graph.Graph.F_REPOSITORY;
-import static org.qubership.itool.modules.graph.Graph.F_DIRECTORY;
+import static org.qubership.itool.modules.graph.Graph.F_TYPE;
 
 public class GraphReportImpl implements GraphReport {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(GraphReportImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GraphReportImpl.class);
 
     private JsonArray report;
 
@@ -150,17 +148,17 @@ public class GraphReportImpl implements GraphReport {
 
     @Override
     public void componentDuplicated(JsonObject sourceComponent, JsonObject duplicatedComponent) {
-        addMessage(CONF_ERROR, duplicatedComponent,"Component duplicated. " +
-                    "Source [Id: " + sourceComponent.getString(F_ID) +
-                    ", Type: " + sourceComponent.getString(F_TYPE) +
-                    ", Name: " + sourceComponent.getString(F_NAME) +
-                    ", Repository: " + sourceComponent.getString(F_REPOSITORY) +
-                    ", Directory: " + sourceComponent.getString(F_DIRECTORY) + "] " +
-                    "Duplicate [Id: " + duplicatedComponent.getString(F_ID) +
-                    ", Type: " + duplicatedComponent.getString(F_TYPE) +
-                    ", Name: " + duplicatedComponent.getString(F_NAME) +
-                    ", Repository: " + duplicatedComponent.getString(F_REPOSITORY) +
-                    ", Directory: " + duplicatedComponent.getString(F_DIRECTORY) + "]"
+        addMessage(CONF_ERROR, duplicatedComponent, "Component duplicated. "
+                    + "Source [Id: " + sourceComponent.getString(F_ID)
+                    + ", Type: " + sourceComponent.getString(F_TYPE)
+                    + ", Name: " + sourceComponent.getString(F_NAME)
+                    + ", Repository: " + sourceComponent.getString(F_REPOSITORY)
+                    + ", Directory: " + sourceComponent.getString(F_DIRECTORY) + "] "
+                    + "Duplicate [Id: " + duplicatedComponent.getString(F_ID)
+                    + ", Type: " + duplicatedComponent.getString(F_TYPE)
+                    + ", Name: " + duplicatedComponent.getString(F_NAME)
+                    + ", Repository: " + duplicatedComponent.getString(F_REPOSITORY)
+                    + ", Directory: " + duplicatedComponent.getString(F_DIRECTORY) + "]"
             );
     }
 
@@ -196,7 +194,7 @@ public class GraphReportImpl implements GraphReport {
         String desc = InvalidGraphException.descToName(sourceDesc);
         String message;
         if (exception instanceof InvalidGraphException) {
-            message = ((InvalidGraphException)exception).getReason();
+            message = ((InvalidGraphException) exception).getReason();
         } else {
             message = exception.getMessage();
         }
@@ -213,7 +211,7 @@ public class GraphReportImpl implements GraphReport {
         }
         JsonObject result = new JsonObject()
             .put(TYPE, type)
-            .put(MESSAGE, component==null ? message : express(component.getMap(), message))
+            .put(MESSAGE, component == null ? message : express(component.getMap(), message))
             .put(COMPONENT, componentName)
             ;
         return result;

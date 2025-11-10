@@ -21,6 +21,9 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import org.qubership.itool.modules.graph.GraphDataConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -30,12 +33,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.modules.graph.GraphDataConstants;
-
-import static org.qubership.itool.utils.ConfigProperties.*;
+import static org.qubership.itool.utils.ConfigProperties.CONFIG_PATH_POINTER;
+import static org.qubership.itool.utils.ConfigProperties.DEFAULT_RELEASE;
+import static org.qubership.itool.utils.ConfigProperties.DISABLED_FEATURES_POINTER;
+import static org.qubership.itool.utils.ConfigProperties.RELEASES_DIR;
+import static org.qubership.itool.utils.ConfigProperties.RELEASE_POINTER;
+import static org.qubership.itool.utils.ConfigProperties.SUPER_REPOSITORY_DIR_POINTER;
 
 public class ConfigUtils {
 
@@ -57,7 +60,8 @@ public class ConfigUtils {
         return !value.contains(feature);
     }
 
-    public static Future<List<Path>> getFilesFromJsonConfig(Vertx vertx, JsonObject config, JsonPointer listPointer, String... path) {
+    public static Future<List<Path>> getFilesFromJsonConfig(Vertx vertx, JsonObject config,
+            JsonPointer listPointer, String... path) {
         return vertx.fileSystem().readFile(ConfigUtils.getConfigFilePath(config, path).toString())
                 .map(fileContents -> {
                     JsonObject json = new JsonObject(fileContents);
@@ -106,7 +110,8 @@ public class ConfigUtils {
     //-- Add common prefix to regular domains
 
     public static String fillDomainId(String domainId) {
-        return (GraphDataConstants.UNKNOWN_DOMAIN_NAME.equals(domainId) || domainId.startsWith(GraphDataConstants.DOMAIN_ID_PREFIX))
+        return (GraphDataConstants.UNKNOWN_DOMAIN_NAME.equals(domainId)
+                || domainId.startsWith(GraphDataConstants.DOMAIN_ID_PREFIX))
                 ? domainId
                 : GraphDataConstants.DOMAIN_ID_PREFIX + domainId;
     }

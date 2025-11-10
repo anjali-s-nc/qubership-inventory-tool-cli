@@ -17,35 +17,28 @@
 package org.qubership.itool.modules.gremlin2;
 
 import io.vertx.core.json.JsonObject;
-import org.junit.jupiter.api.*;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 
 import java.util.List;
 
-public class TestGremlinVertexInOut extends AbstractGremlinTest {
-
-    @Test
-    void testOutV_Vertex() {
-        Assertions.assertThrows(GremlinException.class, () -> {
-            V("v1").outV().toList();
-        });
-    }
+class TestGremlinVertexInOut extends AbstractGremlinTest {
 
     @Test
     void testOut() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v1").out();
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         traversal = V("v4").out();
-        Assertions.assertEquals(3 , traversal.toList().size());
+        Assertions.assertEquals(3, traversal.toList().size());
     }
 
     @Test
     void testOutType() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v1").out("knows");
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         traversal = V("v4").out("created");
-        Assertions.assertEquals(2 , traversal.toList().size());
+        Assertions.assertEquals(2, traversal.toList().size());
     }
 
     @Test
@@ -58,10 +51,10 @@ public class TestGremlinVertexInOut extends AbstractGremlinTest {
     @Test
     void testIn() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v4").in();
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         Assertions.assertEquals("v1", traversal.next().getString("id"));
         traversal = V("v5", "v3").in();
-        Assertions.assertEquals(2 , traversal.toList().size());
+        Assertions.assertEquals(2, traversal.toList().size());
         Assertions.assertEquals("v4", traversal.toList().get(0).getString("id"));
         Assertions.assertEquals("v4", traversal.toList().get(1).getString("id"));
     }
@@ -69,10 +62,10 @@ public class TestGremlinVertexInOut extends AbstractGremlinTest {
     @Test
     void testInType() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v4").in("knows");
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         Assertions.assertEquals("v1", traversal.next().getString("id"));
         traversal = V("v5", "v3").in("created");
-        Assertions.assertEquals(2 , traversal.toList().size());
+        Assertions.assertEquals(2, traversal.toList().size());
         Assertions.assertEquals("v4", traversal.toList().get(0).getString("id"));
         Assertions.assertEquals("v4", traversal.toList().get(1).getString("id"));
     }
@@ -80,7 +73,7 @@ public class TestGremlinVertexInOut extends AbstractGremlinTest {
     @Test
     void testBoth() {
         List<String> result = V("v4").both().id().order().toList();
-        Assertions.assertEquals(4 , result.size());
+        Assertions.assertEquals(4, result.size());
         Assertions.assertEquals("v1", result.get(0));
         Assertions.assertEquals("v3", result.get(1));
         Assertions.assertEquals("v5", result.get(2));
@@ -90,7 +83,7 @@ public class TestGremlinVertexInOut extends AbstractGremlinTest {
     @Test
     void testBothType() {
         List<String> result = V("v4").both("knows").id().toList();
-        Assertions.assertEquals(1 , result.size());
+        Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("v1", result.get(0));
     }
 

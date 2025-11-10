@@ -57,11 +57,11 @@ public class QueryItem {
 
     @Override
     public String toString() {
-        return "QueryItem{" +
-            "method='" + method + '\'' +
-            ", description='" + description + '\'' +
-            ", query='" + query + '\'' +
-            '}';
+        return "QueryItem{"
+            + "method='" + method + '\''
+            + ", description='" + description + '\''
+            + ", query='" + query + '\''
+            + '}';
     }
 
 }

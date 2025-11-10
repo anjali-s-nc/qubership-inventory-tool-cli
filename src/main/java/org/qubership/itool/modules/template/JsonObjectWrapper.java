@@ -16,7 +16,10 @@
 
 package org.qubership.itool.modules.template;
 
-import freemarker.template.*;
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
+import freemarker.template.Version;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 

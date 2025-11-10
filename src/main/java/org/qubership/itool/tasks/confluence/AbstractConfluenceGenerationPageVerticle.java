@@ -16,10 +16,6 @@
 
 package org.qubership.itool.tasks.confluence;
 
-import org.qubership.itool.modules.diagram.UMLDiagramEncoder;
-import org.qubership.itool.modules.template.ConfluencePage;
-import org.qubership.itool.modules.template.TemplateService;
-import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 import io.vertx.core.Future;
@@ -29,14 +25,18 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.qubership.itool.modules.diagram.UMLDiagramEncoder;
 import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.modules.template.ConfluencePage;
+import org.qubership.itool.modules.template.TemplateService;
+import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 import org.qubership.itool.utils.ConfigUtils;
 import org.qubership.itool.utils.JsonUtils;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Resource;
 
 import static org.qubership.itool.utils.ConfigProperties.CONFLUENCE_SPACE_POINTER;
 import static org.qubership.itool.utils.ConfigProperties.PLANTUML_URL_POINTER;
@@ -74,7 +74,7 @@ public abstract class AbstractConfluenceGenerationPageVerticle extends AbstractA
             }
 
             @SuppressWarnings("unchecked")
-            List<ConfluencePage> confluencePageList = (List<ConfluencePage>)res.result();
+            List<ConfluencePage> confluencePageList = (List<ConfluencePage>) res.result();
             if (confluencePageList == null) {
                 taskCompleted(taskPromise);
                 return;
@@ -137,18 +137,19 @@ public abstract class AbstractConfluenceGenerationPageVerticle extends AbstractA
         return confluencePageList;
     }
 
+    protected abstract List<ConfluencePage> prepareConfluencePageList(String department);
+
     protected String getPublicDomainId(String domainId) {
         return ConfigUtils.stripDomainId(domainId);
     }
 
-    protected abstract List<ConfluencePage> prepareConfluencePageList(String department);
-
-    protected String buildDiagramImageURL(TemplateMethodModelEx diagramMethod, List<Object> arguments) {
+    protected String buildDiagramImageURL(
+            TemplateMethodModelEx diagramMethod, List<Object> arguments) {
         String generatedText = null;
         try {
             generatedText = (String) diagramMethod.exec(arguments);
         } catch (TemplateModelException e) {
-            getLogger().error("Could not generate plantuml diagram. StackTrace : "+e.getMessage());
+            getLogger().error("Could not generate plantuml diagram. StackTrace : " + e.getMessage());
         }
 
         if (StringUtils.isNotEmpty(generatedText)) {

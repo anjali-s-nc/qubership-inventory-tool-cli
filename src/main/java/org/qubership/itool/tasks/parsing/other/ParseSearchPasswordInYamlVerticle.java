@@ -16,11 +16,9 @@
 
 package org.qubership.itool.tasks.parsing.other;
 
-import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
-
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-
+import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
 import org.qubership.itool.utils.FSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +31,12 @@ import java.util.regex.Pattern;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class ParseSearchPasswordInYamlVerticle extends AbstractParseFileTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(ParseSearchPasswordInYamlVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParseSearchPasswordInYamlVerticle.class);
 
-    private static Pattern pattern = Pattern.compile("^\\s*(?![#\\s])-?.*?(password(?!\\w).*?[=:]" +
-            "\\s*((\\$\\{\\S{3,}\\s*:\\s*\\S{3,}\\})|((?!\\$\\{.*\\})(?!.*\\{\\{.*\\}\\})\\S{3,})|(\\S\\{\\{(?!\\s*\\.Values\\.\\w+).*\\}\\})).*?)$",  CASE_INSENSITIVE);
+    private static Pattern pattern = Pattern.compile("^\\s*(?![#\\s])-?.*?(password(?!\\w).*?[=:]"
+            + "\\s*((\\$\\{\\S{3,}\\s*:\\s*\\S{3,}\\})"
+            + "|((?!\\$\\{.*\\})(?!.*\\{\\{.*\\}\\})\\S{3,})"
+            + "|(\\S\\{\\{(?!\\s*\\.Values\\.\\w+).*\\}\\})).*?)$",  CASE_INSENSITIVE);
 
     @Override
     protected String[] getFilePatterns() {
@@ -78,7 +78,7 @@ public class ParseSearchPasswordInYamlVerticle extends AbstractParseFileTask {
         }
     }
 
-    public boolean checkPattern(String row){
+    public boolean checkPattern(String row) {
         Matcher matcher = pattern.matcher(row);
         return  matcher.matches();
     }

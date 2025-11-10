@@ -44,10 +44,10 @@ public class ToJsonArrayConverter implements ResultConverter<JsonArray> {
         JsonArray result = new JsonArray();
 
         // XXX Currently, only List supported. See ToTextConverter.convert() for other possible result types
-        List<?> objList = (List)gremlinResult;
+        List<?> objList = (List) gremlinResult;
         for (Object obj : objList) {
             if (obj instanceof Map) {
-                result.add(new JsonObject((Map)obj));
+                result.add(new JsonObject((Map) obj));
             } else {
                 result.add(obj);
             }

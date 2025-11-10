@@ -16,28 +16,47 @@
 
 package org.qubership.itool.modules.processor;
 
-import org.qubership.itool.modules.gremlin2.P;
-import org.junit.jupiter.api.*;
-
+import com.google.inject.Module;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.pointer.JsonPointer;
+import jakarta.inject.Provider;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.qubership.itool.di.ApplicationContext;
+import org.qubership.itool.di.QubershipModule;
 import org.qubership.itool.modules.graph.FalloutDto;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDumpSupport;
+import org.qubership.itool.modules.graph.GraphImpl;
+import org.qubership.itool.modules.gremlin2.P;
 import org.qubership.itool.modules.gremlin2.graph.__;
 import org.qubership.itool.modules.processor.tasks.CreateAppVertexTask;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.modules.report.GraphReportImpl;
 import org.qubership.itool.utils.JsonUtils;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.pointer.JsonPointer;
-import jakarta.inject.Provider;
-
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.modules.graph.Graph.F_MICROSERVICE_FLAG;
 import static org.qubership.itool.modules.graph.Graph.F_MOCK_FLAG;
@@ -56,12 +75,6 @@ import static org.qubership.itool.modules.processor.MergerApi.P_FILE_NAME;
 import static org.qubership.itool.modules.processor.MergerApi.P_IS_APPLICATION;
 import static org.qubership.itool.modules.processor.MergerApi.P_IS_NAMESPACE;
 import static org.qubership.itool.modules.processor.MergerApi.P_NAMESPACE_NAME;
-
-import io.vertx.core.Vertx;
-import org.qubership.itool.modules.graph.GraphImpl;
-import org.qubership.itool.di.ApplicationContext;
-import org.qubership.itool.di.QubershipModule;
-import com.google.inject.Module;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestGraphMerger {
@@ -158,9 +171,9 @@ public class TestGraphMerger {
 
         Graph graph = commonMerging(graph1, desc1, graph2, desc2, targetDesc, 0);
 
-        List<String> srcFileList = ((JsonArray) GraphMetaInfoSupport.srcGraphsPtr.queryJson(graph.getVertex(V_ROOT)))
+        List<String> srcFileList = ((JsonArray) GraphMetaInfoSupport.SRC_GRAPHS_PTR.queryJson(graph.getVertex(V_ROOT)))
             .stream()
-            .map(o -> ((JsonObject)o).getString(P_FILE_NAME))
+            .map(o -> ((JsonObject) o).getString(P_FILE_NAME))
             .collect(Collectors.toList());
         assertEquals(List.of("graph.component3.json", "graph.component4.json"), srcFileList);
 
@@ -173,7 +186,7 @@ public class TestGraphMerger {
         List<JsonObject> appContents = graph.traversal().V(appVertex.getString(F_ID)).out().toList();
         assertEquals(2, appContents.size());
 
-        appContents.sort(Comparator.comparing(vertex -> vertex.getString(F_ID))) ;
+        appContents.sort(Comparator.comparing(vertex -> vertex.getString(F_ID)));
 
         assertEquals("component3Id", appContents.get(0).getString(F_ID));
         assertEquals("component4Id", appContents.get(1).getString(F_ID));
@@ -233,9 +246,9 @@ public class TestGraphMerger {
             merger.finalizeGraphAfterMerging(graph, targetDesc);
         }
 
-        List<String> srcFileList = ((JsonArray) GraphMetaInfoSupport.srcGraphsPtr.queryJson(graph.getVertex(V_ROOT)))
+        List<String> srcFileList = ((JsonArray) GraphMetaInfoSupport.SRC_GRAPHS_PTR.queryJson(graph.getVertex(V_ROOT)))
                 .stream()
-                .map(o -> ((JsonObject)o).getString(P_FILE_NAME))
+                .map(o -> ((JsonObject) o).getString(P_FILE_NAME))
                 .collect(Collectors.toList());
         assertEquals(List.of("graph.component3.new.json", "graph.component7.json"), srcFileList);
 
@@ -248,7 +261,7 @@ public class TestGraphMerger {
         List<JsonObject> appContents = graph.traversal().V(appVertex.getString(F_ID)).out().toList();
         assertEquals(2, appContents.size());
 
-        appContents.sort(Comparator.comparing(vertex -> vertex.getString(F_ID))) ;
+        appContents.sort(Comparator.comparing(vertex -> vertex.getString(F_ID)));
 
         assertEquals("component3Id", appContents.get(0).getString(F_ID));
         assertEquals("component7Id", appContents.get(1).getString(F_ID));
@@ -256,7 +269,7 @@ public class TestGraphMerger {
         List<Map<String, JsonObject>> languages = graph.traversal().V("component3Id")
                 .outE().as("E")
                 .inV().hasType("language").as("L")
-                .<JsonObject>select("E","L").toList();
+                .<JsonObject>select("E", "L").toList();
         assertEquals(1, languages.size());
         List<String> languageUsages = JsonUtils.asList(languages.get(0).get("E").getJsonArray("usage"));
         JsonObject languageObject = languages.get(0).get("L");
@@ -296,7 +309,7 @@ public class TestGraphMerger {
         List<JsonObject> apps = graph.traversal().V().hasType(V_APPLICATION).toList();
         assertEquals(2, apps.size());
 
-        apps.sort(Comparator.comparing(vertex -> vertex.getString(F_NAME))) ;
+        apps.sort(Comparator.comparing(vertex -> vertex.getString(F_NAME)));
 
         JsonObject app1 = apps.get(0);
         assertEquals("AppName1", app1.getString(F_NAME));
@@ -341,8 +354,8 @@ public class TestGraphMerger {
             .put("message", "Source application graph contained no application vertex. Patched.")
             .put("component", "unknown")
             .put("graphId", "APPLICATION:AppName2:AppVersion2");
-        assertTrue(graph.getReport().dumpRecords(false).contains(report1), "Missing report on " +
-            "APPLICATION:AppName1:AppVersion1");
+        assertTrue(graph.getReport().dumpRecords(false).contains(report1),
+            "Missing report on APPLICATION:AppName1:AppVersion1");
         // There must be APPLICATION:AppName1:AppVersion1 as well
     }
 
@@ -378,7 +391,7 @@ public class TestGraphMerger {
         List<JsonObject> apps = graph.traversal().V().hasType(V_APPLICATION).toList();
         assertEquals(3, apps.size());
 
-        apps.sort(Comparator.comparing(vertex -> vertex.getString(F_NAME))) ;
+        apps.sort(Comparator.comparing(vertex -> vertex.getString(F_NAME)));
 
         JsonObject app1 = apps.get(0);
         assertEquals("AppName1", app1.getString(F_NAME));
@@ -463,22 +476,22 @@ public class TestGraphMerger {
 
         Graph graph = commonMerging(graph1, desc1, graph2, desc2, targetDesc, 4);
 
-        String[] nonMockDnsNames = { "component3-dns-name", "component4-dns-name" };
-        for (String dnsName: nonMockDnsNames) {
+        String[] nonMockDnsNames = {"component3-dns-name", "component4-dns-name"};
+        for (String dnsName : nonMockDnsNames) {
             List<JsonObject> mocks = graph.traversal().V().has(P_DETAILS_DNS_NAMES, P.containing(dnsName)).toList();
             assertEquals(1, mocks.size(), "There shall be 1 vertex with dnsName " + dnsName);
             JsonObject mock = mocks.get(0);
-            assertEquals(Boolean.FALSE, mock.getValue(F_MOCK_FLAG), "Vertex " + mock.getString(F_ID) +
-                " must NOT be a mock");
+            assertEquals(Boolean.FALSE, mock.getValue(F_MOCK_FLAG),
+                "Vertex " + mock.getString(F_ID) + " must NOT be a mock");
         }
-        String[] mockDnsNames = { "mock-dns-1", "mock-dns-2", "mock-dns-3", "mock-dns-4",
-                "mock-dns-5", "mock-dns-6" };
-        for (String dnsName: mockDnsNames) {
+        String[] mockDnsNames = {"mock-dns-1", "mock-dns-2", "mock-dns-3", "mock-dns-4",
+                "mock-dns-5", "mock-dns-6"};
+        for (String dnsName : mockDnsNames) {
             List<JsonObject> mocks = graph.traversal().V().has(P_DETAILS_DNS_NAMES, dnsName).toList();
             assertEquals(1, mocks.size(), "There shall be 1 vertex with dnsName " + dnsName);
             JsonObject mock = mocks.get(0);
-            assertEquals(Boolean.TRUE, mock.getValue(F_MOCK_FLAG), "Vertex " + mock.getString(F_ID) +
-                " must be a mock");
+            assertEquals(Boolean.TRUE, mock.getValue(F_MOCK_FLAG),
+                "Vertex " + mock.getString(F_ID) + " must be a mock");
         }
 
         // Test report contents
@@ -493,7 +506,7 @@ public class TestGraphMerger {
         // There must be APPLICATION:AppName2:AppVersion2 as well
 
         Set<String> messages = records.stream()
-            .map(o -> ((JsonObject)o).getString("message"))
+            .map(o -> ((JsonObject) o).getString("message"))
             .collect(Collectors.toSet());
         Set<String> expMessages = Set.of(
             "Reference was not found. Reference: startup http dependency mock-dns-1",
@@ -503,13 +516,13 @@ public class TestGraphMerger {
 
         Set<String> expComponents = Set.of("component3Id", "component4Id", "unknown");
         Set<String> reportComponents = records.stream()
-            .map(o -> ((JsonObject)o).getString("component"))
+            .map(o -> ((JsonObject) o).getString("component"))
             .collect(Collectors.toSet());
         assertEquals(expComponents, reportComponents);
 
         Set<String> expGraphs = Set.of("APPLICATION:AppName1:AppVersion1", "APPLICATION:AppName2:AppVersion2");
         Set<String> reportGraphs = records.stream()
-            .map(o -> ((JsonObject)o).getString("graphId"))
+            .map(o -> ((JsonObject) o).getString("graphId"))
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
         assertEquals(expGraphs, reportGraphs);
@@ -530,22 +543,22 @@ public class TestGraphMerger {
                 .put(P_FILE_NAME, "graph.component3.json");
         Graph graph = minimalMerging(graph1, desc1, graph2, desc2, targetDesc);
 
-        String[] nonMockDnsNames = { "component3-dns-name", "component6-dns-name" };
-        for (String dnsName: nonMockDnsNames) {
+        String[] nonMockDnsNames = {"component3-dns-name", "component6-dns-name"};
+        for (String dnsName : nonMockDnsNames) {
             List<JsonObject> nonMocks = graph.traversal().V().has(P_DETAILS_DNS_NAMES, P.containing(dnsName)).toList();
             assertEquals(1, nonMocks.size(), "There shall be 1 vertex with dnsName " + dnsName);
             JsonObject nonMock = nonMocks.get(0);
-            assertEquals(Boolean.FALSE, nonMock.getValue(F_MOCK_FLAG), "Vertex " + nonMock.getString(F_ID) +
-                " must NOT be a mock");
+            assertEquals(Boolean.FALSE, nonMock.getValue(F_MOCK_FLAG),
+                "Vertex " + nonMock.getString(F_ID) + " must NOT be a mock");
         }
-        String[] mockDnsNames = { "mock-dns-1", "mock-dns-2",
-                "mock-dns-3", "mock-dns-4" };
-        for (String dnsName: mockDnsNames) {
+        String[] mockDnsNames = {"mock-dns-1", "mock-dns-2",
+                "mock-dns-3", "mock-dns-4"};
+        for (String dnsName : mockDnsNames) {
             List<JsonObject> mocks = graph.traversal().V().has(P_DETAILS_DNS_NAME, dnsName).toList();
             assertEquals(1, mocks.size(), "There shall be 1 vertex with dnsName " + dnsName);
             JsonObject mock = mocks.get(0);
-            assertEquals(Boolean.TRUE, mock.getValue(F_MOCK_FLAG), "Vertex " + mock.getString(F_ID) +
-                " must be a mock");
+            assertEquals(Boolean.TRUE, mock.getValue(F_MOCK_FLAG),
+                "Vertex " + mock.getString(F_ID) + " must be a mock");
         }
         assertEquals(2, graph.traversal().V(V_ROOT).out().hasType(V_DOMAIN)
                 .out().has(F_MICROSERVICE_FLAG, P.eq(true)).count().next());
@@ -716,11 +729,11 @@ public class TestGraphMerger {
         assertTrue(1 <= size && size <= 3, "Wrong size of error report: " + size);
         JsonObject expRecord = new JsonObject()
             .put("type", GraphReport.CONF_ERROR)
-            .put("message", "Component duplicated. Source [Id: component1Id, Type: type1, Name: null, Repository: " +
-                "https://git1/, Directory: null] Duplicate [Id: component1Id, Type: type2, Name: null, Repository: " +
-                "https://git2/, Directory: null]")
+            .put("message", "Component duplicated. Source [Id: component1Id, Type: type1, Name: null, Repository: "
+                + "https://git1/, Directory: null] Duplicate [Id: component1Id, Type: type2, Name: null, Repository: "
+                + "https://git2/, Directory: null]")
             .put("component", "component1Id");
-        for (Object record: reportRecords) {
+        for (Object record : reportRecords) {
             assertEquals(expRecord, record);
         }
     }
@@ -907,8 +920,8 @@ public class TestGraphMerger {
 
         try (MergerApi merger = graphMergerProvider.get()) {
             merger.prepareGraphForMerging(graph, targetDesc);
-            merger.mergeGraph(graph1, desc1, graph, targetDesc,false);
-            merger.mergeGraph(graph2, desc2, graph, targetDesc,false);
+            merger.mergeGraph(graph1, desc1, graph, targetDesc, false);
+            merger.mergeGraph(graph2, desc2, graph, targetDesc, false);
             merger.finalizeGraphAfterMerging(graph, targetDesc);
         } catch (IOException e) {
             throw new RuntimeException(e);

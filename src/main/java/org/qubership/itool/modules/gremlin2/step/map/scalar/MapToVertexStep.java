@@ -16,9 +16,9 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.scalar;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
-import io.vertx.core.json.JsonObject;
 
 import java.util.Map;
 
@@ -35,10 +35,10 @@ public class MapToVertexStep<S, E extends JsonObject> extends ScalarMapStep<S, E
         String id = null;
 
         if (value instanceof String) {
-            id = (String)value;
+            id = (String) value;
 
         } else if (value instanceof Map) {
-            id = (String)((Map)value).get("id");
+            id = (String) ((Map) value).get("id");
 
         } else if (value instanceof JsonObject) {
             JsonObject json = (JsonObject) value;
@@ -49,6 +49,6 @@ public class MapToVertexStep<S, E extends JsonObject> extends ScalarMapStep<S, E
             result = this.traversal.getGraph().getVertex((String) value);
         }
 
-        return (E)result;
+        return (E) result;
     }
 }

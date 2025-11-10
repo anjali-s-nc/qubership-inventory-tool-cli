@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  */
 public class AppDBIntegrationImpl implements AppsDBIntegration {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AppDBIntegrationImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AppDBIntegrationImpl.class);
 
     protected final WebClient webClient;
     protected final AppDBConfig config;
@@ -72,7 +72,7 @@ public class AppDBIntegrationImpl implements AppsDBIntegration {
             .basicAuthentication(config.getUser(), config.getPassword())
             .send()
             .map(response ->
-                 responseToJsonArray(url, response)
+                responseToJsonArray(url, response)
                 .stream()
                 .map(obj -> getString(obj, "name"))
                 .filter(StringUtils::isNotEmpty)
@@ -82,6 +82,7 @@ public class AppDBIntegrationImpl implements AppsDBIntegration {
 
     /**
      * Get location of given application from applications database
+     *
      * @param appName A name of application in applications database
      * @return A Future for a Locator resolved from applications database.
      */
@@ -96,7 +97,7 @@ public class AppDBIntegrationImpl implements AppsDBIntegration {
             .send()
             .map(response -> responseToJsonObject(url, response))
             .flatMap(appConfig ->
-                 getArtifactory(appConfig)
+                getArtifactory(appConfig)
                 .map(artifactoryConfig -> {
                     String groupId = appConfig.getString("appGid");
                     String artifactId = appConfig.getString("appAid");
@@ -108,7 +109,8 @@ public class AppDBIntegrationImpl implements AppsDBIntegration {
                 if (t instanceof RetrievalException) {
                     return Future.failedFuture(t);
                 } else {
-                    return Future.failedFuture(new RetrievalException("Failed to get application data from applications database", t));
+                        return Future.failedFuture(new RetrievalException(
+                                "Failed to get application data from applications database", t));
                 }
             });
     }
@@ -151,7 +153,7 @@ public class AppDBIntegrationImpl implements AppsDBIntegration {
                         }
                     }
 
-                    if (StringUtils.isEmpty(storage)){
+                    if (StringUtils.isEmpty(storage)) {
                         throw new RetrievalException("Registry " + registryName + " has no configured storages "
                                 + config.getMavenEntry() + " for application" + appName);
                     }

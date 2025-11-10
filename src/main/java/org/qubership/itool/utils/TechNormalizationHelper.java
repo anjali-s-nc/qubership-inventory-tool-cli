@@ -20,35 +20,41 @@ import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.qubership.itool.modules.graph.Graph.F_NAME;
 import static org.qubership.itool.modules.graph.Graph.F_VERSION;
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class TechNormalizationHelper {
 
     private static final String NORMALIZATION_RESOURCE_PATH = "classpath:/normalizationConfig.json";
-    private static final Map<String, Pattern> techNamesMap = buildTechNamesMap();
+    private static final Map<String, Pattern> TECH_NAMES_MAP = buildTechNamesMap();
 
     private static Map<String, Pattern> buildTechNamesMap() {
         JsonObject techList = null;
         try {
-            techList = JsonUtils.readJsonResource(TechNormalizationHelper.class, NORMALIZATION_RESOURCE_PATH, JsonObject.class);
+            techList = JsonUtils.readJsonResource(TechNormalizationHelper.class,
+                    NORMALIZATION_RESOURCE_PATH, JsonObject.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         Map<String, Pattern> result = new LinkedHashMap<>();
-        for (Map.Entry<String, Object> t: techList) {
+        for (Map.Entry<String, Object> t : techList) {
             result.put(
                 t.getKey(),
-                StringUtils.isNotEmpty((String) t.getValue()) ?
-                    Pattern.compile((String) t.getValue(), CASE_INSENSITIVE) :
-                    Pattern.compile("^" + t.getKey() + "(?:\\s+(.+))?$", CASE_INSENSITIVE)
+                StringUtils.isNotEmpty((String) t.getValue())
+                    ? Pattern.compile((String) t.getValue(), CASE_INSENSITIVE)
+                    : Pattern.compile("^" + t.getKey() + "(?:\\s+(.+))?$", CASE_INSENSITIVE)
             );
         }
 
@@ -56,7 +62,7 @@ public class TechNormalizationHelper {
     }
 
     public static Map<String, Pattern> getTechNamesMap() {
-        return techNamesMap;
+        return TECH_NAMES_MAP;
     }
 
     public static List<String> normalizeTechs(List<String> techNames) {
@@ -69,10 +75,10 @@ public class TechNormalizationHelper {
         if (tech == null) {
             return Optional.empty();
         }
-        return techNamesMap.entrySet().stream()
-            .filter(entry -> entry.getValue().matcher(tech).matches())
-            .map(Map.Entry::getKey)
-            .findFirst();
+        return TECH_NAMES_MAP.entrySet().stream()
+                .filter(entry -> entry.getValue().matcher(tech).matches())
+                .map(Map.Entry::getKey)
+                .findFirst();
     }
 
     public static List<String> getTechsNames(List<String> techEntries) {
@@ -86,10 +92,10 @@ public class TechNormalizationHelper {
         if (StringUtils.isEmpty(tech)) {
             return tech;
         }
-        if (techNamesMap.containsKey(tech)) {
+        if (TECH_NAMES_MAP.containsKey(tech)) {
             return tech;
         }
-        Optional<String> matchedTech = techNamesMap.entrySet().stream()
+        Optional<String> matchedTech = TECH_NAMES_MAP.entrySet().stream()
             .map(entry -> {
                 Matcher matcher = entry.getValue().matcher(tech);
                 if (matcher.matches()) {
@@ -108,7 +114,7 @@ public class TechNormalizationHelper {
         if (StringUtils.isBlank(tech)) {
             return null;
         }
-        if (techNamesMap.containsKey(tech)) {
+        if (TECH_NAMES_MAP.containsKey(tech)) {
             return new JsonObject().put(F_NAME, tech);
         }
         String normalizedTech = normalizeTechWithVersion(tech);

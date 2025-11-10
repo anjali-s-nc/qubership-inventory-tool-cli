@@ -16,28 +16,28 @@
 
 package org.qubership.itool.tasks.ci;
 
-import org.qubership.itool.tasks.FlowTask;
-
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.ConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
-import static org.qubership.itool.cli.ci.CiConstants.*;
+import static org.qubership.itool.cli.ci.CiConstants.P_MOCK_DOMAIN;
+import static org.qubership.itool.cli.ci.CiConstants.P_RUN_NAME;
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.modules.graph.Graph.F_MOCK_FLAG;
 import static org.qubership.itool.modules.graph.Graph.F_TYPE;
 import static org.qubership.itool.modules.graph.Graph.V_UNKNOWN;
 
 public class RelocateComponentsVerticle extends FlowTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(RelocateComponentsVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RelocateComponentsVerticle.class);
 
     @Override
     protected void taskStart(Promise<?> taskPromise) {
@@ -46,7 +46,7 @@ public class RelocateComponentsVerticle extends FlowTask {
         JsonObject mockDomain = V(mockDomainId).next();
         List<JsonObject> components = V(mockDomainId).out().toList();
 
-        for (JsonObject comp: components) {
+        for (JsonObject comp : components) {
             String compId = comp.getString(F_ID);
             JsonObject details = comp.getJsonObject("details");
 
@@ -58,12 +58,13 @@ public class RelocateComponentsVerticle extends FlowTask {
 
                 newComponent = new JsonObject();
                 newComponent.put(F_ID, newComponentId);     // Make id first in LinkedHashMap
-                newComponent.getMap().putAll(comp.getMap());// Shallow copy. "details" object will be shared.
+                newComponent.getMap().putAll(comp.getMap()); // Shallow copy. "details" object will be shared.
                 newComponent.put(F_ID, newComponentId);     // Assign proper id again
                 newComponent.put(F_MOCK_FLAG, false);
                 graph.addVertex(newComponent);
             } else {
-                comp.put(F_MOCK_FLAG, false);   // If abbreviation is not provided, id is retained, but this is no longer a mock
+                // If abbreviation is not provided, id is retained, but this is no longer a mock
+                comp.put(F_MOCK_FLAG, false);
                 newComponentId = compId;
                 newComponent = comp;
             }
@@ -117,7 +118,7 @@ public class RelocateComponentsVerticle extends FlowTask {
             getLogger().info("Mock domain {} is now empty, removing it", mockDomainId);
             graph.removeVertex(mockDomain);
         } else {
-            for (JsonObject comp: remainingComponents) {
+            for (JsonObject comp : remainingComponents) {
                 report.referenceNotFound(comp, "domain");
             }
         }
@@ -134,7 +135,7 @@ public class RelocateComponentsVerticle extends FlowTask {
                 .outV().as("V")
                 .<JsonObject>select("E", "V").toList();
         Graph graph = this.graph;
-        for (Map<String, JsonObject> in: incoming) {
+        for (Map<String, JsonObject> in : incoming) {
             JsonObject newEdge = duplicateWithoutId(in.get("E"));
             graph.addEdge(in.get("V"), newVertex, newEdge);
         }
@@ -143,7 +144,7 @@ public class RelocateComponentsVerticle extends FlowTask {
                 .outE().as("E")
                 .inV().as("V")
                 .<JsonObject>select("E", "V").toList();
-        for (Map<String, JsonObject> out: outgoing) {
+        for (Map<String, JsonObject> out : outgoing) {
             JsonObject newEdge = duplicateWithoutId(out.get("E"));
             graph.addEdge(newVertex, out.get("V"), newEdge);
         }

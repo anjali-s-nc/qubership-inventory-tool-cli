@@ -19,17 +19,24 @@ package org.qubership.itool.cli.config;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
-import io.vertx.core.*;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.WorkerExecutor;
 import io.vertx.core.impl.future.SucceededFuture;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
 import org.apache.commons.lang3.StringUtils;
-import org.qubership.itool.utils.ConfigProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.Console;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
@@ -37,12 +44,16 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static org.qubership.itool.utils.ConfigProperties.*;
+import static org.qubership.itool.utils.ConfigProperties.CONFIG_PATH_POINTER;
+import static org.qubership.itool.utils.ConfigProperties.OFFLINE_MODE_PROPERTY;
+import static org.qubership.itool.utils.ConfigProperties.PASSWORD_PROPERTY;
+import static org.qubership.itool.utils.ConfigProperties.PASSWORD_SOURCE_PROPERTY;
+import static org.qubership.itool.utils.ConfigProperties.PROFILE_POINTER;
 import static org.qubership.itool.utils.ConfigUtils.getConfigValue;
 
 public class ConfigProvider {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ConfigProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigProvider.class);
 
     public static final List<String> HIDDEN_PROPERTIES = List.of(
             PASSWORD_PROPERTY
@@ -116,11 +127,11 @@ public class ConfigProvider {
             } else {
                 System.out.print("Password: ");
                 InputStream in = System.in;
-                int max=50;
+                int max = 50;
                 byte[] b = new byte[max];
 
                 int l = in.read(b);
-                while (l > 0 && (b[l-1]=='\r' || b[l-1]=='\n')) {
+                while (l > 0 && (b[l - 1] == '\r' || b[l - 1] == '\n')) {
                     l--;
                 }
                 if (l > 0) {
@@ -137,7 +148,7 @@ public class ConfigProvider {
     private static ConfigRetriever retrieveConfig(Map<String, String> customProperties, Vertx vertx) {
         JsonObject config = new JsonObject();
         Pattern booleanPattern = Pattern.compile("true|false", Pattern.CASE_INSENSITIVE);
-        for (Map.Entry<String, String> e: customProperties.entrySet()) {
+        for (Map.Entry<String, String> e : customProperties.entrySet()) {
             String key = e.getKey();
             String value = e.getValue();
             if (key.startsWith("/")) {

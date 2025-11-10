@@ -32,18 +32,19 @@ public class TestGremlinPath extends AbstractGremlinTest {
             .out().as("L2")
             .out()
             .path().toList();
-//        print(result);
-//        Path{
-//            1) [L1] : {"id":"root","type":"root","name":"root"}
-//            2) [L2] : {"id":"v1","name":"marko","age":29,"type":"person","details":{"document":"123456789","weight":78}}
-//            3) [] : {"id":"v4","name":"josh","age":32,"type":"person"}
-//        }
+        //print(result);
+        //Path{
+        // 1) [L1] : {"id":"root","type":"root","name":"root"}
+        // 2) [L2] :
+        // {"id":"v1","name":"marko","age":29,"type":"person","details":{"document":"123456789","weight":78}}
+        // 3) [] : {"id":"v4","name":"josh","age":32,"type":"person"}
+        // }
         Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals("root", ((JsonObject)result.get(0).get(0)).getString("id"));
-        Assertions.assertEquals("v1", ((JsonObject)result.get(0).get(1)).getString("id"));
-        Assertions.assertEquals("v4", ((JsonObject)result.get(0).get(2)).getString("id"));
-        Assertions.assertEquals("root", ((JsonObject)result.get(0).get("L1")).getString("id"));
-        Assertions.assertEquals("v1", ((JsonObject)result.get(0).get("L2")).getString("id"));
+        Assertions.assertEquals("root", ((JsonObject) result.get(0).get(0)).getString("id"));
+        Assertions.assertEquals("v1", ((JsonObject) result.get(0).get(1)).getString("id"));
+        Assertions.assertEquals("v4", ((JsonObject) result.get(0).get(2)).getString("id"));
+        Assertions.assertEquals("root", ((JsonObject) result.get(0).get("L1")).getString("id"));
+        Assertions.assertEquals("v1", ((JsonObject) result.get(0).get("L2")).getString("id"));
     }
 
     @SuppressWarnings("unchecked")
@@ -51,16 +52,16 @@ public class TestGremlinPath extends AbstractGremlinTest {
     void test_coalesce() {
         List<Path> result = V("v1")
             .coalesce(
-                outE("created")
-                , outE("knows"))
+                outE("created"),
+                outE("knows"))
             .inV()
             .path()
             .toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals("v1", ((JsonObject)result.get(0).get(0)).getString("id"));
-        Assertions.assertEquals("e1", ((JsonObject)result.get(0).get(1)).getString("id"));
-        Assertions.assertEquals("v4", ((JsonObject)result.get(0).get(2)).getString("id"));
+        Assertions.assertEquals("v1", ((JsonObject) result.get(0).get(0)).getString("id"));
+        Assertions.assertEquals("e1", ((JsonObject) result.get(0).get(1)).getString("id"));
+        Assertions.assertEquals("v4", ((JsonObject) result.get(0).get(2)).getString("id"));
     }
 
     @SuppressWarnings("unchecked")
@@ -68,13 +69,12 @@ public class TestGremlinPath extends AbstractGremlinTest {
     void test_coalesce_value() {
         List<JsonObject> result = V("v1")
             .coalesce(
-                outE("created").value("id")
-                , outE("knows").value("id"))
+                outE("created").value("id"),
+                outE("knows").value("id"))
             .inV()
             .toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("v4", result.get(0).getString("id"));
-
     }
 }

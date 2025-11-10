@@ -16,20 +16,19 @@
 
 package org.qubership.itool.tasks.parsing.java;
 
-import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
-
 import io.vertx.core.json.JsonObject;
-
+import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
 import org.qubership.itool.utils.LanguageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *  See <a href="https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-source-and-target.html">this article</a>
- *  for more details on setting java versions for maven compiler plugin
+ * See <a href=
+ * "https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-source-and-target.html">this
+ * article</a> for more details on setting java versions for maven compiler plugin
  */
 public class ParsePomFileVerticle extends AbstractParseFileTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(ParsePomFileVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParsePomFileVerticle.class);
 
     @Override
     protected String[] getFilePatterns() {

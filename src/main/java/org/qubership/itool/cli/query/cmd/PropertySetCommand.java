@@ -30,7 +30,7 @@ public class PropertySetCommand extends AbstractCliCommand {
 
     public PropertySetCommand(CliContext context) {
         super(context);
-        this.props = (Properties)context.getValue(PROPERTIES);
+        this.props = (Properties) context.getValue(PROPERTIES);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class PropertySetCommand extends AbstractCliCommand {
                 builder.append(key).append(", ");
             }
             String propertyNames = builder.toString();
-            System.out.println(propertyNames.substring(0, propertyNames.length()-2));
+            System.out.println(propertyNames.substring(0, propertyNames.length() - 2));
             return null;
         }
 

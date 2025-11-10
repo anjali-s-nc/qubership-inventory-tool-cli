@@ -16,16 +16,15 @@
 
 package org.qubership.itool.cli.ci;
 
-import java.util.List;
-
+import org.qubership.itool.cli.FlowMainVerticle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.qubership.itool.cli.FlowMainVerticle;
+import java.util.List;
 
 public class CiAssemblyVerticle extends FlowMainVerticle {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(CiAssemblyVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CiAssemblyVerticle.class);
 
     protected Logger getLogger() {
         return LOG;

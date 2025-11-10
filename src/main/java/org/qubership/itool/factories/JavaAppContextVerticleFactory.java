@@ -16,25 +16,23 @@
 
 package org.qubership.itool.factories;
 
+import io.vertx.core.Promise;
+import io.vertx.core.Verticle;
+import io.vertx.core.impl.verticle.JavaVerticleFactory;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.spi.VerticleFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.qubership.itool.context.FlowContext;
+import org.qubership.itool.utils.ConfigUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
-
-import org.apache.commons.lang3.StringUtils;
-import org.qubership.itool.utils.ConfigUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.context.FlowContext;
-
-import io.vertx.core.Promise;
-import io.vertx.core.Verticle;
-import io.vertx.core.impl.verticle.JavaVerticleFactory;
-import io.vertx.core.spi.VerticleFactory;
-import io.vertx.core.json.JsonObject;
 
 import static org.qubership.itool.utils.ConfigProperties.CONFIG_PATH_POINTER;
 

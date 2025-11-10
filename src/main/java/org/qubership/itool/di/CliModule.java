@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.qubership.itool.di;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
-
 import org.qubership.itool.context.FlowContext;
 import org.qubership.itool.context.FlowContextImpl;
 import org.qubership.itool.modules.confluence.ConfluenceClient;
@@ -75,7 +74,8 @@ public class CliModule extends AbstractModule {
      * @return GitAdapter instance or null if offline mode
      */
     @Provides
-    public GitAdapter provideGitAdapter(Vertx vertx, GraphReport report, @Named("application.config") JsonObject config) {
+    public GitAdapter provideGitAdapter(Vertx vertx, GraphReport report,
+            @Named("application.config") JsonObject config) {
         return GitAdapterBuilder.create(vertx, report, config);
     }
 
@@ -88,7 +88,8 @@ public class CliModule extends AbstractModule {
      * @return ConfluenceClient instance or null if offline mode
      */
     @Provides
-    public ConfluenceClient provideConfluenceClient(Vertx vertx, WebClient webClient, @Named("application.config") JsonObject config) {
+    public ConfluenceClient provideConfluenceClient(Vertx vertx, WebClient webClient,
+            @Named("application.config") JsonObject config) {
         return ConfluenceClientBuilder.create(vertx, webClient, config);
     }
 
@@ -102,7 +103,8 @@ public class CliModule extends AbstractModule {
      * @return GitFileRetriever instance or null if offline mode
      */
     @Provides
-    public GitFileRetriever provideGitFileRetriever(GitAdapter gitAdapter, @Named("application.config") JsonObject config, Vertx vertx, GraphReport report) {
+    public GitFileRetriever provideGitFileRetriever(GitAdapter gitAdapter,
+            @Named("application.config") JsonObject config, Vertx vertx, GraphReport report) {
         return GitFileRetrieverBuilder.create(gitAdapter, config, vertx, report);
     }
 }

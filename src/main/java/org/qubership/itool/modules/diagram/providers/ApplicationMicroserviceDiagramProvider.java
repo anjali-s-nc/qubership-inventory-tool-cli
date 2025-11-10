@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024-2025 NetCracker Technology Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.qubership.itool.modules.diagram.providers;
 
 import io.vertx.core.json.JsonObject;
@@ -29,7 +45,8 @@ public class ApplicationMicroserviceDiagramProvider extends AbstractDiagramProvi
     @Override
     public String generate(DiagramService diagramService, BasicGraph graph, Diagram diagram) {
 
-        String[] componentIds = (diagram.getComponentIds() == null) ? new String[0] : diagram.getComponentIds().toArray(new String[]{});
+        String[] componentIds = (diagram.getComponentIds() == null) ? new String[0]
+                : diagram.getComponentIds().toArray(new String[] {});
 
         GraphTraversal<JsonObject, JsonObject> traversal = graph.traversal().V().hasType(V_APPLICATION);
         traversal.out();
@@ -39,8 +56,7 @@ public class ApplicationMicroserviceDiagramProvider extends AbstractDiagramProvi
         @SuppressWarnings("unchecked")
         BasicGraph subgraph = traversal.union(
                         inE(diagram.getSupportedEdges()).not(outV().hasType(V_APPLICATION))
-                                .subgraph("G")
-                        ,
+                                .subgraph("G"),
                         outE(diagram.getSupportedEdges()).as("outE").subgraph("G")
                 )
                 .<BasicGraph>cap("G").next();
@@ -90,8 +106,11 @@ public class ApplicationMicroserviceDiagramProvider extends AbstractDiagramProvi
 
                 builder.append(getComponentType(diagram, type));
                 builder.append(" \"").append(name).append("\" ");
-                if ((diagram.getDefaultComponent() == null && application != null && !application.equals(diagram.getDefaultDomainLevelEntity())) ||
-                        (diagram.getDefaultComponent() != null && diagram.getDefaultDomainLevelEntity() != null && !id.equals(diagram.getDefaultComponent()))) {
+                if ((diagram.getDefaultComponent() == null && application != null
+                        && !application.equals(diagram.getDefaultDomainLevelEntity()))
+                        || (diagram.getDefaultComponent() != null
+                        && diagram.getDefaultDomainLevelEntity() != null
+                        && !id.equals(diagram.getDefaultComponent()))) {
                     builder.append("<<").append(application).append(">> ");
                 }
                 builder.append(" as ").append(escape(id)).append("\n");

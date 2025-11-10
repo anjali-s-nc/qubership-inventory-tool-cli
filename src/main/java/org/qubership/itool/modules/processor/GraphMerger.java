@@ -16,42 +16,42 @@
 
 package org.qubership.itool.modules.processor;
 
+import com.google.inject.name.Named;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
+import org.apache.commons.lang3.BooleanUtils;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDumpSupport;
 import org.qubership.itool.modules.processor.matchers.CompoundVertexMatcher;
 import org.qubership.itool.modules.processor.matchers.VertexMatcher;
 import org.qubership.itool.modules.processor.tasks.CreateAppVertexTask;
+import org.qubership.itool.modules.processor.tasks.GraphProcessorTask;
 import org.qubership.itool.modules.processor.tasks.PatchAppVertexTask;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.utils.FutureUtils;
-
-import io.vertx.core.Future;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-
-import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.qubership.itool.modules.graph.Graph.CURRENT_GRAPH_MODEL_VERSION;
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.utils.JsonUtils.readJsonFile;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Provider;
-import com.google.inject.name.Named;
-import org.qubership.itool.modules.processor.tasks.GraphProcessorTask;
-
-import java.util.List;
-import java.util.function.Function;
 
 /**
  * <p>Merges graphs.
@@ -90,11 +90,11 @@ public class GraphMerger implements MergerApi {
 
     @Inject
     public GraphMerger(Vertx vertx, Provider<Graph> graphProvider,
-                      @Named("normalization.tasks") Provider<List<GraphProcessorTask>> normalizationTasks,
-                      @Named("finalization.tasks") Provider<List<GraphProcessorTask>> finalizationTasks,
-                      Function<JsonObject, CreateAppVertexTask> createAppVertexTaskFactory,
-                      Function<JsonObject, PatchAppVertexTask> patchAppVertexTaskFactory,
-                      Provider<CompoundVertexMatcher> compoundMatcherProvider) {
+            @Named("normalization.tasks") Provider<List<GraphProcessorTask>> normalizationTasks,
+            @Named("finalization.tasks") Provider<List<GraphProcessorTask>> finalizationTasks,
+            Function<JsonObject, CreateAppVertexTask> createAppVertexTaskFactory,
+            Function<JsonObject, PatchAppVertexTask> patchAppVertexTaskFactory,
+            Provider<CompoundVertexMatcher> compoundMatcherProvider) {
         this.failFast = false;
         if (vertx == null) {
             this.vertx = Vertx.vertx();
@@ -148,7 +148,7 @@ public class GraphMerger implements MergerApi {
         Graph graph = graphProvider.get();
 
         prepareGraphForMerging(graph, targetDesc);
-        for (DumpAndMetainfo source: sourceDumps) {
+        for (DumpAndMetainfo source : sourceDumps) {
             if (source == null) {
                 // Invalid call. No tolerance.
                 throw new InvalidGraphException(graph, "null passed to mergeDumps()");
@@ -195,9 +195,9 @@ public class GraphMerger implements MergerApi {
      *
      * @throws IOException If IO error happened, and throwErrors is true
      */
+
     @Override
-    public void walkAndMerge(Path inputDirectory, Graph targetGraph, JsonObject targetDesc) throws IOException
-    {
+    public void walkAndMerge(Path inputDirectory, Graph targetGraph, JsonObject targetDesc) throws IOException {
         getLogger().info("Merging everything from directory {}", inputDirectory);
         List<Path> sourceFiles = new ArrayList<>();
 
@@ -210,7 +210,7 @@ public class GraphMerger implements MergerApi {
             // Go on: if failFast==false and IOException happens in the middle, let's process some files
         }
 
-        for (Path path: sourceFiles) {
+        for (Path path : sourceFiles) {
             JsonObject dumpFile;
             String pathString = path.toString();
             JsonObject sourceDesc = new JsonObject().put(P_FILE_NAME, pathString);
@@ -240,8 +240,7 @@ public class GraphMerger implements MergerApi {
      */
     @Override
     public void mergeDump(JsonObject dump, JsonObject sourceDesc,
-            Graph targetGraph, JsonObject targetDesc)
-    {
+            Graph targetGraph, JsonObject targetDesc) {
         Graph sourceGraph = graphProvider.get();
         try {
             GraphDumpSupport.restoreFromJson(sourceGraph, dump);
@@ -264,12 +263,11 @@ public class GraphMerger implements MergerApi {
      * @param targetGraph Merging target
      * @param targetDesc Target descriptor
      * @param deepCopy Set it to {@code true} if either {@code sourceGraph} or {@code targetGraph}
-     * may be modified while another one is still used.
+     *                 may be modified while another one is still used.
      */
     @Override
     public void mergeGraph(Graph sourceGraph, JsonObject sourceDesc,
-            Graph targetGraph, JsonObject targetDesc, boolean deepCopy)
-    {
+            Graph targetGraph, JsonObject targetDesc, boolean deepCopy) {
         GraphMetaInfoSupport.enrichGraphDesc(sourceGraph, sourceDesc);
         normalizeGraph(sourceGraph);
 
@@ -341,7 +339,7 @@ public class GraphMerger implements MergerApi {
         // Existing vertices that have been remapped are not reflected here.
         Map<String, String> remapNewVertices = new HashMap<>();
 
-        for (JsonObject vertex: sourceGraph.vertexList()) {
+        for (JsonObject vertex : sourceGraph.vertexList()) {
             String newId = vertex.getString(F_ID);
             String existingId = mergeVertex(sourceGraph, vertex, targetGraph, targetReport, matcher, deepCopy);
             if (existingId != null && !existingId.equals(newId)) {
@@ -351,7 +349,7 @@ public class GraphMerger implements MergerApi {
 
         //--- Merge edges.
         List<JsonObject> edgeList = sourceGraph.edgeList();
-        for (JsonObject edge: edgeList) {
+        for (JsonObject edge : edgeList) {
             mergeEdge(sourceGraph, edge, targetGraph, targetReport, remapNewVertices, deepCopy);
         }
     }
@@ -363,7 +361,7 @@ public class GraphMerger implements MergerApi {
     protected void mergeReport(GraphReport sourceReport, GraphReport targetReport, boolean deepCopy) {
         JsonArray errors = sourceReport.dumpRecords(deepCopy);
         if (errors != null && !errors.isEmpty()) {
-            for (Object error: errors) {
+            for (Object error : errors) {
                 targetReport.addRecord((JsonObject) error);
             }
         }
@@ -374,8 +372,7 @@ public class GraphMerger implements MergerApi {
 
     protected String mergeVertex(Graph sourceGraph, JsonObject newVertex,
             Graph targetGraph, GraphReport targetReport,
-            VertexMatcher matcher, boolean deepCopy)
-    {
+            VertexMatcher matcher, boolean deepCopy) {
         String newVertexId = newVertex.getString(F_ID);
         JsonObject existingVertex = matcher.findExistingVertex(sourceGraph, newVertex, targetGraph);
 
@@ -392,12 +389,16 @@ public class GraphMerger implements MergerApi {
                 existingId, existingIsMock, newVertexId, newIsMock);
 
         if (existingIsMock && ! newIsMock) {
-            getLogger().debug("Overwriting existing mock vertex '{}' with data from new non-mock '{}'", existingId, newVertexId);
+            getLogger().debug(
+                    "Overwriting existing mock vertex '{}' with data from new non-mock '{}'",
+                    existingId, newVertexId);
             if (! existingId.equals(newVertexId)) {
-                // The most weird case: existing vertex is mock, it shall be replaced with data from a new one with different id.
+                // The most weird case: existing vertex is mock, it shall be replaced with data from
+                // a new one with different id.
                 // "id" field of existing vertex is replaced, but its object identity is retained
                 targetGraph.relocateVertex(existingVertex, newVertexId);
-                existingId = newVertexId;   // It will be returned, and edges from the source graph won't be relocated
+                // It will be returned, and edges from the source graph won't be relocated
+                existingId = newVertexId;
             }
             Map<String, Object> map = existingVertex.getMap();
             map.clear();
@@ -406,9 +407,9 @@ public class GraphMerger implements MergerApi {
             map.putAll(src);    // puts id as well
             map.put(F_ID, existingId);
         } else if (existingIsMock == newIsMock  // Report conflict of two mocks as well
-                && conflictingVertices(newVertex, existingVertex))
-        {
-            getLogger().error("Old vertex '{}' and new vertex '{}' (mock={} for both) conflict", existingId, newVertexId, newIsMock);
+                && conflictingVertices(newVertex, existingVertex)) {
+            getLogger().error("Old vertex '{}' and new vertex '{}' (mock={} for both) conflict",
+                    existingId, newVertexId, newIsMock);
             if (targetReport != null) {
                 targetReport.componentDuplicated(existingVertex, newVertex);
             }
@@ -492,8 +493,7 @@ public class GraphMerger implements MergerApi {
      */
     protected void mergeEdge(Graph srcGraph, JsonObject edgeValue,
             Graph targetGraph, GraphReport targetReport,
-            Map<String, String> remapNewVertices, boolean deepCopy)
-    {
+            Map<String, String> remapNewVertices, boolean deepCopy) {
         String edgeId = edgeValue.getString(F_ID);
 
         // Remap source and target vertices
@@ -507,7 +507,8 @@ public class GraphMerger implements MergerApi {
 
         // Adds a new edge iff no edge with the same Map of properties (except id) exists
         JsonObject newEdge = deepCopy ? edgeValue.copy() : edgeValue;
-        newEdge.remove(F_ID);   // Modifies source data in case of shallow copy!
+        // Modifies source data in case of shallow copy!
+        newEdge.remove(F_ID);
         String newEdgeId = targetGraph.addEdge(sourceVertex, targetVertex, newEdge);
         if (newEdgeId != null) {
             getLogger().debug("Adding edge : was=('{}':'{}'->'{}'), now=('{}':'{}'->'{}')",
@@ -521,14 +522,16 @@ public class GraphMerger implements MergerApi {
     //------------------------------------------------------
     // Advanced validations and augmentations (besides external tasks)
 
-    protected void validateNoNullVertices(Graph sourceGraph, JsonObject sourceDesc, JsonObject targetDesc, GraphReport report) {
+    protected void validateNoNullVertices(Graph sourceGraph, JsonObject sourceDesc,
+            JsonObject targetDesc, GraphReport report) {
         JsonObject nullVertex = sourceGraph.traversal().V("null").next();
-        if (nullVertex != null) {   // This graph is poisoned, it shall not be consumed
+        // This graph is poisoned, it shall not be consumed
+        if (nullVertex != null) {
             throw new InvalidGraphException(sourceDesc, "Contains null vertex");
         }
         List<JsonObject> nullRepoVertices = sourceGraph.traversal().V().hasType(Graph.V_DOMAIN)
                 .out().has(Graph.F_REPOSITORY, "null").toList();
-        for (JsonObject comp: nullRepoVertices) {
+        for (JsonObject comp : nullRepoVertices) {
             // This graph is damaged, but still can be processed
             getLogger().error("Component {} has \"null\" repository", comp.getString(F_ID));
             if (report != null) {
@@ -537,11 +540,12 @@ public class GraphMerger implements MergerApi {
         }
     }
 
-    protected void validateInputApplication(Graph sourceGraph, JsonObject sourceDesc, JsonObject targetDesc, GraphReport report) {
+    protected void validateInputApplication(Graph sourceGraph, JsonObject sourceDesc,
+            JsonObject targetDesc, GraphReport report) {
         List<JsonObject> existingApps = sourceGraph.traversal().V().hasType(Graph.V_APPLICATION).toList();
 
         // No matter source type and provenance, check for empty applications
-        for (JsonObject existingApp: existingApps) {
+        for (JsonObject existingApp : existingApps) {
             String appId = existingApp.getString(F_ID);
             JsonObject someComponent = sourceGraph.traversal().V(appId).out().next();
             if (someComponent == null) {
@@ -587,8 +591,7 @@ public class GraphMerger implements MergerApi {
     /* Add dropped source to target meta-info; add message to target report; rethrow exception if needed.
      * Intended for exceptions other than InvalidGraphException. */
     protected <X extends Exception> void excHappenned(X e, String sourceId, JsonObject sourceDesc, Graph targetGraph)
-            throws X
-    {
+            throws X {
         getLogger().error("Exception when processing " + sourceId, e);
 
         InvalidGraphException e1 = new InvalidGraphException(sourceDesc, e.getMessage());

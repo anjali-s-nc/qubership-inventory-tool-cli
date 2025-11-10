@@ -16,15 +16,13 @@
 
 package org.qubership.itool.tasks.init;
 
-import org.qubership.itool.tasks.FlowTask;
-
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDataConstants;
+import org.qubership.itool.tasks.FlowTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +32,7 @@ import java.util.List;
 
 
 public class AddSpecificationVertexVerticle extends FlowTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(AddSpecificationVertexVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddSpecificationVertexVerticle.class);
 
     @Override
     protected void taskStart(Promise<?> taskPromise) throws Exception {
@@ -49,14 +47,15 @@ public class AddSpecificationVertexVerticle extends FlowTask {
     }
 
     @SuppressWarnings("rawtypes")
-    protected void processDetailsProperty(JsonObject vertex, JsonObject tmfSpecMapping, String detailsType, String vertexType) {
+    protected void processDetailsProperty(JsonObject vertex, JsonObject tmfSpecMapping,
+            String detailsType, String vertexType) {
         List propertyList = V().hasType("domain").out().value("/details/" + detailsType).dedup().toList();
-        List<String > property = new ArrayList<>();
+        List<String> property = new ArrayList<>();
         for (Object prop : propertyList) {
             if (prop instanceof String) {
-                property.add((String)prop);
+                property.add((String) prop);
             } else if (prop instanceof JsonArray) {
-                List tmpList = ((JsonArray)prop).getList();
+                List tmpList = ((JsonArray) prop).getList();
                 for (Object tmp : tmpList) {
                     if (tmp instanceof String) {
                         property.add((String) tmp);
@@ -83,9 +82,9 @@ public class AddSpecificationVertexVerticle extends FlowTask {
             return;
         }
         String specName = (String) JsonPointer.from("/" + id + "/name").queryJson(tmfSpecMapping);
-        String specUrl = (String)JsonPointer.from("/" + id + "/url").queryJson(tmfSpecMapping);
-        String specVersion = (String)JsonPointer.from("/" + id + "/version").queryJson(tmfSpecMapping);
-        Integer specCode = (Integer)JsonPointer.from("/" + id + "/code").queryJson(tmfSpecMapping);
+        String specUrl = (String) JsonPointer.from("/" + id + "/url").queryJson(tmfSpecMapping);
+        String specVersion = (String) JsonPointer.from("/" + id + "/version").queryJson(tmfSpecMapping);
+        Integer specCode = (Integer) JsonPointer.from("/" + id + "/code").queryJson(tmfSpecMapping);
 
         component = new JsonObject()
             .put("id", vId)
@@ -100,7 +99,8 @@ public class AddSpecificationVertexVerticle extends FlowTask {
     }
 
     private String generateUrlFromId(String id) {
-        return "https://www.tmforum.org/resources/?yith_wcan=1&s="+ id + "&post_type=product&filter_document-type=specifications";
+        return "https://www.tmforum.org/resources/?yith_wcan=1&s=" + id
+                + "&post_type=product&filter_document-type=specifications";
     }
 
 

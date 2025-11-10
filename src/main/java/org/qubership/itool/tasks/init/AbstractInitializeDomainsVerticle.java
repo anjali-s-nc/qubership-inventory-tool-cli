@@ -16,14 +16,12 @@
 
 package org.qubership.itool.tasks.init;
 
-import org.qubership.itool.tasks.FlowTask;
-
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
 import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.ConfigUtils;
 import org.qubership.itool.utils.FSUtils;
 import org.qubership.itool.utils.JsonUtils;
@@ -34,7 +32,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,7 +47,8 @@ import static org.qubership.itool.utils.ConfigProperties.RELEASE_BRANCH_POINTER;
 
 public abstract class AbstractInitializeDomainsVerticle extends FlowTask {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractInitializeDomainsVerticle.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(AbstractInitializeDomainsVerticle.class);
 
     private static final String F_COMPONENTS = "components";
 
@@ -66,7 +68,7 @@ public abstract class AbstractInitializeDomainsVerticle extends FlowTask {
             report.exceptionThrown(new JsonObject(), e);
             domainConfigs = Collections.emptyList();
         }
-        for (Path path: domainConfigs) {
+        for (Path path : domainConfigs) {
             try {
                 JsonObject domain = JsonUtils.readJsonFile(path.toString());
                 LOG.info("Add Domain " + domain.getString("name") + " (" + domain.getString("id") + ")");
@@ -82,7 +84,7 @@ public abstract class AbstractInitializeDomainsVerticle extends FlowTask {
     protected abstract boolean loadComponents();
 
 
-    protected JsonArray getIncludedDomains () {
+    protected JsonArray getIncludedDomains() {
         String includeDomains = config().getString(INCLUDE_DOMAINS_PROPERTY);
         JsonArray result = new JsonArray();
         if (includeDomains != null) {
@@ -92,8 +94,9 @@ public abstract class AbstractInitializeDomainsVerticle extends FlowTask {
     }
 
     protected boolean containsIn(Path f, JsonArray includeDomains) {
-        if (includeDomains.isEmpty())
+        if (includeDomains.isEmpty()) {
             return true;
+        }
 
         String fileName = f.getFileName().toString();
         return fileName.startsWith("internal_")
@@ -122,7 +125,7 @@ public abstract class AbstractInitializeDomainsVerticle extends FlowTask {
         List<JsonObject> components = extractDomainComponents(domain);
         domain.remove(F_COMPONENTS);
 
-        for (JsonObject component: components) {
+        for (JsonObject component : components) {
             Boolean deprecated = Boolean.valueOf(component.getString("deprecated"));
             if (deprecated) {
                 getLogger().warn("Skipping deprecated component {}", component.getString("id"));
@@ -157,7 +160,7 @@ public abstract class AbstractInitializeDomainsVerticle extends FlowTask {
 
         List<JsonObject> components = new ArrayList<>();
         if (domain.getJsonArray(F_COMPONENTS) != null) {
-            for (Object c: domain.getJsonArray(F_COMPONENTS)) {
+            for (Object c : domain.getJsonArray(F_COMPONENTS)) {
                 components.add((JsonObject) c);
             }
         }

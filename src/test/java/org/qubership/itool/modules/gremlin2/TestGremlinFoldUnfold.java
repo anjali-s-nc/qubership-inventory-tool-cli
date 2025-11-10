@@ -16,15 +16,14 @@
 
 package org.qubership.itool.modules.gremlin2;
 
-import java.util.List;
-import java.util.Map;
-
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
+import java.util.List;
+import java.util.Map;
 
 import static org.qubership.itool.modules.gremlin2.structure.MapElement.both;
 import static org.qubership.itool.modules.gremlin2.structure.MapElement.key;
@@ -47,7 +46,7 @@ public class TestGremlinFoldUnfold extends AbstractGremlinTest {
         List<Object> result = V("v10").value("components")
             .unfold()
             .toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(3, result.size());
         Assertions.assertEquals("a", result.get(0));
         Assertions.assertEquals("b", result.get(1));
@@ -57,7 +56,7 @@ public class TestGremlinFoldUnfold extends AbstractGremlinTest {
     @Test
     void test_Fold() {
         List<List<String>> result = V().hasId("v1", "v3").id().fold().toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(2, result.get(0).size());
         Assertions.assertEquals("v1", result.get(0).get(0));
@@ -67,7 +66,7 @@ public class TestGremlinFoldUnfold extends AbstractGremlinTest {
     @Test
     void test_Map_unfold_key() {
         List<Object> result = V().values("components").unfold().by(key).toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("components", result.get(0));
     }
@@ -75,7 +74,7 @@ public class TestGremlinFoldUnfold extends AbstractGremlinTest {
     @Test
     void test_Map_unfold_value() {
         List<Object> result = V().values("components").unfold().by(value).toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(3, result.size());
         Assertions.assertEquals("a", result.get(0));
         Assertions.assertEquals("b", result.get(1));

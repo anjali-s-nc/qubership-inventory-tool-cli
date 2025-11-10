@@ -19,13 +19,12 @@ package org.qubership.itool.modules.gremlin2.util;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import org.qubership.itool.modules.gremlin2.GremlinException;
+import org.qubership.itool.utils.JsonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import org.qubership.itool.modules.gremlin2.GremlinException;
-import org.qubership.itool.utils.JsonUtils;
 
 public final class ValueHelper {
 
@@ -68,7 +67,7 @@ public final class ValueHelper {
 
         Object result = obj;
         String[] array = jsonKey.split("/");
-        for (int i = 0 ; i < array.length ; i++) {
+        for (int i = 0; i < array.length; i++) {
             String item = array[i];
             if ("".equals(item)) {
                 continue;
@@ -76,7 +75,7 @@ public final class ValueHelper {
 
             if (item.endsWith("[]")) {
                 String key = item.substring(0, item.length() - 2);
-                Object tmp = ((JsonObject)result).getValue(key);
+                Object tmp = ((JsonObject) result).getValue(key);
                 if (tmp == null) {
                     return null; // nothing found
                 }
@@ -84,7 +83,7 @@ public final class ValueHelper {
                     result = new ArrayList<>();
                     String newKey = keyFor(array, i + 1);
                     for (Object a : (JsonArray) tmp) {
-                        ((List)result).add(getObjectFromJsonPointer(a, newKey));
+                        ((List) result).add(getObjectFromJsonPointer(a, newKey));
                     }
                     break;  // break 'for' over array
 
@@ -93,10 +92,10 @@ public final class ValueHelper {
                 }
 
             } else if (result instanceof JsonObject) {
-                result = ((JsonObject)result).getValue(item);
+                result = ((JsonObject) result).getValue(item);
 
             } else if (result instanceof JsonArray && item.matches("\\d+")) {
-                JsonArray r = ((JsonArray)result);
+                JsonArray r = ((JsonArray) result);
                 int index = Integer.parseInt(item);
                 if (index < r.size()) {
                     result = r.getValue(index);
@@ -117,7 +116,7 @@ public final class ValueHelper {
 
     private static String keyFor(String[] array, int pos) {
         StringBuilder builder = new StringBuilder();
-        for (int i = pos ; i < array.length ; i++) {
+        for (int i = pos; i < array.length; i++) {
             builder.append("/").append(array[i]);
         }
         return builder.toString();

@@ -16,23 +16,19 @@
 
 package org.qubership.itool.tasks.parsing.configuration;
 
+import io.vertx.core.json.JsonObject;
+import jakarta.inject.Provider;
 import org.qubership.itool.modules.parsing.InventoryJsonParser;
 import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
-
-import io.vertx.core.json.JsonObject;
-
 import org.qubership.itool.utils.FSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-
 import javax.annotation.Resource;
 
-import jakarta.inject.Provider;
-
 public class ParseInventoryFileVerticle extends AbstractParseFileTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(ParseInventoryFileVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParseInventoryFileVerticle.class);
 
     @Resource
     protected Provider<InventoryJsonParser> inventoryJsonParser;

@@ -16,12 +16,11 @@
 
 package org.qubership.itool.tasks.confluence.summary;
 
-import org.qubership.itool.modules.template.ConfluencePage;
-import org.qubership.itool.tasks.confluence.AbstractConfluenceGenerationPageVerticle;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Provider;
-
+import org.qubership.itool.modules.template.ConfluencePage;
+import org.qubership.itool.tasks.confluence.AbstractConfluenceGenerationPageVerticle;
 import org.qubership.itool.utils.JsonUtils;
 import org.qubership.itool.utils.TechNormalizationHelper;
 import org.slf4j.Logger;
@@ -31,15 +30,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.annotation.Resource;
 
 import static org.qubership.itool.modules.gremlin2.graph.__.has;
 import static org.qubership.itool.modules.gremlin2.graph.__.in;
 
-
 public class ConfluenceSummaryTechStacksPerDomainVerticle extends AbstractConfluenceGenerationPageVerticle {
-    protected Logger LOG = LoggerFactory.getLogger(ConfluenceSummaryTechStacksPerDomainVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfluenceSummaryTechStacksPerDomainVerticle.class);
 
     @Resource
     Provider<ConfluencePage> confluencePageProvider;
@@ -72,10 +69,10 @@ public class ConfluenceSummaryTechStacksPerDomainVerticle extends AbstractConflu
                 .values("domain:/D/id", "usedTech:/T", "type:/E/type")
                 .dedup().<String, List>group().by("domain").next();
 
-        for (Map.Entry<String, List> domain: techs.entrySet()) {
+        for (Map.Entry<String, List> domain : techs.entrySet()) {
             JsonArray unknownTechs = new JsonArray();
             JsonObject techJson = new JsonObject();
-            for (Object tech: domain.getValue()) {
+            for (Object tech : domain.getValue()) {
                 Map<String, String> techMap = JsonUtils.asMap(tech);
                 String usedTech = techMap.get("usedTech");
                 Optional<String> matchedTechKey = TechNormalizationHelper.normalizeTech(usedTech);
@@ -84,13 +81,13 @@ public class ConfluenceSummaryTechStacksPerDomainVerticle extends AbstractConflu
                 } else {
                     unknownTechs.add(usedTech);
                 }
-            };
+            }
             techStacks.add(new JsonObject()
                     .put("domain", domain.getKey())
                     .put("techsList", techJson)
                     .put("unknownTechs", unknownTechs.isEmpty() ? null : unknownTechs)
             );
-        };
+        }
 
         page.addDataModel("techStacks", techStacks);
         page.addDataModel("techNames", TechNormalizationHelper.getTechNamesMap().keySet());

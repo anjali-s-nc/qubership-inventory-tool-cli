@@ -18,7 +18,7 @@ package org.qubership.itool.tasks.parsing;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
 
 /**
  * Common subclass for data parsers reading from file system

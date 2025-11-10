@@ -16,12 +16,12 @@
 
 package org.qubership.itool.tasks.parsing;
 
-import org.qubership.itool.tasks.FlowTask;
-
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
+import org.qubership.itool.tasks.FlowTask;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Common subclass for data parsers reading from "file" and "directory" elements of the graph
@@ -33,7 +33,7 @@ public abstract class AbstractParseFileDataTask extends FlowTask {
 
         List<Map<String, JsonObject>> tuples = getTuples();
 
-        for (Map<String, JsonObject> tuple: tuples) {
+        for (Map<String, JsonObject> tuple : tuples) {
             JsonObject domain = tuple.get("D");
             JsonObject component = tuple.get("C");
             JsonObject file = tuple.get("F");

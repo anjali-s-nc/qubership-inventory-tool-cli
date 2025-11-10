@@ -17,8 +17,8 @@
 package org.qubership.itool.modules.gremlin2;
 
 import io.vertx.core.json.JsonObject;
-import org.junit.jupiter.api.*;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 
 import java.util.List;
@@ -36,23 +36,23 @@ public class TestGremlinEdge extends AbstractGremlinTest {
     @Test
     void testOutE() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v4").outE();
-        Assertions.assertEquals(3 , traversal.toList().size());
+        Assertions.assertEquals(3, traversal.toList().size());
     }
 
     @Test
     void testOutEType() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v4").outE("maintained");
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         Assertions.assertTrue(traversal.next().containsKey("yearFrom"));
         Assertions.assertTrue(traversal.has("yearFrom", "2000").next().containsKey("yearFrom"));
         traversal = V("v4").outE("created");
-        Assertions.assertEquals(2 , traversal.toList().size());
+        Assertions.assertEquals(2, traversal.toList().size());
     }
 
     @Test
     void testOutEInV_1() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v4").outE("maintained").inV();
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         Assertions.assertEquals("v6", traversal.next().getString("id"));
     }
 
@@ -67,7 +67,7 @@ public class TestGremlinEdge extends AbstractGremlinTest {
 
         traversal = V("v4").out();
         list = traversal.toList();
-        Assertions.assertEquals(3 , list.size());
+        Assertions.assertEquals(3, list.size());
         Assertions.assertEquals("v3", list.get(0).getString("id"));
         Assertions.assertEquals("v5", list.get(1).getString("id"));
         Assertions.assertEquals("v6", list.get(2).getString("id"));
@@ -76,34 +76,34 @@ public class TestGremlinEdge extends AbstractGremlinTest {
     @Test
     void testOutEOutV() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v4").outE("maintained").outV();
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         Assertions.assertEquals("v4", traversal.next().getString("id"));
     }
 
     @Test
     void testInEOutV() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v4").inE().outV();
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         Assertions.assertEquals("v1", traversal.next().getString("id"));
     }
 
     @Test
     void testInEInV() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v4").inE().inV();
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         Assertions.assertEquals("v4", traversal.next().getString("id"));
     }
 
     @Test
     void testBothE() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v4").bothE();
-        Assertions.assertEquals(4 , traversal.toList().size());
+        Assertions.assertEquals(4, traversal.toList().size());
 
         traversal = V("v4").bothE("created");
-        Assertions.assertEquals(2 , traversal.toList().size());
+        Assertions.assertEquals(2, traversal.toList().size());
 
         traversal = V("v4").bothE("created", "knows");
-        Assertions.assertEquals(3 , traversal.toList().size());
+        Assertions.assertEquals(3, traversal.toList().size());
     }
 
     @Test

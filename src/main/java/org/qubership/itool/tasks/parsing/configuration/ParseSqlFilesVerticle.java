@@ -16,18 +16,19 @@
 
 package org.qubership.itool.tasks.parsing.configuration;
 
-import org.qubership.itool.tasks.parsing.AbstractInclusiveParseFileTask;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import org.qubership.itool.tasks.parsing.AbstractInclusiveParseFileTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class ParseSqlFilesVerticle extends AbstractInclusiveParseFileTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(ParseSqlFilesVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParseSqlFilesVerticle.class);
 
-    protected final JsonPointer SQL_COUNT_POINTER = JsonPointer.from("/details/sqlFilesCount");
+    protected static final JsonPointer SQL_COUNT_POINTER = JsonPointer.from("/details/sqlFilesCount");
+
     protected String[] getFilePatterns() {
         return new String[]{
                 "**/*.sql"

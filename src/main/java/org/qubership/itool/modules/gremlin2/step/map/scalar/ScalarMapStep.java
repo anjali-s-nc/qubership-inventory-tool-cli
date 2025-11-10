@@ -22,7 +22,7 @@ import org.qubership.itool.modules.gremlin2.step.map.MapStep;
 
 import java.util.List;
 
-public abstract class ScalarMapStep<S, E> extends MapStep<S,E> {
+public abstract class ScalarMapStep<S, E> extends MapStep<S, E> {
 
     public ScalarMapStep(final Traversal.Admin traversal) {
         super(traversal);

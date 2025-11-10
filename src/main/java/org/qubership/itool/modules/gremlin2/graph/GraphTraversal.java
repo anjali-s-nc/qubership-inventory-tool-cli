@@ -16,6 +16,7 @@
 
 package org.qubership.itool.modules.gremlin2.graph;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.P;
 import org.qubership.itool.modules.gremlin2.Path;
 import org.qubership.itool.modules.gremlin2.Step;
@@ -71,7 +72,6 @@ import org.qubership.itool.modules.gremlin2.structure.Direction;
 import org.qubership.itool.modules.gremlin2.structure.MapElement;
 import org.qubership.itool.modules.gremlin2.util.Order;
 import org.qubership.itool.modules.gremlin2.util.TraversalHelper;
-import io.vertx.core.json.JsonObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -85,19 +85,19 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
 
     default Profile profile() {
         this.asAdmin().addStep(new ProfileStep(this.asAdmin()));
-        return (Profile)this.next();
+        return (Profile) this.next();
     }
 
     default GraphTraversal<S, E> none() {
-        return (GraphTraversal)this.asAdmin().addStep(new NoneStep<>(this.asAdmin()));
+        return (GraphTraversal) this.asAdmin().addStep(new NoneStep<>(this.asAdmin()));
     }
 
     default GraphTraversal<S, E> empty() {
-        return (GraphTraversal)this.asAdmin().addStep(new EmptyStep<>(this.asAdmin()));
+        return (GraphTraversal) this.asAdmin().addStep(new EmptyStep<>(this.asAdmin()));
     }
 
     default <E2> GraphTraversal<S, E2> local(Traversal<?, E2> localTraversal) {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new LocalStep<>(this.asAdmin(), localTraversal.asAdmin()));
     }
 
@@ -106,13 +106,13 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
     }
 
     default <E2> GraphTraversal<S, E2> fork(ForkJoinPool pool, Traversal<?, E2> forkedTraversal) {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new ForkJoinStep<>(this.asAdmin(), forkedTraversal, pool)
         );
     }
 
     default GraphTraversal<S, E> mapToVertex() {
-        return (GraphTraversal)this.asAdmin().addStep(new MapToVertexStep<>(this.asAdmin()));
+        return (GraphTraversal) this.asAdmin().addStep(new MapToVertexStep<>(this.asAdmin()));
     }
 
     default GraphTraversal<S, E> hasId(String ... ids) {
@@ -133,6 +133,7 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
     }
 
     /** Has ALL listed keys (empty array = accept all)
+     *
      * @param keys Keys to check
      * @return Traversal
      */
@@ -146,6 +147,7 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
     }
 
     /** Has ALL listed keys (empty array = accept all)
+     *
      * @param keys Keys to check
      * @return Traversal
      */
@@ -154,6 +156,7 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
     }
 
     /** Has NONE of listed keys (empty array = accept all)
+     *
      * @param keys Keys to check
      * @return Traversal
      */
@@ -167,6 +170,7 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
     }
 
     /** Has ANY of listed types (empty array = accept nothing)
+     *
      * @param types Types to check
      * @return Traversal
      */
@@ -179,6 +183,7 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
     }
 
     /** Has ANY of listed types (empty array = accept nothing)
+     *
      * @param types Types to check
      * @return Traversal
      */
@@ -236,6 +241,12 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
         );
     }
 
+    default <E2> GraphTraversal<S, E2> value(String propertyKey) {
+        return (GraphTraversal) this.asAdmin().addStep(
+            new ValueStep<>(this.asAdmin(), propertyKey)
+        );
+    }
+
     default GraphTraversal<S, E> valueReplace(String regex, String replacement) {
         return (GraphTraversal<S, E>) this.asAdmin().addStep(
             new ValueReplaceStep<>(this.asAdmin(), regex, replacement)
@@ -270,17 +281,16 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
         return (GraphTraversal) sMapAdmin;
     }
 
-    default <E> GraphTraversal<S, E> cap(String sideEffectKey) {
-        Traversal.Admin<S, Map<String, Object>> sMapAdmin = this.asAdmin().addStep(
-            new CapStep<>(this.asAdmin(), sideEffectKey)
-        );
-        return (GraphTraversal) sMapAdmin;
-    }
-
     default <E2> GraphTraversal<S, Map<String, E2>> select(String... selectKeys) {
         Traversal.Admin<S, Map<String, Object>> sMapAdmin = this.asAdmin().addStep(
             new SelectStep<>(this.asAdmin(), selectKeys)
         );
+        return (GraphTraversal) sMapAdmin;
+    }
+
+    default <E> GraphTraversal<S, E> cap(String sideEffectKey) {
+        Traversal.Admin<S, Map<String, Object>> sMapAdmin = this.asAdmin().addStep(
+            new CapStep<>(this.asAdmin(), sideEffectKey));
         return (GraphTraversal) sMapAdmin;
     }
 
@@ -290,21 +300,24 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
         );
     }
 
-    // Note: this Gremlin method produces multiple traverses if there exist multiple edges between this vertex and that one
+    // Note: this Gremlin method produces multiple traverses if there exist multiple edges between
+    // this vertex and that one
     default GraphTraversal<S, JsonObject> out(String... edgeLabels) {
         return this.asAdmin().addStep(
             new VertexStep<>(this.asAdmin(), Direction.OUT, edgeLabels)
         );
     }
 
-    // Note: this Gremlin method produces multiple traverses if there exist multiple edges between this vertex and that one
+    // Note: this Gremlin method produces multiple traverses if there exist multiple edges between
+    // this vertex and that one
     default GraphTraversal<S, JsonObject> in(String... edgeLabels) {
         return this.asAdmin().addStep(
             new VertexStep<>(this.asAdmin(), Direction.IN, edgeLabels)
         );
     }
 
-    // Note: this Gremlin method produces multiple traverses if there exist multiple edges between this vertex and that one
+    // Note: this Gremlin method produces multiple traverses if there exist multiple edges between
+    // this vertex and that one
     default GraphTraversal<S, JsonObject> both(String... edgeLabels) {
         return this.asAdmin().addStep(
             new VertexStep<>(this.asAdmin(), Direction.BOTH, edgeLabels)
@@ -347,14 +360,8 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
         );
     }
 
-    default <E2> GraphTraversal<S, E2> value(String propertyKey) {
-        return (GraphTraversal)this.asAdmin().addStep(
-            new ValueStep<>(this.asAdmin(), propertyKey)
-        ) ;
-    }
-
     default <E2> GraphTraversal<S, Map<Object, E2>> values(String... propertyKeys) {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new ValueMapStep<>(this.asAdmin(), propertyKeys)
         );
     }
@@ -368,7 +375,7 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
     }
 
     default <K, V> GraphTraversal<S, Map<K, V>> group() {
-        return (GraphTraversal)this.asAdmin().addStep(new GroupStep<>(this.asAdmin()));
+        return (GraphTraversal) this.asAdmin().addStep(new GroupStep<>(this.asAdmin()));
     }
 
     default GraphTraversal<S, E> by(String string) {
@@ -377,7 +384,8 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
             ByModulating byModulating = (ByModulating) endStep;
             byModulating.modulateBy(string);
         } else {
-            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName() + " not supported .by() modulation");
+            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName()
+                    + " not supported .by() modulation");
         }
         return this;
     }
@@ -388,7 +396,8 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
             ByModulating byModulating = (ByModulating) endStep;
             byModulating.modulateBy(args);
         } else {
-            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName() + " not supported .by() modulation");
+            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName()
+                    + " not supported .by() modulation");
         }
         return this;
     }
@@ -399,7 +408,8 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
             ByModulating byModulating = (ByModulating) endStep;
             byModulating.modulateBy(mapElement);
         } else {
-            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName() + " not supported .by() modulation");
+            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName()
+                    + " not supported .by() modulation");
         }
         return this;
     }
@@ -410,7 +420,8 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
             ByModulating byModulating = (ByModulating) endStep;
             byModulating.modulateBy(traversal);
         } else {
-            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName() + " not supported .by() modulation");
+            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName()
+                    + " not supported .by() modulation");
         }
         return this;
     }
@@ -421,7 +432,8 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
             ByModulating byModulating = (ByModulating) endStep;
             byModulating.modulateBy(order);
         } else {
-            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName() + " not supported .by() modulation");
+            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName()
+                    + " not supported .by() modulation");
         }
         return this;
     }
@@ -432,14 +444,16 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
             ByModulating byModulating = (ByModulating) endStep;
             byModulating.modulateBy(propertyKey, order);
         } else {
-            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName() + " not supported .by() modulation");
+            throw new UnsupportedOperationException("Step " + endStep.getClass().getSimpleName()
+                    + " not supported .by() modulation");
         }
         return this;
     }
 
     default <E2> GraphTraversal<S, E2> coalesce(Traversal<?, E2>... coalesceTraversals) {
-        return (GraphTraversal)this.asAdmin().addStep(
-            new CoalesceStep<>(this.asAdmin(), Arrays.copyOf(coalesceTraversals, coalesceTraversals.length, Traversal.Admin[].class))
+        return (GraphTraversal) this.asAdmin().addStep(
+                new CoalesceStep<>(this.asAdmin(), Arrays.copyOf(coalesceTraversals,
+                        coalesceTraversals.length, Traversal.Admin[].class))
         );
     }
 
@@ -450,79 +464,80 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
     }
 
     default GraphTraversal<S, E> where(String startKey, P<String> predicate) {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new WherePredicateStep<>(this.asAdmin(), Optional.ofNullable(startKey), predicate)
         );
     }
 
     default GraphTraversal<S, E> where(P<String> predicate) {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new WherePredicateStep<>(this.asAdmin(), Optional.empty(), predicate)
         );
     }
 
     default GraphTraversal<S, E> where(Traversal<?, ?> innerTraversal) {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new WherePredicateStep<>(this.asAdmin(), innerTraversal)
         );
     }
 
     default GraphTraversal<S, E> dedup() {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new DedupStep<>(this.asAdmin())
         );
     }
 
     default <E2> GraphTraversal<S, E2> union(Traversal<?, E2> ... unionTraversals) {
-        return (GraphTraversal)this.asAdmin().addStep(
-            new UnionStep<S, E2>(this.asAdmin(), Arrays.copyOf(unionTraversals, unionTraversals.length, Traversal.Admin[].class))
+        return (GraphTraversal) this.asAdmin().addStep(
+                new UnionStep<S, E2>(this.asAdmin(), Arrays.copyOf(unionTraversals,
+                        unionTraversals.length, Traversal.Admin[].class))
         );
     }
 
     default GraphTraversal<S, E> not(Traversal<?, ?> innerTraversal) {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new NotStep<>(this.asAdmin(), innerTraversal)
         );
     }
 
     default <E2> GraphTraversal<S, E2> or(final Traversal<?, E2> ... orTraversals) {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new OrStep<E2>(this.asAdmin(), Arrays.copyOf(orTraversals, orTraversals.length, Traversal.Admin[].class))
         );
     }
 
     default GraphTraversal<S, E> range(int rangeFrom, int rangeTo) {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new RangeLimitStep<>(this.asAdmin(), Optional.of(rangeFrom), Optional.of(rangeTo))
         );
     }
 
     default GraphTraversal<S, E> limit(int limit) {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new RangeLimitStep<>(this.asAdmin(), Optional.empty(), Optional.of(limit))
         );
     }
 
     default GraphTraversal<S, E> tail(int rangeFrom) {
-        return (GraphTraversal)this.asAdmin().addStep(
+        return (GraphTraversal) this.asAdmin().addStep(
             new RangeLimitStep<>(this.asAdmin(), Optional.of(rangeFrom), Optional.empty())
         );
     }
 
     default GraphTraversal<S, E> order() {
-        return (GraphTraversal)this.asAdmin().addStep(new OrderStep<>(this.asAdmin()));
+        return (GraphTraversal) this.asAdmin().addStep(new OrderStep<>(this.asAdmin()));
     }
 
     default <E2 extends String> GraphTraversal<String, String> split() {
-        return (GraphTraversal)this.asAdmin().addStep(new SplitStep<>(this.asAdmin()));
+        return (GraphTraversal) this.asAdmin().addStep(new SplitStep<>(this.asAdmin()));
     }
 
     default <E2> GraphTraversal<S, E2> unfold() {
-        return (GraphTraversal)this.asAdmin().addStep(new UnfoldStep<>(this.asAdmin()));
+        return (GraphTraversal) this.asAdmin().addStep(new UnfoldStep<>(this.asAdmin()));
     }
 
     default GraphTraversal<S, List<E>> fold() {
-        return (GraphTraversal)this.asAdmin().addStep(new FoldStep<>(this.asAdmin()));
+        return (GraphTraversal) this.asAdmin().addStep(new FoldStep<>(this.asAdmin()));
     }
 
     default GraphTraversal<S, JsonObject> subgraph(String sideEffectKey) {
@@ -539,7 +554,7 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
             return this;
         } else {
             throw new IllegalStateException("times() modulator supported only for TimesModulating implementations");
-//            return RepeatStep.addUntilToTraversal(this, new LoopTraversal<>(maxLoops));
+            // return RepeatStep.addUntilToTraversal(this, new LoopTraversal<>(maxLoops));
         }
     }
 

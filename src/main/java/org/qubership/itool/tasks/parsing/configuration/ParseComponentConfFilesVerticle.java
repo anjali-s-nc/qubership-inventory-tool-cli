@@ -16,12 +16,12 @@
 
 package org.qubership.itool.tasks.parsing.configuration;
 
-import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
-import io.vertx.core.json.*;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import jakarta.inject.Provider;
-
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
 import org.qubership.itool.utils.FSUtils;
 import org.qubership.itool.utils.GitUtils;
 import org.qubership.itool.utils.YamlParser;
@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
-
 import javax.annotation.Resource;
 
 import static org.qubership.itool.modules.report.GraphReport.EXCEPTION;
@@ -43,7 +42,7 @@ import static org.qubership.itool.modules.report.GraphReport.EXCEPTION;
  *
  */
 public class ParseComponentConfFilesVerticle extends AbstractParseFileTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(ParseComponentConfFilesVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParseComponentConfFilesVerticle.class);
 
     @Resource
     Provider<YamlParser> yamlParserProvider;
@@ -66,19 +65,18 @@ public class ParseComponentConfFilesVerticle extends AbstractParseFileTask {
 
     protected boolean isSpringYamlFile(String fileName) {
         String tail = Path.of(fileName).getFileName().toString();
-        return "application.yml".equals(tail) || "application.yaml".equals(tail)
-//            || "bootstrap.yaml".equals(fileName)
-            ;
+        return "application.yml".equals(tail) || "application.yaml".equals(tail);
+        //            || "bootstrap.yaml".equals(fileName)
     }
 
 
     @Override
     protected void parseSingleFile(JsonObject domain, JsonObject component, String fileName)
-            throws IOException
-    {
+            throws IOException {
         File parsedFile = new File(fileName);
-        if (!parsedFile.isFile())
+        if (!parsedFile.isFile()) {
             return;
+        }
         synchronized (component) {
             String relativePath = FSUtils.relativePath(component, fileName);
             File file = new File(relativePath);
@@ -122,8 +120,7 @@ public class ParseComponentConfFilesVerticle extends AbstractParseFileTask {
 
     private JsonObject getOrCreateDirectoryVertex(JsonObject component, JsonObject sourceVertex,
             String name, String path, String fileName)
-            throws IOException
-    {
+            throws IOException {
         JsonObject successor = V(sourceVertex.getString("id")).out()
             .has("type", "directory")
             .has("name", name).next();
@@ -152,7 +149,7 @@ public class ParseComponentConfFilesVerticle extends AbstractParseFileTask {
                 Object data = Json.CODEC.fromString(content, Object.class);
                 vertex.put("structured", data); // Either JsonObject or JsonArray
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             report.addMessage(EXCEPTION, component,
                     "Exception was thrown while handling '" + fileName
                             + "': " + e.getMessage() + "\nStacktrace:\n" + ExceptionUtils.getStackTrace(e));

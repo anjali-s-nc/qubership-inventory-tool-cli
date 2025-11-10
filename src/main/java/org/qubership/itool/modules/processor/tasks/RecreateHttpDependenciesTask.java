@@ -16,26 +16,38 @@
 
 package org.qubership.itool.modules.processor.tasks;
 
-import java.time.Duration;
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.processor.matchers.TargetMocksMatcher;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.modules.report.GraphReportImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.qubership.itool.modules.graph.GraphDataConstants.*;
-import static org.qubership.itool.modules.gremlin2.P.*;
-import static org.qubership.itool.modules.graph.Graph.*;
+import static org.qubership.itool.modules.graph.Graph.F_DETAILS;
+import static org.qubership.itool.modules.graph.Graph.F_DNS_NAME;
+import static org.qubership.itool.modules.graph.Graph.F_DNS_NAMES;
+import static org.qubership.itool.modules.graph.Graph.F_ID;
+import static org.qubership.itool.modules.graph.Graph.F_MOCKED_FOR;
+import static org.qubership.itool.modules.graph.Graph.F_MOCK_FLAG;
+import static org.qubership.itool.modules.graph.Graph.F_NAME;
+import static org.qubership.itool.modules.graph.Graph.F_TYPE;
+import static org.qubership.itool.modules.graph.Graph.P_DETAILS_DNS_NAMES;
+import static org.qubership.itool.modules.graph.Graph.V_UNKNOWN;
+import static org.qubership.itool.modules.graph.GraphDataConstants.COMP_DEPENDENCY_TYPES;
+import static org.qubership.itool.modules.graph.GraphDataConstants.NOS_TO_RECOGNIZE;
+import static org.qubership.itool.modules.gremlin2.P.within;
 
 /**
  * <p>Recreate HTTP dependencies to existing components or their mocks that were NOT created by
@@ -84,19 +96,22 @@ public class RecreateHttpDependenciesTask implements GraphProcessorTask {
         LOG.info("Task completed in {}", Duration.ofNanos(endTime - startTime));
     }
 
-    private void recreateMissingDependencyEdges(Graph graph, List<Map<Object, Object>> componentsWithRawDependencies, Map<String, JsonObject> dnsNameToComp) {
-        for (Map<Object, Object> item: componentsWithRawDependencies) {
+    private void recreateMissingDependencyEdges(Graph graph,
+            List<Map<Object, Object>> componentsWithRawDependencies,
+            Map<String, JsonObject> dnsNameToComp) {
+        for (Map<Object, Object> item : componentsWithRawDependencies) {
             JsonObject component = (JsonObject) item.get("C");
-            for (String dependencyType: COMP_DEPENDENCY_TYPES.keySet()) {
+            for (String dependencyType : COMP_DEPENDENCY_TYPES.keySet()) {
                 JsonArray dependencyDnsNames = getJsonArray(item, dependencyType);
                 if (dependencyDnsNames == null) {
                     continue;
                 }
-                for (Object dnsName: dependencyDnsNames) {
+                for (Object dnsName : dependencyDnsNames) {
                     if (NOS_TO_RECOGNIZE.contains(dnsName)) {
                         continue;
                     }
-                    JsonObject targetComponent = dnsNameToComp.computeIfAbsent((String)dnsName, newDnsName -> createMockByDnsName(graph, newDnsName));
+                    JsonObject targetComponent = dnsNameToComp.computeIfAbsent((String) dnsName,
+                            newDnsName -> createMockByDnsName(graph, newDnsName));
                     if (isEdgeMissing(graph, component, dependencyType, targetComponent)) {
                         JsonObject edge = new JsonObject()
                             .put(F_TYPE, dependencyType)
@@ -110,7 +125,8 @@ public class RecreateHttpDependenciesTask implements GraphProcessorTask {
         }
     }
 
-    private boolean isEdgeMissing(Graph graph, JsonObject component, String dependencyType, JsonObject targetComponent) {
+    private boolean isEdgeMissing(Graph graph, JsonObject component, String dependencyType,
+            JsonObject targetComponent) {
         return graph.getVertex(targetComponent.getString(F_ID)) == null
             || graph.getEdgesBetween(component, targetComponent).stream()
                 .noneMatch(edge -> dependencyType.equals(edge.getString(F_TYPE)));
@@ -121,9 +137,9 @@ public class RecreateHttpDependenciesTask implements GraphProcessorTask {
             .flatMap(item -> concatStreams(item))
             .collect(Collectors.toSet());
         requiredDnsNames.removeIf(dnsName ->
-                   dnsName == null
-                || NOS_TO_RECOGNIZE.contains(dnsName)
-                || ! VALID_DNS_NAMES_PATTERN.matcher(dnsName).matches());
+                dnsName == null
+                        || NOS_TO_RECOGNIZE.contains(dnsName)
+                        || ! VALID_DNS_NAMES_PATTERN.matcher(dnsName).matches());
         return requiredDnsNames;
     }
 
@@ -134,7 +150,7 @@ public class RecreateHttpDependenciesTask implements GraphProcessorTask {
                 .values("dnsNames:/details/dnsNames").unfold().as("DN")
                 .select("C", "DN").has("DN", within(requiredDnsNames.toArray())).toList();
 
-        for (Map<String, Object> entry: componentsWithDnsNames) {
+        for (Map<String, Object> entry : componentsWithDnsNames) {
             JsonObject component = (JsonObject) entry.get("C");
             String dnsName = (String) entry.get("DN");
             JsonObject oldComponent = dnsNameToComp.put(dnsName, component);
@@ -152,7 +168,7 @@ public class RecreateHttpDependenciesTask implements GraphProcessorTask {
             // TODO: Move the cleanup outside, it shouldn't be the part of searching process
             if (component.getBoolean(F_MOCK_FLAG, false) == false && report instanceof GraphReportImpl) {
                 // Remove records reported by current component related to found non-mock component.
-                JsonArray records = ((GraphReportImpl)report).getRecords();
+                JsonArray records = ((GraphReportImpl) report).getRecords();
                 removeOutdatedReportRecords(component, dnsName, records);
             }
         }
@@ -162,7 +178,7 @@ public class RecreateHttpDependenciesTask implements GraphProcessorTask {
 
     void removeOutdatedReportRecords(JsonObject comp, String dnsName, JsonArray reportRecords) {
         Pattern pattern = Pattern.compile("^Reference was not found. Reference: \\w+ http dependency " + dnsName + "$");
-        synchronized(reportRecords) {
+        synchronized (reportRecords) {
             Iterator<?> it = reportRecords.iterator();
             while (it.hasNext()) {
                 Object o = it.next();
@@ -207,7 +223,7 @@ public class RecreateHttpDependenciesTask implements GraphProcessorTask {
         for (String depType : COMP_DEPENDENCY_TYPES.keySet()) {
             JsonArray asArray = getJsonArray(item, depType);
             if (asArray != null) {
-                newStream = Stream.concat(newStream, (Stream)asArray.stream());
+                newStream = Stream.concat(newStream, (Stream) asArray.stream());
             }
         }
         return newStream;
@@ -216,12 +232,11 @@ public class RecreateHttpDependenciesTask implements GraphProcessorTask {
     static JsonArray getJsonArray(Map<Object, Object> item, String key) {
         Object value = item.get(key);
         if (value instanceof List) {
-            return new JsonArray((List)value);
+            return new JsonArray((List) value);
         } else if (value instanceof JsonArray) {
-            return (JsonArray)value;
+            return (JsonArray) value;
         }
         return null;
     }
 
 }
-

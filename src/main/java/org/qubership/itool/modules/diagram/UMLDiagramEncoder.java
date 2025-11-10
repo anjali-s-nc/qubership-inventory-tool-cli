@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024-2025 NetCracker Technology Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.qubership.itool.modules.diagram;
 
 import java.nio.charset.StandardCharsets;
@@ -5,8 +21,8 @@ import java.util.zip.Deflater;
 
 public class UMLDiagramEncoder {
 
-    static final char[] encode6bit = new char[64];
-    static final byte[] decode6bit = new byte[128];
+    static final char[] ENCODE_6_BIT = new char[64];
+    static final byte[] DECODE_6_BIT = new byte[128];
 
     public static String encodeDiagram(String generatedText) {
         String uncommentData = trim(generatedText);
@@ -15,7 +31,7 @@ public class UMLDiagramEncoder {
         //Compressed using Deflate algorithm
         byte[] compressedData = compress(data);
         //Re-encoded in ASCII using a transformation close to base64
-        String encodedData= encode(compressedData);
+        String encodedData = encode(compressedData);
         return encodedData;
     }
 
@@ -47,7 +63,8 @@ public class UMLDiagramEncoder {
             StringBuilder result = new StringBuilder((data.length * 4 + 2) / 3);
 
             for (int i = 0; i < data.length; i += 3) {
-                append3bytes(result, data[i] & 255, i + 1 < data.length ? data[i + 1] & 255 : 0, i + 2 < data.length ? data[i + 2] & 255 : 0);
+                append3bytes(result, data[i] & 255, i + 1 < data.length ? data[i + 1] & 255 : 0,
+                        i + 2 < data.length ? data[i + 2] & 255 : 0);
             }
 
             return result.toString();
@@ -59,10 +76,10 @@ public class UMLDiagramEncoder {
         int c2 = (b1 & 3) << 4 | b2 >> 4;
         int c3 = (b2 & 15) << 2 | b3 >> 6;
         int c4 = b3 & 63;
-        sb.append(encode6bit[c1 & 63]);
-        sb.append(encode6bit[c2 & 63]);
-        sb.append(encode6bit[c3 & 63]);
-        sb.append(encode6bit[c4 & 63]);
+        sb.append(ENCODE_6_BIT[c1 & 63]);
+        sb.append(ENCODE_6_BIT[c2 & 63]);
+        sb.append(ENCODE_6_BIT[c3 & 63]);
+        sb.append(ENCODE_6_BIT[c4 & 63]);
     }
 
     // trim @start & @end annotated lines
@@ -93,8 +110,8 @@ public class UMLDiagramEncoder {
     //mechanism to build 64bit char encoding
 
     static {
-        for (byte b = 0; b < 64; decode6bit[encode6bit[b]] = b++) {
-            encode6bit[b] = encode6bit(b);
+        for (byte b = 0; b < 64; DECODE_6_BIT[ENCODE_6_BIT[b]] = b++) {
+            ENCODE_6_BIT[b] = encode6bit(b);
         }
     }
 

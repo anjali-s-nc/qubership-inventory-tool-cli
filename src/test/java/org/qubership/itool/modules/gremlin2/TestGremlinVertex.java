@@ -17,8 +17,8 @@
 package org.qubership.itool.modules.gremlin2;
 
 import io.vertx.core.json.JsonObject;
-import org.junit.jupiter.api.*;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 import org.qubership.itool.modules.gremlin2.graph.__;
 
@@ -48,15 +48,15 @@ public class TestGremlinVertex extends AbstractGremlinTest {
     @Test
     void testV() {
         GraphTraversal<JsonObject, JsonObject> traversal = V();
-        Assertions.assertEquals(6 , traversal.toList().size());
+        Assertions.assertEquals(6, traversal.toList().size());
     }
 
     @Test
     void testVId() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v1");
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         traversal = V("v1500000");
-        Assertions.assertEquals(0 , traversal.toList().size());
+        Assertions.assertEquals(0, traversal.toList().size());
     }
 
     @Test
@@ -67,14 +67,14 @@ public class TestGremlinVertex extends AbstractGremlinTest {
     @Test
     void testHasId() {
         GraphTraversal<JsonObject, JsonObject> traversal = V().hasId("v4");
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         Assertions.assertEquals("v4", traversal.next().getString("id"));
     }
 
     @Test
     void testHasIdMultiple() {
         GraphTraversal<JsonObject, JsonObject> traversal = V().hasId("v4", "v5");
-        Assertions.assertEquals(2 , traversal.toList().size());
+        Assertions.assertEquals(2, traversal.toList().size());
         Assertions.assertEquals("v4", traversal.toList().get(0).getString("id"));
         Assertions.assertEquals("v5", traversal.toList().get(1).getString("id"));
     }
@@ -128,40 +128,40 @@ public class TestGremlinVertex extends AbstractGremlinTest {
     @Test
     void testHas() {
         GraphTraversal<JsonObject, JsonObject> traversal = V().has("name", "marko");
-        Assertions.assertEquals(1 , traversal.toList().size());
+        Assertions.assertEquals(1, traversal.toList().size());
         Assertions.assertEquals("v1", traversal.next().getString("id"));
     }
 
     @Test
     void testHasTypeValue() {
         GraphTraversal<JsonObject, JsonObject> traversal = V().has("person", "name", "marko");
-        Assertions.assertEquals(1 , traversal.clone().toList().size());
+        Assertions.assertEquals(1, traversal.clone().toList().size());
         Assertions.assertEquals("v1", traversal.clone().next().getString("id"));
 
         traversal = V().has("person", "name", "ripple");
-        Assertions.assertEquals(0 , traversal.toList().size());
+        Assertions.assertEquals(0, traversal.toList().size());
     }
 
     @Test
     void testHasType() {
         GraphTraversal<JsonObject, JsonObject> traversal = V().hasType("person");
-        Assertions.assertEquals(2 , traversal.toList().size());
+        Assertions.assertEquals(2, traversal.toList().size());
     }
 
     @Test
     void testHasTypeMultiple() {
         GraphTraversal<JsonObject, JsonObject> traversal = V().hasType("person", "soft");
-        Assertions.assertEquals(4 , traversal.toList().size());
+        Assertions.assertEquals(4, traversal.toList().size());
     }
 
     @Test
     void testNot() {
         List<JsonObject> traversal = V().not(__.hasType("person", "soft")).toList();
-        Assertions.assertEquals(2 , traversal.size());
-        Assertions.assertNotEquals("person" , traversal.get(0));
-        Assertions.assertNotEquals("person" , traversal.get(1));
-        Assertions.assertNotEquals("soft" , traversal.get(0));
-        Assertions.assertNotEquals("soft" , traversal.get(1));
+        Assertions.assertEquals(2, traversal.size());
+        Assertions.assertNotEquals("person", traversal.get(0));
+        Assertions.assertNotEquals("person", traversal.get(1));
+        Assertions.assertNotEquals("soft", traversal.get(0));
+        Assertions.assertNotEquals("soft", traversal.get(1));
     }
 
     @Test
@@ -191,11 +191,11 @@ public class TestGremlinVertex extends AbstractGremlinTest {
         @SuppressWarnings("unchecked")
         List<JsonObject> result = V().out()
             .<JsonObject>or(
-                __.has("name", "lop")
-                , __.has("name", "josh")
+                __.has("name", "lop"),
+                __.has("name", "josh")
             )
             .toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(2, result.size());
         Assertions.assertEquals("v4", result.get(0).getString("id"));
         Assertions.assertEquals("v3", result.get(1).getString("id"));
@@ -261,31 +261,30 @@ public class TestGremlinVertex extends AbstractGremlinTest {
         print(result);
         // {root=1, v1=1, v4=3}
         Assertions.assertEquals(3, result.get(0).size());
-        Assertions.assertEquals(1l, result.get(0).get("root"));
-        Assertions.assertEquals(1l, result.get(0).get("v1"));
-        Assertions.assertEquals(3l, result.get(0).get("v4"));
+        Assertions.assertEquals(1L, result.get(0).get("root"));
+        Assertions.assertEquals(1L, result.get(0).get("v1"));
+        Assertions.assertEquals(3L, result.get(0).get("v4"));
     }
 
     @SuppressWarnings("rawtypes")
     @Test
     void testGroupByJsonPointer() {
         List<Map<Object, Object>> result = V().group().by("/details/document").toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("123456789", result.get(0).keySet().iterator().next());
-        List list = (List)result.get(0).get("123456789");
-        Assertions.assertEquals("v1", ((JsonObject)list.get(0)).getString("id"));
+        List list = (List) result.get(0).get("123456789");
+        Assertions.assertEquals("v1", ((JsonObject) list.get(0)).getString("id"));
     }
 
     @Test
     void testGroupByJsonPointerCount() {
         List<Map<Object, Object>> result =
             V().group().by("/details/document").by(__.count()).toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("123456789", result.get(0).keySet().iterator().next());
-        Long count = (Long)result.get(0).get("123456789");
-        Assertions.assertEquals(1l, count);
+        Long count = (Long) result.get(0).get("123456789");
+        Assertions.assertEquals(1L, count);
     }
-
 }

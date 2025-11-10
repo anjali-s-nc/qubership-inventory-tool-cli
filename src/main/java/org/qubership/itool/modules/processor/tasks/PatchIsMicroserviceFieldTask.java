@@ -16,9 +16,9 @@
 
 package org.qubership.itool.modules.processor.tasks;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.processor.InvalidGraphException;
-import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,9 @@ public class PatchIsMicroserviceFieldTask implements GraphProcessorTask {
     public void process(Graph graph) throws InvalidGraphException {
         // In version 3 the new flag was introduced
         if (graph.getGraphVersion() >= 3) {
-            LOG.debug("Skipping task {}, because graph with version {} should have correct isMicroservice fields in components",
+            LOG.debug(
+                    "Skipping task {}, because graph with version {} should have "
+                            + "correct isMicroservice fields in components",
                     getClass().getSimpleName(), graph.getGraphVersion());
             return;
         }
@@ -50,7 +52,7 @@ public class PatchIsMicroserviceFieldTask implements GraphProcessorTask {
                 .out().hasType(V_DOMAIN)
                 .out()
                 .toList();
-        for (JsonObject component: existingComponents) {
+        for (JsonObject component : existingComponents) {
             if (component.getBoolean(F_MICROSERVICE_FLAG) == null) {
                 component.put(F_MICROSERVICE_FLAG, isComponentAMicroservice(graph, component));
             }

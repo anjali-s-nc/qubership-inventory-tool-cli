@@ -16,12 +16,10 @@
 
 package org.qubership.itool.tasks.init;
 
-import org.qubership.itool.tasks.FlowTask;
-
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.ConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +36,7 @@ import static org.qubership.itool.modules.graph.Graph.V_UNKNOWN;
 import static org.qubership.itool.utils.GraphHelper.isComponentAMicroservice;
 
 public class FillMandatoryValuesVerticle extends FlowTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(FillMandatoryValuesVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FillMandatoryValuesVerticle.class);
 
     @Override
     protected void taskStart(Promise<?> taskPromise) {
@@ -78,16 +76,16 @@ public class FillMandatoryValuesVerticle extends FlowTask {
         //Component abbreviation
         JsonObject details = component.getJsonObject("details");
 
-        if(details != null){
-            if(details.getString("abbreviation") == null){
-                if(component.getString("abbreviation") == null){
+        if (details != null) {
+            if (details.getString("abbreviation") == null) {
+                if (component.getString("abbreviation") == null) {
                     component.put("abbreviation", component.getString(F_ID));
                 }
                 details.put("abbreviation", component.getString("abbreviation"));
             }
         }
 
-        if(component.getString("abbreviation") == null){
+        if (component.getString("abbreviation") == null) {
             component.put("abbreviation", component.getString(F_ID));
         }
 

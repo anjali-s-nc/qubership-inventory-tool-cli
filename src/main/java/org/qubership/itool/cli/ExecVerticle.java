@@ -16,13 +16,13 @@
 
 package org.qubership.itool.cli;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class ExecVerticle extends FlowMainVerticle {
-    protected static final Logger LOG = LoggerFactory.getLogger(ExecVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExecVerticle.class);
 
     protected Logger getLogger() {
         return LOG;

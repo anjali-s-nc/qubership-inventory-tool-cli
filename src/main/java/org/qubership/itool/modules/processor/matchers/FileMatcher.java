@@ -16,15 +16,14 @@
 
 package org.qubership.itool.modules.processor.matchers;
 
+import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.graph.Graph;
+
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.qubership.itool.modules.graph.Graph;
-
-import io.vertx.core.json.JsonObject;
-
-import static org.qubership.itool.modules.graph.Graph.*;
+import static org.qubership.itool.modules.graph.Graph.F_TYPE;
 
 public class FileMatcher implements VertexMatcher {
 

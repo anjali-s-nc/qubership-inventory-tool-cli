@@ -48,7 +48,7 @@ public class PathStep<S> extends ScalarMapStep<S, Path> implements FromToModulat
     protected Path map(final Traverser.Admin<S> traverser) {
         Path path = traverser.path().clone(); // .subPath(this.fromLabel, this.toLabel);
         if (modulateBy != null) {
-            for (int i=0 ;  i<path.objects().size() ; i++) {
+            for (int i = 0; i < path.objects().size(); i++) {
                 Object obj = path.objects().get(i);
                 Object value = ValueHelper.getObjectValue(this.modulateBy, obj);
                 path.objects().set(i, value); // TODO mutable structure. No way

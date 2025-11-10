@@ -16,6 +16,20 @@
 
 package org.qubership.itool.utils;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.collect.Streams;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.pointer.JsonPointer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -31,25 +45,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.collect.Streams;
-
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.pointer.JsonPointer;
-
 public class YamlParser {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(YamlParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(YamlParser.class);
 
     // When encountering new corner cases, add them to TestYamlParser
 
@@ -94,14 +92,13 @@ public class YamlParser {
             + "([^\\'\\\"\\s])"
             // trailing spaces (to be omitted)
             + "\\s*$");
-//    protected static final String SPRING_SUBST_PROTECTOR_REPLACEMENT = "$1'$2$3'";
+    //    protected static final String SPRING_SUBST_PROTECTOR_REPLACEMENT = "$1'$2$3'";
 
 
-    protected static final YAMLFactory defaultYamlFactory = new YAMLFactory();
+    protected static final YAMLFactory DEFAULT_YAML_FACTORY = new YAMLFactory();
 
-    protected static final ObjectMapper defaultMapper = new ObjectMapper(defaultYamlFactory)
-        .findAndRegisterModules();
-
+    protected static final ObjectMapper DEFAULT_MAPPER =
+            new ObjectMapper(DEFAULT_YAML_FACTORY).findAndRegisterModules();
 
     boolean logNormalizedData = true;
 
@@ -112,6 +109,11 @@ public class YamlParser {
      */
     public void setLogNormalizedData(boolean logNormalizedData) {
         this.logNormalizedData = logNormalizedData;
+    }
+
+    public List<Object> parseYamlData(String yaml, String sourceId)
+            throws IOException, JsonParseException {
+        return parseYaml(new StringReader(yaml), sourceId);
     }
 
     /**
@@ -127,10 +129,6 @@ public class YamlParser {
         try (Reader reader = new FileReader(file, JsonUtils.UTF_8)) {
             return parseYaml(reader, file.getAbsolutePath());
         }
-    }
-
-    public List<Object> parseYamlData(String yaml, String sourceId) throws IOException, JsonParseException {
-        return parseYaml(new StringReader(yaml), sourceId);
     }
 
     /**
@@ -163,14 +161,14 @@ public class YamlParser {
 
     public List<Object> parseSafeYaml(Reader reader, String sourceId) throws IOException, JsonParseException {
         try {
-// This code produces maps with null keys, according to YAML specs:
-//        Yaml yaml = new Yaml();
-//        int index = 0;
-//        for (Object data: yaml.loadAll(normalizedData)) {
-//            processYamlDocument(domain, component, fileName, index++, data);
-//        }
+            // This code produces maps with null keys, according to YAML specs:
+            //        Yaml yaml = new Yaml();
+            //        int index = 0;
+            //        for (Object data: yaml.loadAll(normalizedData)) {
+            //            processYamlDocument(domain, component, fileName, index++, data);
+            //        }
 
-// This code produces "~" keys, compatible with JSON model:
+            // This code produces "~" keys, compatible with JSON model:
             MappingIterator<JsonNode> values = getMapper().readValues(
                 getJsonFactory().createParser(reader), JsonNode.class);
             List<Object> subDocuments = Streams.stream(values)
@@ -234,11 +232,11 @@ public class YamlParser {
     }
 
     protected ObjectMapper getMapper() {
-        return defaultMapper;
+        return DEFAULT_MAPPER;
     }
 
     private JsonFactory getJsonFactory() {
-        return defaultYamlFactory;
+        return DEFAULT_YAML_FACTORY;
     }
 
     protected Object nodeToValue(JsonNode node) {
@@ -261,16 +259,6 @@ public class YamlParser {
             fixSpringYamlModel(new JsonObject(((Map) obj)));
         } else if (obj instanceof JsonObject) {
             fixSpringYamlModel((JsonObject) obj);
-        }
-    }
-
-    public void fixSpringYamlModels(List<?> list) {
-        fixSpringYamlModel(new JsonArray(list));
-    }
-
-    public void fixSpringYamlModels(JsonArray list) {
-        for (Object obj : list) {
-            fixSpringYamlModel(obj);
         }
     }
 
@@ -310,4 +298,13 @@ public class YamlParser {
         }
     }
 
+    public void fixSpringYamlModels(List<?> list) {
+        fixSpringYamlModel(new JsonArray(list));
+    }
+
+    public void fixSpringYamlModels(JsonArray list) {
+        for (Object obj : list) {
+            fixSpringYamlModel(obj);
+        }
+    }
 }

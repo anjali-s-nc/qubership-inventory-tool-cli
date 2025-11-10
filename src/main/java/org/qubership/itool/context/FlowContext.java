@@ -16,16 +16,15 @@
 
 package org.qubership.itool.context;
 
-import java.io.File;
-import java.util.Map;
-
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphClassifier;
 import org.qubership.itool.modules.graph.GraphService;
 import org.qubership.itool.modules.report.GraphReport;
+
+import java.io.File;
+import java.util.Map;
 
 public interface FlowContext {
 

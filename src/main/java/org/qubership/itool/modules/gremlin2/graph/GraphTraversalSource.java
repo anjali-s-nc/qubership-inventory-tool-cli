@@ -16,12 +16,12 @@
 
 package org.qubership.itool.modules.gremlin2.graph;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.BasicGraph;
 import org.qubership.itool.modules.gremlin2.GremlinException;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.step.GraphStep;
 import org.qubership.itool.modules.gremlin2.util.ElementType;
-import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;

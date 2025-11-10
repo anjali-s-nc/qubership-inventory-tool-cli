@@ -16,23 +16,28 @@
 
 package org.qubership.itool.tasks.parsing.configuration;
 
-import org.qubership.itool.modules.parsing.InventoryJsonParser;
-import org.qubership.itool.tasks.FlowTask;
-
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
+import jakarta.inject.Provider;
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.modules.parsing.InventoryJsonParser;
 import org.qubership.itool.modules.processor.GraphMetaInfoSupport;
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.ConfigUtils;
 import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.qubership.itool.cli.ci.CiConstants.*;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Resource;
+
+import static org.qubership.itool.cli.ci.CiConstants.P_INPUT_DIRECTORY;
+import static org.qubership.itool.cli.ci.CiConstants.P_REPOSITORY;
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.modules.graph.Graph.F_MOCK_FLAG;
 import static org.qubership.itool.modules.graph.Graph.F_REPOSITORY;
@@ -43,18 +48,12 @@ import static org.qubership.itool.modules.graph.GraphDataConstants.UNKNOWN;
 import static org.qubership.itool.modules.graph.GraphDataConstants.UNKNOWN_DOMAIN_NAME;
 import static org.qubership.itool.utils.ConfigProperties.RELEASE_BRANCH_POINTER;
 
-import java.io.File;
-import java.util.*;
-
-import javax.annotation.Resource;
-
-import jakarta.inject.Provider;
-
 public class ParseApplicationInventoryFileTask extends FlowTask {
     @Resource
     Provider<InventoryJsonParser> inventoryJsonParserProvider;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ParseApplicationInventoryFileTask.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(ParseApplicationInventoryFileTask.class);
 
     @Override
     protected void taskStart(Promise<?> taskPromise) throws Exception {
@@ -94,7 +93,7 @@ public class ParseApplicationInventoryFileTask extends FlowTask {
 
         JsonArray components = inv.getJsonArray("components");
         Map<String, JsonObject> domainsCache = new HashMap<>();
-        for (Object o: components) {
+        for (Object o : components) {
             JsonObject compDesc = JsonUtils.asJsonObject(o);
 
             String compId = compDesc.getString("id");

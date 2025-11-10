@@ -17,33 +17,50 @@
 package org.qubership.itool.cli;
 
 import com.google.common.reflect.ClassPath;
-import org.qubership.itool.context.FlowContext;
-import org.qubership.itool.tasks.FlowTask;
-
-import io.vertx.core.*;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.Promise;
+import io.vertx.core.ThreadingModel;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.qubership.itool.context.FlowContext;
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.FSUtils;
 import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.qubership.itool.utils.ConfigProperties.START_STEP_PROPERTY;
-import java.io.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.annotation.Resource;
+
+import static org.qubership.itool.utils.ConfigProperties.START_STEP_PROPERTY;
 
 
 public abstract class FlowMainVerticle extends AbstractVerticle {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(FlowMainVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FlowMainVerticle.class);
 
     protected Logger getLogger() {
         return LOG;
@@ -56,7 +73,7 @@ public abstract class FlowMainVerticle extends AbstractVerticle {
     protected FlowContext flowContext;
     protected long executionStart;
 
-    private final Handler<Throwable> TERMINATOR = this::terminateFlow;
+    private final Handler<Throwable> terminator = this::terminateFlow;
 
     public JsonObject config() {
         return flowContext.getConfig();
@@ -80,7 +97,7 @@ public abstract class FlowMainVerticle extends AbstractVerticle {
             .setConfig(flowContext.getConfig());
         deployThisVerticle(flowContext.getVertx(), options)
             .onSuccess(depId -> deploymentIdHolder.set(depId))
-            .onFailure(TERMINATOR);
+            .onFailure(terminator);
 
         return flowPromise.future();
     }
@@ -194,7 +211,7 @@ public abstract class FlowMainVerticle extends AbstractVerticle {
         List<FlowTask> taskInstances = new ArrayList<>();
 
         boolean skip = true;
-        for (String taskName: flowSequence) {
+        for (String taskName : flowSequence) {
             // Skip everything before the first step
             if (skip) {
                 if (taskName.equals(startStep)) {
@@ -214,11 +231,11 @@ public abstract class FlowMainVerticle extends AbstractVerticle {
 
         // We are in some VertX thread where FlowMainVerticle.start() was invoked by VertX. Let's proceed right here.
         Future<?> chainReaction = Future.succeededFuture();
-        for (FlowTask taskInstance: taskInstances) {
+        for (FlowTask taskInstance : taskInstances) {
             chainReaction = chainReaction.compose(r -> taskInstance.startInFlow());
         }
         chainReaction
-            .onFailure(TERMINATOR)
+            .onFailure(terminator)
             .onSuccess(r -> finishFlow());
     }
 
@@ -243,7 +260,7 @@ public abstract class FlowMainVerticle extends AbstractVerticle {
         Map<String, Class<? extends FlowTask>> classes = new HashMap<>();
         ClassLoader taskClassLoader = flowContext.getTaskClassLoader();
 
-        for (ClassPath.ClassInfo info: ClassPath.from(taskClassLoader).getTopLevelClasses()) {
+        for (ClassPath.ClassInfo info : ClassPath.from(taskClassLoader).getTopLevelClasses()) {
             String shortName = info.getSimpleName();
             if (! simpleNames.contains(shortName)) {
                 continue;
@@ -262,7 +279,7 @@ public abstract class FlowMainVerticle extends AbstractVerticle {
         // Map<taskName to class>
         Map<String, Class<? extends FlowTask>> result = new LinkedHashMap<>();
         Set<String> missedTasks = new LinkedHashSet<>();
-        for (Map.Entry<String, Collection<String>> e: taskToPossibleNames.entrySet()) {
+        for (Map.Entry<String, Collection<String>> e : taskToPossibleNames.entrySet()) {
             Optional<Class<? extends FlowTask>> clazz = e.getValue().stream()
                     .filter(simpleName -> classes.containsKey(simpleName))
                     .findAny()

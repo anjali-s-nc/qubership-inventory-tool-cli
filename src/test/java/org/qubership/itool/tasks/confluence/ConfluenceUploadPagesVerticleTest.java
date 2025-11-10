@@ -19,9 +19,11 @@ package org.qubership.itool.tasks.confluence;
 import io.vertx.core.json.JsonObject;
 import org.junit.jupiter.api.Test;
 
-import static org.qubership.itool.tasks.confluence.ConfluenceUploadPagesVerticle.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.qubership.itool.tasks.confluence.ConfluenceUploadPagesVerticle.ACTION_CREATE;
+import static org.qubership.itool.tasks.confluence.ConfluenceUploadPagesVerticle.ACTION_KEY_ACTION;
+import static org.qubership.itool.tasks.confluence.ConfluenceUploadPagesVerticle.ACTION_KEY_GENERATED_PAGE;
 import static org.qubership.itool.utils.ConfigProperties.UPLOAD_KEY_ALL;
 import static org.qubership.itool.utils.ConfigProperties.UPLOAD_KEY_NONE;
 

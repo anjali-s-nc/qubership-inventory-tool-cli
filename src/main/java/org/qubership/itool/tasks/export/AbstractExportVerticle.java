@@ -16,11 +16,10 @@
 
 package org.qubership.itool.tasks.export;
 
-import org.qubership.itool.tasks.FlowTask;
-import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.json.JsonObject;
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.FSUtils;
 
 import java.io.File;
@@ -34,10 +33,10 @@ public abstract class AbstractExportVerticle extends FlowTask {
     protected abstract void build(String finalExportPath) throws IOException;
 
     protected WorkerExecutor getWorkerExecutor() {
-        return vertx.createSharedWorkerExecutor(getTaskAddress() + "-export-worker-pool"
-            , 1
-            , 60
-            , TimeUnit.MINUTES);
+        return vertx.createSharedWorkerExecutor(getTaskAddress() + "-export-worker-pool",
+            1,
+            60,
+            TimeUnit.MINUTES);
     }
 
     @Override
@@ -46,7 +45,7 @@ public abstract class AbstractExportVerticle extends FlowTask {
         String finalExportPath = exportPath;
 
 
-        LOG.info("Scheduling blocking execution of " + getTaskAddress()
+        getLogger().info("Scheduling blocking execution of " + getTaskAddress()
                 + " process in a separate thread");
         WorkerExecutor executor = getWorkerExecutor();
 

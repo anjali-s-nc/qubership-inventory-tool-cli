@@ -16,20 +16,18 @@
 
 package org.qubership.itool.modules.processor.matchers;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.graph.Graph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.modules.graph.Graph;
-
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-
-import static org.qubership.itool.modules.graph.Graph.F_MOCKED_FOR;
 import static org.qubership.itool.modules.graph.Graph.F_ID;
+import static org.qubership.itool.modules.graph.Graph.F_MOCKED_FOR;
 
 /**
  * Default implementation of MockFieldExtractor.

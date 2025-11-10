@@ -16,12 +16,12 @@
 
 package org.qubership.itool.modules.gremlin2.graph;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.P;
 import org.qubership.itool.modules.gremlin2.Path;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.step.util.Tree;
 import org.qubership.itool.modules.gremlin2.util.Order;
-import io.vertx.core.json.JsonObject;
 
 import java.util.List;
 import java.util.Map;
@@ -269,6 +269,17 @@ public class __ {
     }
 
     /**
+     * Projects the traversal to a specific property value.
+     *
+     * @param <A> the type of the traversal
+     * @param propertyKey the property key
+     * @return a traversal that yields the property value
+     */
+    public static <A> GraphTraversal<A, A> value(String propertyKey) {
+        return __.<A>start().value(propertyKey);
+    }
+
+    /**
      * Replaces values in the traversal using regex.
      *
      * @param <A> the type of the traversal
@@ -324,17 +335,6 @@ public class __ {
     }
 
     /**
-     * Captures a side effect with the given key.
-     *
-     * @param <A> the type of the traversal
-     * @param sideEffectKey the key for the side effect
-     * @return a traversal with captured side effects
-     */
-    public static <A> GraphTraversal<A, A> cap(String sideEffectKey) {
-        return __.<A>start().cap(sideEffectKey);
-    }
-
-    /**
      * Selects multiple previously labeled steps.
      *
      * @param <A> the type of the traversal
@@ -343,6 +343,17 @@ public class __ {
      */
     public static <A> GraphTraversal<A, Map<String, A>> select(String... selectKeys) {
         return __.<A>start().select(selectKeys);
+    }
+
+    /**
+     * Captures a side effect with the given key.
+     *
+     * @param <A> the type of the traversal
+     * @param sideEffectKey the key for the side effect
+     * @return a traversal with captured side effects
+     */
+    public static <A> GraphTraversal<A, A> cap(String sideEffectKey) {
+        return __.<A>start().cap(sideEffectKey);
     }
 
     /**
@@ -469,17 +480,6 @@ public class __ {
      */
     public static <A> GraphTraversal<A, JsonObject> bothV() {
         return __.<A>start().bothV();
-    }
-
-    /**
-     * Projects the traversal to a specific property value.
-     *
-     * @param <A> the type of the traversal
-     * @param propertyKey the property key
-     * @return a traversal that yields the property value
-     */
-    public static <A> GraphTraversal<A, A> value(String propertyKey) {
-        return __.<A>start().value(propertyKey);
     }
 
     /**

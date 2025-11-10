@@ -17,19 +17,24 @@
 package org.qubership.itool.modules.graph;
 
 import com.google.common.cache.CacheStats;
+import com.google.inject.Module;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Provider;
-
-import com.google.inject.Module;
-
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.qubership.itool.di.ApplicationContext;
 import org.qubership.itool.di.QubershipModule;
 import org.qubership.itool.modules.report.GraphReport;
-import org.qubership.itool.modules.report.GraphReportImpl;
-import org.junit.jupiter.api.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -52,7 +57,8 @@ public class TestGraphService {
     public void setup() {
 
         JsonObject config = new JsonObject();
-        ApplicationContext appContext = new ApplicationContext(vertx, config, new Module[] {new QubershipModule(vertx)});
+        ApplicationContext appContext =
+                new ApplicationContext(vertx, config, new Module[] {new QubershipModule(vertx)});
         Provider<Graph> graphProvider = () -> new GraphImpl();
         Provider<GraphReport> graphReportProvider = appContext.getInjector().getProvider(GraphReport.class);
 
@@ -101,7 +107,7 @@ public class TestGraphService {
         Graph graph12 = graphService.getGraphByClassifier(classifier12);
         // Now another Graph is present with report
         assertNotNull(graph12);
-//        assertNotSame(graph11, graph12);
+        //assertNotSame(graph11, graph12);
 
         // Now classifier11 refers to the same graph as classifier12
         assertSame(graph12, graphService.getGraphByClassifier(classifier11));

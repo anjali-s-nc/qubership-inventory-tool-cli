@@ -16,12 +16,10 @@
 
 package org.qubership.itool.modules.processor;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.pointer.JsonPointer;
 import org.apache.commons.lang3.StringUtils;
-
 import org.qubership.itool.modules.graph.FalloutDto;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDataConstants;
@@ -29,12 +27,15 @@ import org.qubership.itool.modules.graph.GraphDumpSupport;
 import org.qubership.itool.utils.ConfigUtils;
 import org.qubership.itool.utils.JsonUtils;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.pointer.JsonPointer;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.qubership.itool.utils.JsonUtils.*;
-
+import static org.qubership.itool.utils.JsonUtils.asJsonObject;
+import static org.qubership.itool.utils.JsonUtils.copyValueIfAbsent;
+import static org.qubership.itool.utils.JsonUtils.copyValueIfNotNull;
+import static org.qubership.itool.utils.JsonUtils.getOrCreateJsonArray;
+import static org.qubership.itool.utils.JsonUtils.getOrCreateJsonObject;
 
 /**
  * Encapsulates all operations with format of meta-info.
@@ -86,15 +87,14 @@ public class GraphMetaInfoSupport {
     public static final String TYPE_COMPONENT = "component";
     public static final String TYPE_NAMESPACE = "namespace";
 
-
-    public static final JsonPointer srcGraphsPtr = JsonPointer.from("/" + ASSEMBLY + "/" + SOURCES);
-    public static final JsonPointer srcGraphsDroppedPtr = JsonPointer.from("/" + ASSEMBLY + "/" + SOURCES_DROPPED);
-
+    public static final JsonPointer SRC_GRAPHS_PTR = JsonPointer.from("/" + ASSEMBLY + "/" + SOURCES);
+    public static final JsonPointer SRC_GRAPHS_DROPPED_PTR = JsonPointer.from("/" + ASSEMBLY + "/" + SOURCES_DROPPED);
 
     //------------------------------------------------------
     // Fallout reports
 
     /** Get fallout report from dump.
+     *
      * @see JsonUtils#getFalloutReportFromDump(JsonObject)
      *
      * @param dump Dump to extract fallout report from
@@ -102,9 +102,11 @@ public class GraphMetaInfoSupport {
      */
     public static List<FalloutDto> getFalloutReportFromDump(JsonObject dump) {
         if (! GraphDumpSupport.isGraphDumpSupported(dump)) {
-            throw new IllegalArgumentException("Graph dump version is not supported: " + GraphDumpSupport.getGraphModelVersion(dump));
+            throw new IllegalArgumentException("Graph dump version is not supported: "
+                    + GraphDumpSupport.getGraphModelVersion(dump));
         }
-        JsonArray array = (JsonArray) JsonPointer.from("/graph/root/" + ASSEMBLY + "/" + SOURCES_DROPPED).queryJson(dump);
+        JsonArray array = (JsonArray) JsonPointer
+                .from("/graph/root/" + ASSEMBLY + "/" + SOURCES_DROPPED).queryJson(dump);
         if (array == null) {
             return Collections.emptyList();
         }
@@ -122,14 +124,16 @@ public class GraphMetaInfoSupport {
         case TYPE_COMPONENT:
             // Try to get app name from reportOrigin
             Object o = JsonPointer.from("/" + DROPPED_REPORT_ORIGIN + "/" + NAME).queryJson(src);
-            if (o == null && meta != null && TYPE_APPLICATION.equals(meta.getValue(TYPE))) {    // Try to get app name from meta
+            // Try to get app name from meta
+            if (o == null && meta != null && TYPE_APPLICATION.equals(meta.getValue(TYPE))) {
                 o = meta.getValue(NAME);
             }
             appName = o != null ? o.toString() : UNKNOWN;
 
             // Try to get app version from reportOrigin
             o = JsonPointer.from("/" + DROPPED_REPORT_ORIGIN + "/" + VERSION).queryJson(src);
-            if (o == null && meta != null && TYPE_APPLICATION.equals(meta.getValue(TYPE))) {    // Try to get app version from meta
+            // Try to get app version from meta
+            if (o == null && meta != null && TYPE_APPLICATION.equals(meta.getValue(TYPE))) {
                 o = meta.getValue(VERSION);
             }
             appVersion = o != null ? o.toString() : UNKNOWN;
@@ -157,7 +161,7 @@ public class GraphMetaInfoSupport {
     // Create meta-info
 
     public static String getInventoryToolVersion() {
-        return (String)ConfigUtils.getInventoryToolBuildProperties().get("inventory.tool.version");
+        return (String) ConfigUtils.getInventoryToolBuildProperties().get("inventory.tool.version");
     }
 
     /** Create meta-info inside a component graph.
@@ -302,7 +306,7 @@ public class GraphMetaInfoSupport {
         copyValueIfNotNull(sourceDesc, errorReport, ASSEMBLY);
 
         JsonObject targetRoot = targetGraph.getVertex(Graph.V_ROOT);
-        ((JsonArray)srcGraphsDroppedPtr.queryJson(targetRoot)).add(errorReport);
+        ((JsonArray) SRC_GRAPHS_DROPPED_PTR.queryJson(targetRoot)).add(errorReport);
     }
 
     // Accepts descriptors (see constants in MergerApi), updates meta-info
@@ -319,17 +323,17 @@ public class GraphMetaInfoSupport {
         copyValueIfAbsent(sourceRootMeta, targetDesc, INVENTORY_TOOL_VERSION);
 
         // ... add that copy of source meta-info into "/assembly/sourceGraphs" of target meta-info
-        JsonArray sourcesList = JsonUtils.getOrCreateJsonArray(targetRoot, srcGraphsPtr);
+        JsonArray sourcesList = JsonUtils.getOrCreateJsonArray(targetRoot, SRC_GRAPHS_PTR);
         sourcesList.add(sourceMetaInfo);
 
         // Propagate fallout report from source graph to target fallout report
         JsonArray sourceFallout = sourceRootMeta != null ? sourceRootMeta.getJsonArray(SOURCES_DROPPED) : null;
         if (sourceFallout != null) {
-            for (Object obj: sourceFallout) {
+            for (Object obj : sourceFallout) {
                 JsonObject jsonFallout = asJsonObject(obj);
                 JsonObject errorReport = jsonFallout.copy();
                 errorReport.put(DROPPED_REPORT_ORIGIN, copyDescToInfo(sourceDesc));
-                ((JsonArray)srcGraphsDroppedPtr.queryJson(targetRoot)).add(errorReport);
+                ((JsonArray) SRC_GRAPHS_DROPPED_PTR.queryJson(targetRoot)).add(errorReport);
             }
         }
     }

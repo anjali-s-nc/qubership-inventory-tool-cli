@@ -17,7 +17,6 @@
 package org.qubership.itool.tasks.export;
 
 import io.vertx.core.json.JsonObject;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.qubership.itool.modules.gremlin2.P;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
@@ -26,7 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.qubership.itool.modules.gremlin2.P.eq;
 import static org.qubership.itool.modules.gremlin2.P.neq;
@@ -34,7 +38,7 @@ import static org.qubership.itool.modules.gremlin2.graph.__.outE;
 import static org.qubership.itool.modules.gremlin2.graph.__.select;
 
 public class ExportCSVJavaDependenciesVerticle extends AbstractExportVerticle {
-    protected Logger LOG = LoggerFactory.getLogger(ExportCSVJavaDependenciesVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExportCSVJavaDependenciesVerticle.class);
 
     @Override
     protected String[] features() {
@@ -122,7 +126,7 @@ public class ExportCSVJavaDependenciesVerticle extends AbstractExportVerticle {
     private void separatedList(StringBuilder builder, List<JsonObject> components) {
         Collections.sort(components, Comparator.comparing(o -> o.getString("id")));
         builder.append("\"");
-        for (int i=0; i<components.size() ; i++) {
+        for (int i = 0; i < components.size(); i++) {
             builder.append(components.get(i).getString("id"));
             if (i != components.size() - 1) {
                 builder.append(", ");
@@ -174,10 +178,9 @@ public class ExportCSVJavaDependenciesVerticle extends AbstractExportVerticle {
 
         @Override
         public int compareTo(JavaDependency o1) {
-            if (   groupId.equals(o1.groupId)
+            if (groupId.equals(o1.groupId)
                 && artifactId.equals(o1.artifactId)
-                && version.equals(o1.version))
-            {
+                && version.equals(o1.version)) {
                 return 0;
             }
 

@@ -16,8 +16,8 @@
 
 package org.qubership.itool.cli.query.cmd;
 
-import org.qubership.itool.cli.query.CliContext;
 import io.vertx.core.Vertx;
+import org.qubership.itool.cli.query.CliContext;
 
 public class ExitCommand extends AbstractCliCommand {
 

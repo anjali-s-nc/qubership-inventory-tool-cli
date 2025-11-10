@@ -72,10 +72,14 @@ public class DefaultGraphTraversal<S, E> implements GraphTraversal<S, E>, GraphT
         Step nextStep = this.steps.size() > index + 1 ? steps.get(index + 1) : null;
         step.setPreviousStep(null != previousStep ? previousStep : EmptyStep.getInstance());
         step.setNextStep(null != nextStep ? nextStep : EmptyStep.getInstance());
-        if (null != previousStep) previousStep.setNextStep(step);
-        if (null != nextStep) nextStep.setPreviousStep(step);
+        if (null != previousStep) {
+            previousStep.setNextStep(step);
+        }
+        if (null != nextStep) {
+            nextStep.setPreviousStep(step);
+        }
         step.setTraversal(this);
-        return (Traversal.Admin<S2, E2>)this;
+        return (Traversal.Admin<S2, E2>) this;
     }
 
     @Override

@@ -77,14 +77,17 @@ public class ResourceLocator {
 
     /**
      * Construct URL to the artifact in artifactory
-     * @param versionId version ID (folder of the artifact), could be snapshot version, e.g. "main-SNAPSHOT",
-     *                  or release version ("release-2024-2-1.011.017-RELEASE")
-     * @param snapshotVersionId specific version of the artifact, e.g. "main-20240611.150219-1211" or "release-2024-2-1.011.017-RELEASE"
+     *
+     * @param versionId version ID (folder of the artifact), could be snapshot version, e.g.
+     *        "main-SNAPSHOT", or release version ("release-2024-2-1.011.017-RELEASE")
+     * @param snapshotVersionId specific version of the artifact, e.g. "main-20240611.150219-1211"
+     *        or "release-2024-2-1.011.017-RELEASE"
      * @param artifactClassifier Classifier of the artifact, e.g. "-graph"
      * @param extension File name extension, e.g. ".json"
      * @return URL of the artifact
      */
-    public String getArtifactUrl(String versionId, String snapshotVersionId, String artifactClassifier, String extension) {
+    public String getArtifactUrl(String versionId, String snapshotVersionId,
+            String artifactClassifier, String extension) {
         if (StringUtils.isNotEmpty(artifactClassifier)) {
             return getBaseUrl(versionId)
                     + artifactId + '-' + snapshotVersionId + '-' + artifactClassifier + '.' + extension;
@@ -96,6 +99,7 @@ public class ResourceLocator {
 
     /**
      * Construct URL to the artifact in artifactory based on version and snapshot descriptor
+     *
      * @param versionId Artifact version
      * @param snapshot artifact snapshot descriptor
      * @return URL of the artifact
@@ -107,6 +111,7 @@ public class ResourceLocator {
     /**
      * Construct URL to the release artifact in artifactory by version
      * Similar to getArtifactUrl() where versionId equals snapshotVersionId
+     *
      * @param versionId Release version
      * @param descriptor SnapshotFilter with classifier and file extension
      * @return URL of the release artifact
@@ -119,6 +124,7 @@ public class ResourceLocator {
     /**
      * Construct URL of the snapshot artifact in artifactory by version and snapshot filter descriptor
      * Similar to getArtifactUrl(), but snapshotVersionId is extracted from versionId to provide proper folder
+     *
      * @param versionId Release version
      * @param descriptor SnapshotFilter with classifier and file extension
      * @return URL of the snapshot artifact

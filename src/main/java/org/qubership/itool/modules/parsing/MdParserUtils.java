@@ -16,13 +16,21 @@
 
 package org.qubership.itool.modules.parsing;
 
+import org.commonmark.ext.gfm.tables.TableBlock;
+import org.commonmark.ext.gfm.tables.TableBody;
+import org.commonmark.ext.gfm.tables.TableCell;
+import org.commonmark.ext.gfm.tables.TableHead;
+import org.commonmark.ext.gfm.tables.TableRow;
+import org.commonmark.node.Heading;
+import org.commonmark.node.Link;
+import org.commonmark.node.Node;
+import org.commonmark.node.Paragraph;
+import org.commonmark.node.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-
-import org.commonmark.ext.gfm.tables.*;
-import org.commonmark.node.*;
 
 /**
  * Contains useful common methods for MD parsers
@@ -36,7 +44,7 @@ public class MdParserUtils {
             if (textNode instanceof Text) {
                 return ((Text) textNode).getLiteral();
             } else if (textNode instanceof Link) {
-                return ((Link)textNode).getDestination();
+                return ((Link) textNode).getDestination();
             } else {
                 return null;
             }
@@ -47,7 +55,7 @@ public class MdParserUtils {
             if (textNode instanceof Text) {
                 return ((Text) textNode).getLiteral().toLowerCase();
             } else if (textNode instanceof Link) {
-                return ((Link)textNode).getDestination().toLowerCase();
+                return ((Link) textNode).getDestination().toLowerCase();
             } else {
                 return null;
             }
@@ -138,8 +146,9 @@ public class MdParserUtils {
         for (int idx = 0; idx < rowCells.size(); idx++) {
             TableCell cell = rowCells.get(idx);
             Node firstChild = cell.getFirstChild();
-            if (firstChild instanceof Text && find.contains(((Text)firstChild).getLiteral()))
+            if (firstChild instanceof Text && find.contains(((Text) firstChild).getLiteral())) {
                 return idx;
+            }
         }
         return null;
     }

@@ -16,21 +16,21 @@
 
 package org.qubership.itool.utils;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-
 import io.vertx.core.json.JsonArray;
+
+import java.io.IOException;
+import java.util.List;
 
 public class JsonArrayDeserializer extends JsonDeserializer<JsonArray> {
 
     @Override
     @SuppressWarnings("rawtypes")
-    public JsonArray deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public JsonArray deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException {
         List list = p.readValueAs(List.class);
         return new JsonArray(list);
     }

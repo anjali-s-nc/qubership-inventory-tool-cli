@@ -16,6 +16,7 @@
 
 package org.qubership.itool.modules.gremlin2.step.filter;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.step.AbstractStep;
@@ -23,7 +24,6 @@ import org.qubership.itool.modules.gremlin2.step.util.HasContainer;
 import org.qubership.itool.modules.gremlin2.step.util.HasContainerHolder;
 import org.qubership.itool.modules.gremlin2.util.TraversalHelper;
 import org.qubership.itool.modules.gremlin2.util.ValueHelper;
-import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +85,7 @@ public class HasStep<S> extends FilterStep<S> implements HasContainerHolder {
 
     @Override
     public AbstractStep<S, S> clone() {
-        HasStep clone = (HasStep)super.clone();
+        HasStep clone = (HasStep) super.clone();
         clone.type = this.type;
         clone.hasContainers = new ArrayList();
         for (HasContainer hasContainer : this.hasContainers) {

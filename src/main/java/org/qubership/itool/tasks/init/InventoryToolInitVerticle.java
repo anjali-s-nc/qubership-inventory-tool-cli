@@ -16,14 +16,12 @@
 
 package org.qubership.itool.tasks.init;
 
-import org.qubership.itool.tasks.FlowTask;
-
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.ConfigUtils;
 import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
@@ -39,7 +37,7 @@ import static org.qubership.itool.cli.config.ConfigProvider.HIDDEN_PROPERTIES;
 
 
 public class InventoryToolInitVerticle extends FlowTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(InventoryToolInitVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InventoryToolInitVerticle.class);
 
     @Override
     protected void taskStart(Promise<?> taskPromise) {
@@ -63,9 +61,8 @@ public class InventoryToolInitVerticle extends FlowTask {
     }
 
     private Future<Void> reportDeleteFailure(Throwable e, Path f) {
-        if (   e instanceof io.vertx.core.file.FileSystemException
-            && e.getCause() instanceof java.nio.file.NoSuchFileException)
-        {
+        if (e instanceof io.vertx.core.file.FileSystemException
+            && e.getCause() instanceof java.nio.file.NoSuchFileException) {
             getLogger().info("Failed to delete {} : file not found", f);
         } else {
             report.internalError("Failed to delete " + f + " : "

@@ -70,7 +70,7 @@ public class DefaultTraverser<T> implements Traverser.Admin<T> {
     @Override
     public <R> Admin<R> split(Step<T, R> step) {
         DefaultTraverser<R> result = new DefaultTraverser<>(
-            (R)this.obj,
+            (R) this.obj,
             this.path.clone().extend(this.obj, step.getLabels())
         );
         return result;

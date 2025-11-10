@@ -17,15 +17,14 @@
 package org.qubership.itool.cli.extract;
 
 import org.qubership.itool.cli.obfuscate.ObfuscationMainVerticle;
-
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 
 public class ExtractMainVerticle extends ObfuscationMainVerticle {
-    protected static final Logger LOG = LoggerFactory.getLogger(ExtractMainVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExtractMainVerticle.class);
 
     protected Logger getLogger() {
         return LOG;

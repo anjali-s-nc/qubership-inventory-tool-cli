@@ -16,8 +16,8 @@
 
 package org.qubership.itool.modules.gremlin2.util;
 
-import org.qubership.itool.modules.gremlin2.Traverser;
 import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.gremlin2.Traverser;
 
 import java.util.Comparator;
 
@@ -27,10 +27,10 @@ public enum Order implements Comparator<Object> {
         @Override
         public int compare(Object first, Object second) {
             if (first instanceof Traverser) {
-                first = ((Traverser)first).get();
+                first = ((Traverser) first).get();
             }
             if (second instanceof Traverser) {
-                second = ((Traverser)second).get();
+                second = ((Traverser) second).get();
             }
 
             if (Compare.bothAreNumber(first, second)) {
@@ -45,10 +45,10 @@ public enum Order implements Comparator<Object> {
                 }
 
             } else if (Compare.bothAreJsonObject(first, second)) {
-                return Compare.compareJsonObject((JsonObject)first, (JsonObject)second);
+                return Compare.compareJsonObject((JsonObject) first, (JsonObject) second);
 
             } else if (first instanceof Comparable) {
-                Comparable firstComparable = (Comparable)first;
+                Comparable firstComparable = (Comparable) first;
                 return firstComparable.compareTo(second);
             }
 
@@ -66,10 +66,10 @@ public enum Order implements Comparator<Object> {
         @Override
         public int compare(Object first, Object second) {
             if (first instanceof Traverser) {
-                first = ((Traverser)first).get();
+                first = ((Traverser) first).get();
             }
             if (second instanceof Traverser) {
-                second = ((Traverser)second).get();
+                second = ((Traverser) second).get();
             }
 
             if (Compare.bothAreNumber(first, second)) {
@@ -84,10 +84,10 @@ public enum Order implements Comparator<Object> {
                 }
 
             } else if (Compare.bothAreJsonObject(first, second)) {
-                return Compare.compareJsonObject((JsonObject)first, (JsonObject)second) * (-1);
+                return Compare.compareJsonObject((JsonObject) first, (JsonObject) second) * (-1);
 
             } else if (first instanceof Comparable) {
-                Comparable firstComparable = (Comparable)first;
+                Comparable firstComparable = (Comparable) first;
                 return firstComparable.compareTo(second) * (-1);
             }
 

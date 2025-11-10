@@ -16,12 +16,15 @@
 
 package org.qubership.itool.cli;
 
-import org.qubership.itool.cli.spi.CommandProvider;
 import org.junit.jupiter.api.Test;
+import org.qubership.itool.cli.spi.CommandProvider;
+
 import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test for the ExtensionCommandProvider SPI mechanism.

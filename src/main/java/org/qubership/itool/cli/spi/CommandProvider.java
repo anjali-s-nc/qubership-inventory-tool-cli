@@ -62,7 +62,7 @@ public interface CommandProvider {
 
     /**
      * Creates a new command instance. The returned command should implement
-     * {@link Callable<Integer>} and optionally use Picocli annotations for CLI parsing.
+     * {@link Callable} and optionally use Picocli annotations for CLI parsing.
      *
      * @return the command instance
      */

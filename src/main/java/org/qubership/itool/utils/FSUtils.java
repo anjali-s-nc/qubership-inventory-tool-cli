@@ -18,9 +18,18 @@ package org.qubership.itool.utils;
 
 import io.vertx.core.json.JsonObject;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -80,10 +89,10 @@ public class FSUtils {
         return new URL(location).openStream();  // Can it return null or always throws an IOException?
     }
 
-    public static synchronized Object getYamlFileContents(Class<?> caller, String location, YamlParser parser) throws IOException {
+    public static synchronized Object getYamlFileContents(Class<?> caller, String location,
+            YamlParser parser) throws IOException {
         try (Reader reader = new InputStreamReader(
-                FSUtils.openUrlStream(caller, location), JsonUtils.UTF_8))
-        {
+                FSUtils.openUrlStream(caller, location), JsonUtils.UTF_8)) {
             List<Object> data = parser.parseYaml(reader, "yaml-parser/spring.yml");
             parser.fixSpringYamlModel(data);
 
@@ -91,11 +100,12 @@ public class FSUtils {
         }
     }
 
-    /*** Open a stream from URL with buffering and GZip support.
+    /**
+     * Open a stream from URL with buffering and GZip support.
      *
      * @param caller Caller class. Used for "classpath:" locations.
-     * @param location Location, usually something like this: "file:...", "classpath:...".
-     * If it ends with ".gz", content is un-gzipped.
+     * @param location Location, usually something like this: "file:...", "classpath:...". If it
+     *        ends with ".gz", content is un-gzipped.
      * @return The input stream
      * @throws IOException IO happened
      */

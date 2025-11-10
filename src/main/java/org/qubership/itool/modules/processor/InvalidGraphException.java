@@ -17,9 +17,7 @@
 package org.qubership.itool.modules.processor;
 
 import io.vertx.core.json.JsonObject;
-
 import org.apache.commons.lang3.StringUtils;
-
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDataConstants;
 

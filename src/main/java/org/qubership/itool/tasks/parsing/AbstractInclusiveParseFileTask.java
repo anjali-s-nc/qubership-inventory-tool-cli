@@ -16,7 +16,6 @@
 
 package org.qubership.itool.tasks.parsing;
 
-import org.qubership.itool.tasks.FlowTask;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.WorkerExecutor;
@@ -26,14 +25,24 @@ import io.vertx.core.json.JsonObject;
 import org.apache.camel.util.AntPathMatcher;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.qubership.itool.modules.report.GraphReport;
+import org.qubership.itool.tasks.FlowTask;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.*;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -52,10 +61,10 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
     @Override
     protected void taskStart(Promise<?> taskPromise) throws Exception {
         Integer coresCount = CpuCoreSensor.availableProcessors();
-        executor = vertx.createSharedWorkerExecutor("parsing-worker-pool"
-                , coresCount
-                , 10
-                , TimeUnit.MINUTES);
+        executor = vertx.createSharedWorkerExecutor("parsing-worker-pool",
+                coresCount,
+                10,
+                TimeUnit.MINUTES);
 
         List<Future<?>> futures = parseFiles(executor, getFilePatterns());
         joinFuturesAndHandleResult(futures)
@@ -73,6 +82,7 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
      * <li>File name patterns like "*.java" (matched in all directories)
      * <li>ANT matcher patterns like "deployments/<code>**</code>/*.yaml"
      * </ul>
+     *
      * @return File patterns
      */
     protected abstract String[] getFilePatterns();
@@ -89,17 +99,17 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
         List<Pattern> shallowPatterns = new ArrayList<>();
         List<String> deepPatterns = new ArrayList<>();
 
-        for (String filePattern: filePatterns) {
+        for (String filePattern : filePatterns) {
             if (!filePattern.contains("*") && !filePattern.contains("?")) {
                 simplePatterns.add(filePattern);
             } else if (!filePattern.contains("/")) {
+                // Build regex pattern:
+                // - "*.ext" requires non-empty part before dot
+                // - "name.*" requires non-empty extension
                 Pattern regex = Pattern.compile(
-                        (filePattern.startsWith("*.") ? "^." : "^") // Pattern "*.ext" requires
-                                                                    // non-empty part before dot
+                        (filePattern.startsWith("*.") ? "^." : "^")
                                 + filePattern.replace(".", "\\.").replace("*", ".*")
-                                + (filePattern.endsWith(".*") ? ".$" : "$"));   // Pattern "name.*"
-                                                                                // requires non-empty
-                                                                                // extension
+                                + (filePattern.endsWith(".*") ? ".$" : "$"));
                 shallowPatterns.add(regex);
             } else {
                 deepPatterns.add(filePattern);
@@ -119,7 +129,7 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
             Future future = executor.executeBlocking(() -> {
                 long startTime = System.nanoTime();
                 List<String> pathList = findAllFiles(component, simplePatterns, shallowPatterns, deepPatterns);
-                for (String fileName: pathList) {
+                for (String fileName : pathList) {
                     try {
                         parseSingleFile(domain, component, fileName);
                     } catch (Exception /*| DecodeException*/ e) {
@@ -154,9 +164,9 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
         String directoryPath = component.getString(F_DIRECTORY);
 
         JsonArray excludeDirs = component.getJsonArray("excludeDirs");
-        Set<Path> topDirExcludes = excludeDirs==null || excludeDirs.isEmpty() ? Collections.emptySet()
+        Set<Path> topDirExcludes = excludeDirs == null || excludeDirs.isEmpty() ? Collections.emptySet()
                 : excludeDirs.stream()
-                .map(s -> Path.of( (String)s ))
+                .map(s -> Path.of((String) s))
                 .collect(Collectors.toSet());
 
         for (String filePattern : simplePatterns) {
@@ -177,7 +187,7 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
                 shallowPatterns, deepPatterns, topDirExcludes);
         try {
             Files.walkFileTree(basePath, visitor);
-        } catch (UncheckedIOException|IOException e) {
+        } catch (UncheckedIOException | IOException e) {
             report.addMessage(GraphReport.EXCEPTION, component,
                     "Critical failure during file walking procedure:\n" + ExceptionUtils.getStackTrace(e));
         }
@@ -248,8 +258,7 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
         }
 
         @Override
-        public FileVisitResult visitFileFailed(T file, IOException exc) throws IOException
-        {
+        public FileVisitResult visitFileFailed(T file, IOException exc) throws IOException {
             report.addMessage(GraphReport.EXCEPTION,
                     new JsonObject().put("id", "iTool"),
                     "File walking failure during attempt to visit file " + file.toString()
@@ -259,8 +268,7 @@ public abstract class AbstractInclusiveParseFileTask extends FlowTask {
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(T dir, BasicFileAttributes attrs) throws IOException
-        {
+        public FileVisitResult preVisitDirectory(T dir, BasicFileAttributes attrs) throws IOException {
             super.preVisitDirectory(dir, attrs);
             Path relativePath = basePath.relativize(dir);
             if (isExcluded(topDirExcludes, relativePath, dir)) {

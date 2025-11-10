@@ -16,25 +16,28 @@
 
 package org.qubership.itool.tasks.dependency;
 
-import org.qubership.itool.tasks.FlowTask;
-
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.gremlin2.P;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 import org.qubership.itool.modules.gremlin2.graph.__;
 import org.qubership.itool.modules.report.GraphReport;
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.JsonUtils;
 import org.qubership.itool.utils.LanguageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.qubership.itool.modules.graph.Graph.F_DNS_NAME;
 import static org.qubership.itool.modules.graph.Graph.F_DNS_NAMES;
@@ -52,11 +55,13 @@ import static org.qubership.itool.modules.graph.GraphDataConstants.COMP_DEPENDEN
 import static org.qubership.itool.modules.graph.GraphDataConstants.NOS_TO_RECOGNIZE;
 import static org.qubership.itool.modules.gremlin2.P.eq;
 import static org.qubership.itool.modules.gremlin2.P.neq;
-import static org.qubership.itool.modules.gremlin2.graph.__.*;
+import static org.qubership.itool.modules.gremlin2.graph.__.has;
+import static org.qubership.itool.modules.gremlin2.graph.__.outE;
+import static org.qubership.itool.modules.gremlin2.graph.__.select;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SetEdgesBetweenComponentsVerticle extends FlowTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(SetEdgesBetweenComponentsVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SetEdgesBetweenComponentsVerticle.class);
 
     public static final String INFRA_VERTEX_ID = "Infra";
 
@@ -75,8 +80,8 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
             .has("component", eq(select("C").id()))
             .inV()
             .or(
-                has("groupId", eq("org.springframework.boot"))
-                , has("groupId", eq("io.quarkus"))
+                has("groupId", eq("org.springframework.boot")),
+                has("groupId", eq("io.quarkus"))
             ).as("F")
             .select("C", "F")
             .<String>values("/C/id", "/F/groupId", "/F/version").dedup()
@@ -130,7 +135,7 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
 
     private void processLanguageArtifactDependencies(JsonObject component,
             Map<String, List<String>> librariesArtifacts) {
-        if (LanguageUtils.hasLanguage(graph, component, "GoLang")){
+        if (LanguageUtils.hasLanguage(graph, component, "GoLang")) {
             processGoDependencies(component, librariesArtifacts);
         } else {
             processMavenDependencies(component, librariesArtifacts);
@@ -236,7 +241,7 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
         }
     }
 
-    private  void processGoDependencies(JsonObject component, Map<String, List<String>> librariesArtifacts){
+    private  void processGoDependencies(JsonObject component, Map<String, List<String>> librariesArtifacts) {
         String componentId = component.getString(F_ID);
         List<String> dependencies = V(componentId).as("C").out("module")
                 .outE("dependency")
@@ -336,7 +341,7 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
         JsonObject deployOptions = (JsonObject) JsonPointer
                 .from("/details/deploymentConfiguration/deployOptions").queryJson(component);
         if (deployOptions != null) {
-            if (!deployOptions.getString("generateFacadeGateway", "false").equals("false")){
+            if (!deployOptions.getString("generateFacadeGateway", "false").equals("false")) {
                 gateways.add("FACADE");
             }
             if (deployOptions.containsKey("generateNamedGateway")) {
@@ -411,7 +416,7 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
             return;
         }
         String databaseName = detailsJson.getString("item");
-        if (   StringUtils.isEmpty(databaseName)
+        if (StringUtils.isEmpty(databaseName)
             || NOS_TO_RECOGNIZE.contains(databaseName.toLowerCase())) {
             // Skip missed items
             return;
@@ -480,7 +485,7 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
         getLogger().debug("{}: Processing http dependencies", component.getString(F_ID));
         JsonObject dependencies = (JsonObject) JsonPointer.from("/details/dependencies").queryJson(component);
         if (dependencies == null) {
-            getLogger().debug( "Dependencies are null for {}", component.getString("id"));
+            getLogger().debug("Dependencies are null for {}", component.getString("id"));
             return;
         }
         COMP_DEPENDENCY_TYPES.forEach((key, value) ->
@@ -550,9 +555,7 @@ public class SetEdgesBetweenComponentsVerticle extends FlowTask {
     private static final JsonPointer DNS_NAME_PTR = JsonPointer.from(P_DETAILS_DNS_NAME);
 
     private static String getEdgeType(String type, JsonObject sourceComponent, JsonObject destinationComponent) {
-        if (   isGqls(destinationComponent)
-            || "optional".equals(type) && isGqls(sourceComponent))
-        {
+        if (isGqls(destinationComponent) || "optional".equals(type) && isGqls(sourceComponent)) {
             return "graphql";
         } else {
             return type;

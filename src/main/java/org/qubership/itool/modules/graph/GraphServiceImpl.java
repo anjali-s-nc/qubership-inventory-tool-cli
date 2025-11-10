@@ -20,7 +20,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +28,7 @@ import java.util.concurrent.ExecutionException;
 
 public class GraphServiceImpl implements GraphService {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(GraphServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GraphServiceImpl.class);
 
     private final GraphManager graphManager;
 

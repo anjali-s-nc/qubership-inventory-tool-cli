@@ -61,7 +61,7 @@ public class ListPredefinedQueriesCommand extends AbstractCliCommand {
 
     private void commandList(String command) {
         System.out.println("Predefined query list:");
-        for (int i=0 ; i<this.queryItems.size() ; i++) {
+        for (int i = 0; i < this.queryItems.size(); i++) {
             System.out.println(
                 "(" + (i + 1) + ")\t"
                     + this.queryItems.get(i).getMethod()

@@ -16,19 +16,17 @@
 
 package org.qubership.itool.tasks.repository;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-
+import io.vertx.core.Promise;
+import io.vertx.core.json.JsonObject;
+import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 import org.qubership.itool.utils.ConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
-
-import io.vertx.core.Promise;
-import io.vertx.core.json.JsonObject;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.modules.graph.Graph.F_REPOSITORY;
@@ -37,7 +35,7 @@ import static org.qubership.itool.utils.ConfigProperties.SUPER_REPOSITORY_MODULE
 
 
 public class RepositoriesSetPathVerticle extends AbstractAggregationTaskVerticle {
-    protected Logger LOGGER = LoggerFactory.getLogger(RepositoriesSetPathVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RepositoriesSetPathVerticle.class);
 
     @Override
     protected void taskStart(Promise<?> taskPromise) throws Exception {
@@ -51,9 +49,10 @@ public class RepositoriesSetPathVerticle extends AbstractAggregationTaskVerticle
             JsonObject domain = json.get("domain");
 
             String directoryPath = buildDirectoryPath(
-                      ConfigUtils.getConfigValue(SUPER_REPOSITORY_DIR_POINTER, config())
-                    , ConfigUtils.getConfigValue(SUPER_REPOSITORY_MODULES_DIR_POINTER, config())
-                    , component, domain)
+                    ConfigUtils.getConfigValue(SUPER_REPOSITORY_DIR_POINTER, config()),
+                    ConfigUtils.getConfigValue(SUPER_REPOSITORY_MODULES_DIR_POINTER, config()),
+                    component,
+                    domain)
                     .getPath();
             component.put("directoryPath", directoryPath);
         }
@@ -61,14 +60,16 @@ public class RepositoriesSetPathVerticle extends AbstractAggregationTaskVerticle
         taskCompleted(taskPromise);
     }
 
-    private File buildDirectoryPath(String cloneRootFolderName, String submodulesDir, JsonObject component, JsonObject domain) {
+    private File buildDirectoryPath(String cloneRootFolderName, String submodulesDir,
+            JsonObject component, JsonObject domain) {
         String domainId = domain.getString(F_ID);
         String compId = component.getString(F_ID);
 
         // Try: new path in updated superrepo
         File dir = Path.of(cloneRootFolderName, submodulesDir, domainId, compId).toFile();
-        if (dir.isDirectory())
+        if (dir.isDirectory()) {
             return dir;
+        }
 
         // Otherwise, use old path in old superrepo. No other alternatives known, no reason to check existence.
         dir = Path.of(cloneRootFolderName, submodulesDir, domainId.replaceFirst("^D_", ""), compId).toFile();

@@ -16,19 +16,18 @@
 
 package org.qubership.itool.modules.processor.tasks;
 
+import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.graph.Graph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.modules.graph.Graph;
-
-import io.vertx.core.json.JsonObject;
-
-import static org.qubership.itool.modules.graph.Graph.*;
-import static org.qubership.itool.modules.gremlin2.P.*;
+import static org.qubership.itool.modules.graph.Graph.F_ID;
+import static org.qubership.itool.modules.graph.Graph.F_TYPE;
+import static org.qubership.itool.modules.gremlin2.P.neq;
 import static org.qubership.itool.modules.gremlin2.graph.__.select;
 
 /**
@@ -55,13 +54,13 @@ public class CreateTransitiveHttpDependenciesTask implements GraphProcessorTask 
                 .<JsonObject>select("COMP", "LIB", "E", "DEP")
                 .toList();
 
-        for (Map<String, JsonObject> tuple: libToHttpDeps) {
+        for (Map<String, JsonObject> tuple : libToHttpDeps) {
             JsonObject from = tuple.get("COMP");
             JsonObject depEdge = tuple.get("E");
             String depType = depEdge.getString(F_TYPE);
             JsonObject dependency = tuple.get("DEP");
             List<JsonObject> connectingEdges = graph.getEdgesBetween(from, dependency);
-            if (connectingEdges.stream().noneMatch( edge -> edge.getString(F_TYPE).equals(depType) )) {
+            if (connectingEdges.stream().noneMatch(edge -> edge.getString(F_TYPE).equals(depType))) {
                 JsonObject newEdge = new JsonObject()
                         .put(F_TYPE, depType)
                         .put("reference", "transitive")
@@ -77,4 +76,3 @@ public class CreateTransitiveHttpDependenciesTask implements GraphProcessorTask 
     }
 
 }
-

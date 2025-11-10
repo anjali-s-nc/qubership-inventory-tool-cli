@@ -39,22 +39,23 @@ public abstract class AbstractLambdaTraversal<S, E> implements Traversal.Admin<S
 
     @Override
     public <S2, E2> Admin<S2, E2> addStep(int index, Step<?, ?> step) throws IllegalStateException {
-        return null == this.bypassTraversal ?
-            (Traversal.Admin<S2, E2>) this : this.bypassTraversal.addStep(index, step);
+        return null == this.bypassTraversal
+            ? (Traversal.Admin<S2, E2>) this : this.bypassTraversal.addStep(index, step);
     }
 
     @Override
     public <S2, E2> Admin<S2, E2> replaceStep(int index, Step<?, ?> step) throws IllegalStateException {
-        return null == this.bypassTraversal ?
-            (Traversal.Admin<S2, E2>) this : this.bypassTraversal.replaceStep(index, step);
+        return null == this.bypassTraversal
+            ? (Traversal.Admin<S2, E2>) this : this.bypassTraversal.replaceStep(index, step);
     }
 
     @Override
     public Admin<S, E> clone() {
         try {
             final AbstractLambdaTraversal<S, E> clone = (AbstractLambdaTraversal<S, E>) super.clone();
-            if (null != this.bypassTraversal)
+            if (null != this.bypassTraversal) {
                 clone.bypassTraversal = this.bypassTraversal.clone();
+            }
             return clone;
         } catch (final CloneNotSupportedException e) {
             throw new IllegalStateException(e.getMessage(), e);
@@ -112,8 +113,9 @@ public abstract class AbstractLambdaTraversal<S, E> implements Traversal.Admin<S
 
     @Override
     public void addStart(Traverser.Admin<S> innerTraverser) {
-        if (null != this.bypassTraversal)
+        if (null != this.bypassTraversal) {
             this.bypassTraversal.addStart(innerTraverser);
+        }
     }
 
 }

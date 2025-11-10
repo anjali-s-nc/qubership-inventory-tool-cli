@@ -16,6 +16,7 @@
 
 package org.qubership.itool.modules.gremlin2.step;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.BasicGraph;
 import org.qubership.itool.modules.gremlin2.GremlinException;
 import org.qubership.itool.modules.gremlin2.Step;
@@ -24,11 +25,14 @@ import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.util.EmptyTraversal;
 import org.qubership.itool.modules.gremlin2.util.TraversalHelper;
 
-import io.vertx.core.json.JsonObject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 
 import static org.qubership.itool.modules.graph.Graph.F_ID;
-
-import java.util.*;
 
 public abstract class AbstractStep<S, E> implements Step<S, E> {
     protected Set<String> labels = new HashSet<>();
@@ -184,7 +188,8 @@ public abstract class AbstractStep<S, E> implements Step<S, E> {
 
     protected abstract void processPreviousTraverser(Traverser.Admin<S> previousTraverser, List<Traverser<E>> result);
 
-    protected Traversal.Admin<?, E> prepareInnerTraversal(Traversal.Admin<?, E> innerTraversal, Traverser.Admin<S> previousTraverser) {
+    protected Traversal.Admin<?, E> prepareInnerTraversal(Traversal.Admin<?, E> innerTraversal,
+            Traverser.Admin<S> previousTraverser) {
         Traversal.Admin<?, E> cloneTraversal = innerTraversal.clone();
         cloneTraversal.clear();
 
@@ -193,11 +198,12 @@ public abstract class AbstractStep<S, E> implements Step<S, E> {
         cloneTraversal.setRoot(true);
         cloneTraversal.setGraph(this.traversal.getGraph());
 
-        cloneTraversal.addStart((Traverser.Admin)previousTraverser.clone());
+        cloneTraversal.addStart((Traverser.Admin) previousTraverser.clone());
         return cloneTraversal;
     }
 
-    protected Traversal.Admin<?, E> prepareInnerTraversal(Traversal.Admin<?, E> innerTraversal, List<Traverser.Admin<S>> list) {
+    protected Traversal.Admin<?, E> prepareInnerTraversal(Traversal.Admin<?, E> innerTraversal,
+            List<Traverser.Admin<S>> list) {
         Traversal.Admin<?, E> cloneTraversal = innerTraversal.clone();
         cloneTraversal.clear();
 
@@ -207,7 +213,7 @@ public abstract class AbstractStep<S, E> implements Step<S, E> {
         cloneTraversal.setGraph(this.traversal.getGraph());
 
         cloneTraversal.addStart(null);
-        ((StartStep)cloneTraversal.getStartStep()).setTraverserList(list);
+        ((StartStep) cloneTraversal.getStartStep()).setTraverserList(list);
         return cloneTraversal;
     }
 

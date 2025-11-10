@@ -16,11 +16,10 @@
 
 package org.qubership.itool.modules.graph;
 
-import java.util.List;
-
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.report.GraphReport;
 
-import io.vertx.core.json.JsonObject;
+import java.util.List;
 
 public interface Graph extends BasicGraph {
 
@@ -96,7 +95,7 @@ public interface Graph extends BasicGraph {
      * @param sourceVertex Source vertex for the edge being added
      * @param destinationVertex Destination vertex for the edge being added
      * @return id of added edge, or {@code null} if nothing was added because similar edge
-     * already exists, and duplicates are not allowed.
+     *     already exists, and duplicates are not allowed.
      */
     String addEdge(JsonObject sourceVertex, JsonObject destinationVertex);
 
@@ -106,7 +105,7 @@ public interface Graph extends BasicGraph {
      * @param destinationVertex Destination vertex for the edge being added
      * @param edge Edge JSON
      * @return id of added edge, or {@code null} if nothing was added because similar edge
-     * already exists, and duplicates are not allowed.
+     *     already exists, and duplicates are not allowed.
      */
     String addEdge(JsonObject sourceVertex, JsonObject destinationVertex, JsonObject edge);
 
@@ -120,7 +119,7 @@ public interface Graph extends BasicGraph {
      * but excluding associated report or anything else).
      *
      * @param deepCopy Whether deep copy is required. Use {@code false} if this graph can be
-     * disposed right after creating a dump.
+     *     disposed right after creating a dump.
      * @return Dump of graph data.
      */
 

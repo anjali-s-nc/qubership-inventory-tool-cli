@@ -61,38 +61,38 @@ public class DefaultProfile implements Profile {
     public String toString() {
         long totalTime = 0;
         for (Map<String, Object> entry : this.steps) {
-            totalTime+= (Long)entry.get(TIME);
+            totalTime += (Long) entry.get(TIME);
         }
         for (Map<String, Object> entry : this.steps) {
-            entry.put(DUR, (((Long)entry.get(TIME)).floatValue() / (float)totalTime * (float)100));
+            entry.put(DUR, (((Long) entry.get(TIME)).floatValue() / (float) totalTime * (float) 100));
         }
 
         StringBuilder builder = new StringBuilder();
         builder.append("Profile{\n");
         // Step   Count   Traversers   Time (ms)   % Dur
         String header = String.format(
-            "| %1$-60s | %2$-10s | %3$-10s | %4$-10s |"
-            , "Step", "Traversers", "Time (ms)", "% Dur");
+            "| %1$-60s | %2$-10s | %3$-10s | %4$-10s |",
+            "Step", "Traversers", "Time (ms)", "% Dur");
         builder.append("=".repeat(header.length())).append("\n");
         builder.append(header).append("\n");
         builder.append("=".repeat(header.length())).append("\n");
         for (Map<String, Object> entry : this.steps) {
             String line = String.format(
-                "| %1$-60s | %2$10d | %3$10d | %4$10.2f |"
-                , entry.get(STEP)
-                , entry.get(TRAVERSERS)
-                , entry.get(TIME)
-                , entry.get(DUR)
+                "| %1$-60s | %2$10d | %3$10d | %4$10.2f |",
+                entry.get(STEP),
+                entry.get(TRAVERSERS),
+                entry.get(TIME),
+                entry.get(DUR)
             );
             builder.append(line).append("\n");
         }
         builder.append("=".repeat(header.length())).append("\n");
         String total = String.format(
-            "| %1$60s | %2$10s | %3$10d | %4$10s |"
-            , "Total:"
-            , "-"
-            , totalTime
-            , "-"
+            "| %1$60s | %2$10s | %3$10d | %4$10s |",
+            "Total:",
+            "-",
+            totalTime,
+            "-"
         );
         builder.append(total).append("\n");
         builder.append("=".repeat(header.length())).append("\n");

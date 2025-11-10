@@ -1,7 +1,24 @@
+/*
+ * Copyright 2024-2025 NetCracker Technology Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.qubership.itool.tasks.confluence.summary;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import jakarta.inject.Provider;
 import org.apache.commons.lang3.tuple.Pair;
 import org.qubership.itool.modules.gremlin2.P;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
@@ -16,16 +33,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.annotation.Resource;
-
-import jakarta.inject.Provider;
 
 import static org.qubership.itool.modules.gremlin2.P.neq;
 import static org.qubership.itool.modules.gremlin2.graph.__.outE;
 
-public class ConfluenceSummaryJavaDependenciesVerticle extends AbstractConfluenceGenerationPageVerticle {
-    protected Logger LOG = LoggerFactory.getLogger(ConfluenceSummaryJavaDependenciesVerticle.class);
+public class ConfluenceSummaryJavaDependenciesVerticle
+        extends AbstractConfluenceGenerationPageVerticle {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfluenceSummaryJavaDependenciesVerticle.class);
 
     @Resource
     Provider<ConfluencePage> confluencePageProvider;
@@ -55,13 +70,13 @@ public class ConfluenceSummaryJavaDependenciesVerticle extends AbstractConfluenc
 
             // transitiveDependencies ============================
             List<JsonObject> transitiveDependencies =
-                 directTraversal.clone()
+                directTraversal.clone()
                 .outE("dependency")
                     .has("scope", neq("test"))
                     .has("component", componentId)
                 .inV().dedup()
                 .repeat(
-                     outE("dependency")
+                    outE("dependency")
                         .has("scope", neq("test"))
                         .has("component", componentId)
                     .inV().dedup()
@@ -91,9 +106,9 @@ public class ConfluenceSummaryJavaDependenciesVerticle extends AbstractConfluenc
                             String o2artifactId = o2.getString("artifactId");
                             String o2version = o2.getString("version");
 
-                            if (o1groupId.equals(o2groupId) &&
-                                    o1artifactId.equals(o2artifactId) &&
-                                    o1version.equals(o2version)) {
+                            if (o1groupId.equals(o2groupId)
+                                    && o1artifactId.equals(o2artifactId)
+                                    && o1version.equals(o2version)) {
                                 return 0;
                             }
 

@@ -109,17 +109,17 @@ public class ConfluencePage {
 
     @Override
     public String toString() {
-        return "ConfluencePage{" +
-                "element=" + element +
-                "\n, elementType='" + elementType + '\'' +
-                "\n, title='" + title + '\'' +
-                "\n, parentTitle='" + parentTitle + '\'' +
-                "\n, space='" + space + '\'' +
-                "\n, template='" + template + '\'' +
-                "\n, directoryPath='" + directoryPath + '\'' +
-                "\n, fileName='" + fileName + '\'' +
-                "\n, dataModel=" + dataModel +
-                '}';
+        return "ConfluencePage{"
+                + "element=" + element
+                + "\n, elementType='" + elementType + '\''
+                + "\n, title='" + title + '\''
+                + "\n, parentTitle='" + parentTitle + '\''
+                + "\n, space='" + space + '\''
+                + "\n, template='" + template + '\''
+                + "\n, directoryPath='" + directoryPath + '\''
+                + "\n, fileName='" + fileName + '\''
+                + "\n, dataModel=" + dataModel
+                + '}';
     }
 
     public String getParentTitle() {

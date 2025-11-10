@@ -33,16 +33,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 
 public class ArtifactRetriever {
 
@@ -57,9 +57,9 @@ public class ArtifactRetriever {
             new SnapshotFilter(GRAPH_GZ_CLASSIFIER, JSON_GZ_EXTENSION)
             );
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ArtifactRetriever.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArtifactRetriever.class);
 
-    protected static final XPath xpath = XPathFactory.newInstance().newXPath();
+    protected static final XPath XPATH = XPathFactory.newInstance().newXPath();
     protected static final int HTTP_NOT_FOUND = 404;
     protected static final int HTTP_CONFLICT = 409;
 
@@ -93,13 +93,13 @@ public class ArtifactRetriever {
                 try {
                     Buffer buf = ar.result();
                     Document doc = XmlParser.parseXmlData(buf, urlString);
-                    NodeList snapshotData = (NodeList) xpath.compile("/metadata/versioning/versions/version/text()")
+                    NodeList snapshotData = (NodeList) XPATH.compile("/metadata/versioning/versions/version/text()")
                             .evaluate(doc, XPathConstants.NODESET);
 
                     int length = snapshotData.getLength();
                     List<String> collector = new ArrayList<>(length);
                     for (int i = 0; i < length; i++) {
-                        Text item = (Text)snapshotData.item(i);
+                        Text item = (Text) snapshotData.item(i);
                         collector.add(item.getTextContent());
                     }
                     return Future.succeededFuture(collector);
@@ -115,8 +115,8 @@ public class ArtifactRetriever {
      * @param appsDBintegration integration with external apps database
      * @param appName Application name
      * @return A future that will return list of versions on successful completion.
-     * If application is not found in external apps DB, the future will fail.
-     * If application is not found in artifactory, the future will contain an empty list of versions.
+     *         If application is not found in external apps DB, the future will fail.
+     *         If application is not found in artifactory, the future will contain an empty list of versions.
      */
     public Future<List<String>> retrieveAppVersions(AppsDBIntegration appsDBintegration, String appName) {
         return appsDBintegration.getAppResourceLocator(appName)
@@ -137,8 +137,9 @@ public class ArtifactRetriever {
                     if (isNotFound(descriptorsAr)) {
                         // maven-metadata.xml not found, trying to guess and download graphs
                         getLogger().warn("{} not found, falling back to manual search for artifacts",
-                                ((RetrievalHttpException)descriptorsAr.cause()).urlString);
-                        List<Future<GraphSnapshot>> downloads = downloadGraphArtifactsWithoutMavenMetadata(locator, versionId);
+                                ((RetrievalHttpException) descriptorsAr.cause()).urlString);
+                            List<Future<GraphSnapshot>> downloads =
+                                    downloadGraphArtifactsWithoutMavenMetadata(locator, versionId);
                         return FutureUtils.anyFuture(downloads);
                     } else {
                         return Future.failedFuture(descriptorsAr.cause());
@@ -166,20 +167,23 @@ public class ArtifactRetriever {
      *
      * @see #retrieveLatestGraphDump(ResourceLocator, String)
      */
-    public Future<GraphSnapshot> retrieveLatestAppGraphDump(AppsDBIntegration appsDBIntegration, String appName, String versionId) {
+    public Future<GraphSnapshot> retrieveLatestAppGraphDump(AppsDBIntegration appsDBIntegration,
+            String appName, String versionId) {
         return appsDBIntegration.getAppResourceLocator(appName)
             .flatMap(locator -> retrieveLatestGraphDump(locator, versionId));
     }
 
-    public Future<JsonSnapshot> retrieveLatestJsonSnapshot(ResourceLocator locator, String versionId, List<SnapshotFilter> filters) {
+    public Future<JsonSnapshot> retrieveLatestJsonSnapshot(ResourceLocator locator,
+            String versionId, List<SnapshotFilter> filters) {
         return retrieveJsonSnapshots(locator, versionId, filters)
             .transform(descriptorsAr -> {
                 if (descriptorsAr.failed()) {
                     if (isNotFound(descriptorsAr)) {
                         // maven-metadata.xml not found, trying to guess and download artifacts
                         getLogger().warn("{} not found, falling back to manual search for artifacts",
-                                ((RetrievalHttpException)descriptorsAr.cause()).urlString);
-                        List<Future<JsonSnapshot>> downloads = downloadJsonArtifactsWithoutMavenMetadata(locator, versionId, filters);
+                                ((RetrievalHttpException) descriptorsAr.cause()).urlString);
+                            List<Future<JsonSnapshot>> downloads =
+                                    downloadJsonArtifactsWithoutMavenMetadata(locator, versionId, filters);
                         return FutureUtils.anyFuture(downloads);
                     } else {
                         return Future.failedFuture(descriptorsAr.cause());
@@ -202,7 +206,7 @@ public class ArtifactRetriever {
     protected boolean isNotFound(AsyncResult<?> webResponse) {
         Throwable cause = webResponse.cause();
         if (cause instanceof RetrievalHttpException) {
-            int statusCode = ((RetrievalHttpException)cause).getStatusCode();
+            int statusCode = ((RetrievalHttpException) cause).getStatusCode();
             // In some crazy cases, artifactory responds with 409 instead of 404
             return statusCode == HTTP_NOT_FOUND || statusCode == HTTP_CONFLICT;
         } else {
@@ -226,7 +230,7 @@ public class ArtifactRetriever {
                     NodeList snapshotData = parseSnapshotVersions(urlString, buf);
                     List<GraphSnapshot> collector = new ArrayList<>();
                     for (int i = 0; i < snapshotData.getLength(); i++) {
-                        Element item = (Element)snapshotData.item(i);
+                        Element item = (Element) snapshotData.item(i);
                         GraphSnapshot desc = toGraphSnapshot(item); // It can be a snapshot of something else than graph
                         if (GRAPH_FILTERS.stream().anyMatch(filter -> filter.matches(desc))) {
                             collector.add(desc);
@@ -239,7 +243,8 @@ public class ArtifactRetriever {
             });
     }
 
-    public Future<List<JsonSnapshot>> retrieveJsonSnapshots(ResourceLocator locator, String versionId, List<SnapshotFilter> filters) {
+    public Future<List<JsonSnapshot>> retrieveJsonSnapshots(ResourceLocator locator,
+            String versionId, List<SnapshotFilter> filters) {
         String urlString = locator.getBaseUrl(versionId) + "maven-metadata.xml";
         return downloadUrlAsBuffer(urlString)
             .flatMap(buf -> {
@@ -247,7 +252,7 @@ public class ArtifactRetriever {
                     NodeList snapshotData = parseSnapshotVersions(urlString, buf);
                     List<JsonSnapshot> collector = new ArrayList<>();
                     for (int i = 0; i < snapshotData.getLength(); i++) {
-                        Element item = (Element)snapshotData.item(i);
+                        Element item = (Element) snapshotData.item(i);
                         JsonSnapshot desc = toJsonSnapshot(item);
                         if (filters.stream().anyMatch(filter -> filter.matches(desc))) {
                             collector.add(desc);
@@ -262,7 +267,7 @@ public class ArtifactRetriever {
 
     protected NodeList parseSnapshotVersions(String urlString, Buffer buf) throws Exception {
         Document doc = XmlParser.parseXmlData(buf, urlString);
-        NodeList snapshotData = (NodeList) xpath.compile("/metadata/versioning/snapshotVersions/snapshotVersion")
+        NodeList snapshotData = (NodeList) XPATH.compile("/metadata/versioning/snapshotVersions/snapshotVersion")
                 .evaluate(doc, XPathConstants.NODESET);
         return snapshotData;
     }
@@ -276,12 +281,14 @@ public class ArtifactRetriever {
      * @param versionId Application version (e.g.: "main-SNAPSHOT")
      * @return A Future that will contain GraphSnapshot version descriptors, <b>without data</b>.
      */
-    public Future<List<GraphSnapshot>> retrieveAppGraphDumpSnapshots(AppsDBIntegration appsDBIntegration, String appName, String versionId) {
+    public Future<List<GraphSnapshot>> retrieveAppGraphDumpSnapshots(
+            AppsDBIntegration appsDBIntegration, String appName, String versionId) {
         return appsDBIntegration.getAppResourceLocator(appName)
             .flatMap(locator -> retrieveGraphDumpSnapshots(locator, versionId));
     }
 
-    protected List<Future<GraphSnapshot>> downloadGraphArtifactsWithoutMavenMetadata(ResourceLocator locator, String versionId) {
+    protected List<Future<GraphSnapshot>> downloadGraphArtifactsWithoutMavenMetadata(
+            ResourceLocator locator, String versionId) {
         return GRAPH_FILTERS.stream()
             .map(sf -> {
                 String urlString = locator.getReleaseArtifactUrl(versionId, sf);
@@ -292,26 +299,25 @@ public class ArtifactRetriever {
                                 return Future.failedFuture(f);
                             }
                             if (f instanceof RetrievalHttpException) {
-                                RetrievalHttpException ex = (RetrievalHttpException)f;
+                                RetrievalHttpException ex = (RetrievalHttpException) f;
                                 if (ex.getStatusCode() != HTTP_NOT_FOUND) {
                                     return Future.failedFuture(f);
                                 }
                             }
                             return downloadJson(locator.getSnapshotArtifactUrl(versionId, sf), sf.getExtension());
                         })
-                        .map(dump -> toGraphSnapshot(sf, urlString, dump) );
+                        .map(dump -> toGraphSnapshot(sf, urlString, dump));
             })
             .collect(Collectors.toList());
     }
 
     protected List<Future<JsonSnapshot>> downloadJsonArtifactsWithoutMavenMetadata(
-            ResourceLocator locator, String versionId, List<SnapshotFilter> filters)
-    {
+            ResourceLocator locator, String versionId, List<SnapshotFilter> filters) {
         return filters.stream()
             .map(sf -> {
                 String urlString = locator.getReleaseArtifactUrl(versionId, sf);
                 return downloadJson(urlString, sf.getExtension())
-                        .map(json -> toJsonSnapshot(sf, urlString, json) );
+                        .map(json -> toJsonSnapshot(sf, urlString, json));
             })
             .collect(Collectors.toList());
     }
@@ -326,16 +332,6 @@ public class ArtifactRetriever {
         return snapshot;
     }
 
-    // Create snapshot with data for release without maven-metadata.xml
-    protected JsonSnapshot toJsonSnapshot(SnapshotFilter sf, String urlString, JsonObject data) {
-        JsonSnapshot snapshot = new JsonSnapshot();
-        snapshot.setOriginUrl(urlString);
-        snapshot.setClassifier(sf.getClassifier());
-        snapshot.setExtension(sf.getExtension());
-        snapshot.setData(data);
-        return snapshot;
-    }
-
     // Create snapshot without data from descriptor in maven-metadata.xml
     protected GraphSnapshot toGraphSnapshot(Element item) throws Exception {
         GraphSnapshot snapshot = new GraphSnapshot();
@@ -344,6 +340,16 @@ public class ArtifactRetriever {
         snapshot.setExtension((String) fields.get("extension").evaluate(item, XPathConstants.STRING));
         snapshot.setSnapshotId((String) fields.get("snapshotId").evaluate(item, XPathConstants.STRING));
         snapshot.setUpdated((String) fields.get("updated").evaluate(item, XPathConstants.STRING));
+        return snapshot;
+    }
+
+    // Create snapshot with data for release without maven-metadata.xml
+    protected JsonSnapshot toJsonSnapshot(SnapshotFilter sf, String urlString, JsonObject data) {
+        JsonSnapshot snapshot = new JsonSnapshot();
+        snapshot.setOriginUrl(urlString);
+        snapshot.setClassifier(sf.getClassifier());
+        snapshot.setExtension(sf.getExtension());
+        snapshot.setData(data);
         return snapshot;
     }
 
@@ -359,7 +365,8 @@ public class ArtifactRetriever {
     }
 
     // Retrieve data and fill snapshot
-    protected Future<GraphSnapshot> retrieveGraphSnapshot(ResourceLocator locator, String versionId, GraphSnapshot snapshot) {
+    protected Future<GraphSnapshot> retrieveGraphSnapshot(ResourceLocator locator, String versionId,
+            GraphSnapshot snapshot) {
         String urlString = locator.getArtifactUrl(versionId, snapshot);
         return downloadJson(urlString, snapshot.getExtension())
                 .map(dump -> {
@@ -371,7 +378,8 @@ public class ArtifactRetriever {
     }
 
     // Retrieve data and fill snapshot
-    protected Future<JsonSnapshot> retrieveJsonSnapshot(ResourceLocator locator, String versionId, JsonSnapshot snapshot) {
+    protected Future<JsonSnapshot> retrieveJsonSnapshot(ResourceLocator locator, String versionId,
+            JsonSnapshot snapshot) {
         String urlString = locator.getArtifactUrl(versionId, snapshot);
         return downloadJson(urlString, snapshot.getExtension())
                 .map(json -> {
@@ -384,13 +392,14 @@ public class ArtifactRetriever {
 
     // Precompile some expressions on the first use. Do not care about true singletonity.
     private static volatile Map<String, XPathExpression> snapshotInfoFields;
+
     protected static Map<String, XPathExpression> getSnapshotInfoFields() throws Exception {
         if (snapshotInfoFields == null) {
             snapshotInfoFields = Map.of(
-                "classifier", xpath.compile("classifier/text()"),
-                "extension", xpath.compile("extension/text()"),
-                "snapshotId", xpath.compile("value/text()"),
-                "updated", xpath.compile("updated/text()")
+                "classifier", XPATH.compile("classifier/text()"),
+                "extension", XPATH.compile("extension/text()"),
+                "snapshotId", XPATH.compile("value/text()"),
+                "updated", XPATH.compile("updated/text()")
             );
         }
         return snapshotInfoFields;
@@ -432,7 +441,8 @@ public class ArtifactRetriever {
             });
     }
 
-    public Future<GraphSnapshot> retrieveAppGraphDump(AppDBIntegrationImpl appDBIntegration, String appName, String versionId) {
+    public Future<GraphSnapshot> retrieveAppGraphDump(AppDBIntegrationImpl appDBIntegration,
+            String appName, String versionId) {
         return appDBIntegration.getAppResourceLocator(appName)
                 .flatMap(locator -> retrieveGraphDump(locator, versionId));
     }
@@ -445,14 +455,16 @@ public class ArtifactRetriever {
      * @return A future that will return GraphSnapshot (descriptor and data) on successful completion
      */
     public Future<GraphSnapshot> retrieveGraphDump(ResourceLocator locator, String versionId) {
-        if (versionId == null){
+        if (versionId == null) {
             return Future.failedFuture("VersionId is null");
         }
         if (versionId.endsWith("-SNAPSHOT")) {
-            getLogger().debug("Scheduling the retrieval of the latest graph snapshot for artifactId={} with version={}", locator.getArtifactId(), versionId);
+            getLogger().debug("Scheduling the retrieval of the latest graph snapshot for "
+                    + "artifactId={} with version={}", locator.getArtifactId(), versionId);
             return retrieveLatestGraphDump(locator, versionId);
         } else {
-            getLogger().debug("Scheduling the retrieval of the graph snapshot for artifactId={} with version={}", locator.getArtifactId(), versionId);
+            getLogger().debug("Scheduling the retrieval of the graph snapshot for artifactId={} with version={}",
+                    locator.getArtifactId(), versionId);
             List<Future<GraphSnapshot>> downloads = downloadGraphArtifactsWithoutMavenMetadata(locator, versionId);
             return FutureUtils.anyFuture(downloads);
         }

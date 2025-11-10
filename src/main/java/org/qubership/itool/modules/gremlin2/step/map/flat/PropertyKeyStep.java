@@ -16,9 +16,9 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.flat;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
-import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,12 +37,12 @@ public class PropertyKeyStep<S, E> extends FlatMapStep<S, E> {
         if (obj instanceof JsonObject) {
             JsonObject json = (JsonObject) obj;
             for (String key : json.getMap().keySet()) {
-                result.add((E)key);
+                result.add((E) key);
             }
         } else if (obj instanceof Map) {
-            Map map = (Map)obj;
+            Map map = (Map) obj;
             for (Object key : map.keySet()) {
-                result.add((E)key);
+                result.add((E) key);
             }
         } else {
             // nothing

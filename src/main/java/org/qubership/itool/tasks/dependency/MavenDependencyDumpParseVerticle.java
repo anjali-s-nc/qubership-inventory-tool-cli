@@ -16,25 +16,27 @@
 
 package org.qubership.itool.tasks.dependency;
 
-import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
-
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.impl.cpu.CpuCoreSensor;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
@@ -49,7 +51,7 @@ import static org.qubership.itool.modules.graph.Graph.F_ID;
  * or to "output/dependencies/${component.id}_dependency.txt" by {@link MavenDependencyDumpExtractVerticle}.
  */
 public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVerticle {
-    protected Logger LOG = LoggerFactory.getLogger(MavenDependencyDumpParseVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MavenDependencyDumpParseVerticle.class);
     // Have to be global to avoid closing by GC
     private WorkerExecutor executor;
 
@@ -59,14 +61,14 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
     public static final String RUNTIME = "runtime";
     public static final String TEST = "test";
 
-    final static String NEW_BRANCH = "\\+\\-\\s|\\\\\\-\\s";
-    final static String EXISTING_BRANCH = "\\|\\s{2}";
-    final static String SPACER = "\\s{3}";
-    final static String TREE_LEVEL_REGEX = "((?:" + NEW_BRANCH + "|" + EXISTING_BRANCH + "|" + SPACER + ")+)";
-    final static String ARTIFACT_TREE_MODULE_REGEX = "\\[INFO\\]\\s((\\S+:){3,4}\\S+).*";
-    final static String ARTIFACT_TREE_DEPENDENCY_REGEX = "\\[INFO\\]\\s" + TREE_LEVEL_REGEX + "((\\S+:){4,5}\\S+).*";
-    final static String ARTIFACT_EXTRACTION_ERROR_REGEX = "\\[ERROR\\]\\s.*";
-    final static String ARTIFACT_TREE_NOT_RECOGNISED_REGEX = "\\[INFO\\]\\s" + TREE_LEVEL_REGEX + ".*";
+    static final String NEW_BRANCH = "\\+\\-\\s|\\\\\\-\\s";
+    static final String EXISTING_BRANCH = "\\|\\s{2}";
+    static final String SPACER = "\\s{3}";
+    static final String TREE_LEVEL_REGEX = "((?:" + NEW_BRANCH + "|" + EXISTING_BRANCH + "|" + SPACER + ")+)";
+    static final String ARTIFACT_TREE_MODULE_REGEX = "\\[INFO\\]\\s((\\S+:){3,4}\\S+).*";
+    static final String ARTIFACT_TREE_DEPENDENCY_REGEX = "\\[INFO\\]\\s" + TREE_LEVEL_REGEX + "((\\S+:){4,5}\\S+).*";
+    static final String ARTIFACT_EXTRACTION_ERROR_REGEX = "\\[ERROR\\]\\s.*";
+    static final String ARTIFACT_TREE_NOT_RECOGNISED_REGEX = "\\[INFO\\]\\s" + TREE_LEVEL_REGEX + ".*";
     public static final String DEFAULT_PATH = "output/dependencies";
 
     @Override
@@ -83,10 +85,10 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
     protected void taskStart(Promise<?> taskPromise) {
         Integer coresCount = CpuCoreSensor.availableProcessors();
         LOG.debug("Detected {} CPU cores, using all of them", coresCount);
-        executor = vertx.createSharedWorkerExecutor("maven-dependency-import-worker-pool"
-                , coresCount
-                , 60
-                , TimeUnit.SECONDS);
+        executor = vertx.createSharedWorkerExecutor("maven-dependency-import-worker-pool",
+                coresCount,
+                60,
+                TimeUnit.SECONDS);
 
         BiFunction<Graph, JsonObject, List<JsonObject>> componentExtractor =
                 AbstractAggregationTaskVerticle::getMavenDependencyComponents;
@@ -119,16 +121,6 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
         LOG.debug("{}: Dependency import finished in {}ms", component.getString(F_ID),
                 System.currentTimeMillis() - executionStart);
         return null;
-    }
-
-    //------------------------------------------------------
-    // Parse "output/dependencies/${component.id}_dependency.txt" from MavenDependencyDumpExtractVerticle
-
-    private void parseDepFromMaven(JsonObject component) {
-        List<JsonObject> rawDependencies = getDependenciesFromDump(component);
-        if (! rawDependencies.isEmpty()) {
-            processDependencies(component, rawDependencies);
-        }
     }
 
     private void processDependencies(JsonObject component, List<JsonObject> rawDependencies) {
@@ -168,7 +160,7 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
             } else if (targetLevel == lastLevel) { // same level
                 source = stack.peek();
             } else { //going down
-                for (int i = 0 ; i < lastLevel - targetLevel; i++) {
+                for (int i = 0; i < lastLevel - targetLevel; i++) {
                     stack.remove();
                 }
                 source = stack.peek();
@@ -177,6 +169,17 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
             lastDestination = destination;
             lastLevel = targetLevel;
             graph.addEdge(source, destination, dependencyEdge);
+        }
+    }
+
+    // ------------------------------------------------------
+    // Parse "output/dependencies/${component.id}_dependency.txt" from
+    // MavenDependencyDumpExtractVerticle
+
+    private void parseDepFromMaven(JsonObject component) {
+        List<JsonObject> rawDependencies = getDependenciesFromDump(component);
+        if (!rawDependencies.isEmpty()) {
+            processDependencies(component, rawDependencies);
         }
     }
 
@@ -236,8 +239,8 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
             result.add(new JsonObject().put("error", line));
         }
         if (line.matches(ARTIFACT_TREE_DEPENDENCY_REGEX)) {
-            String dependencyLevel = line.replaceAll(ARTIFACT_TREE_DEPENDENCY_REGEX,"$1");
-            String artifactLine = line.replaceAll(ARTIFACT_TREE_DEPENDENCY_REGEX,"$2");
+            String dependencyLevel = line.replaceAll(ARTIFACT_TREE_DEPENDENCY_REGEX, "$1");
+            String artifactLine = line.replaceAll(ARTIFACT_TREE_DEPENDENCY_REGEX, "$2");
             String[] artifact = artifactLine.split(":");
 
             result.add(new JsonObject()
@@ -251,7 +254,7 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
                     .put("type", "library")
             );
         } else if (line.matches(ARTIFACT_TREE_MODULE_REGEX)) {
-            String artifactLine = line.replaceAll(ARTIFACT_TREE_MODULE_REGEX,"$1");
+            String artifactLine = line.replaceAll(ARTIFACT_TREE_MODULE_REGEX, "$1");
             String[] artifact = artifactLine.split(":");
 
             result.add(new JsonObject()
@@ -264,7 +267,7 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
                     .put("level", 1)
                     .put("type", "library")
             );
-        } else if (line.matches(ARTIFACT_TREE_NOT_RECOGNISED_REGEX)){
+        } else if (line.matches(ARTIFACT_TREE_NOT_RECOGNISED_REGEX)) {
             report.addMessage("ERROR", component, "Dependency tree element not recognized: " + line);
         }
     }
@@ -280,7 +283,7 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
                 return;
             }
             String compId = component.getString(F_ID);
-            for (Object o1: modules) {
+            for (Object o1 : modules) {
                 JsonObject module = (JsonObject) o1;
                 String projectId = module.getString("id");  // *Not* Graph.F_ID
 
@@ -293,7 +296,7 @@ public class MavenDependencyDumpParseVerticle extends AbstractAggregationTaskVer
                 if (deps == null) {
                     continue;
                 }
-                for (Object o2: deps) {
+                for (Object o2 : deps) {
                     JsonObject depEntry = (JsonObject) o2;
                     String artifactFrom = depEntry.getString("from");
                     String artifactTo = depEntry.getString("to");

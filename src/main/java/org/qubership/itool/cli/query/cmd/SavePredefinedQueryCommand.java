@@ -57,7 +57,7 @@ public class SavePredefinedQueryCommand extends AbstractCliCommand {
             return null;
         }
 
-        String lastExecutedQuery = (String)context().getValue(GremlinQueryCommand.LAST_EXECUTED_QUERY);
+        String lastExecutedQuery = (String) context().getValue(GremlinQueryCommand.LAST_EXECUTED_QUERY);
         @SuppressWarnings("unchecked")
         List<QueryItem> queryItemList = (List<QueryItem>) context().getValue(ListPredefinedQueriesCommand.QUERY_ITEMS);
 

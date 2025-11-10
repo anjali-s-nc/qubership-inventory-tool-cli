@@ -16,19 +16,26 @@
 
 package org.qubership.itool.tasks.export;
 
-import org.qubership.itool.tasks.FlowTask;
-
 import io.vertx.core.Promise;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellUtil;
+import org.qubership.itool.tasks.FlowTask;
 import org.qubership.itool.utils.FSUtils;
 import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
@@ -49,7 +56,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined;
 import static org.qubership.itool.modules.graph.Graph.F_DNS_NAME;
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.modules.graph.Graph.F_NAME;
@@ -60,12 +66,12 @@ import static org.qubership.itool.modules.graph.Graph.V_MICROSERVICE;
 import static org.qubership.itool.utils.ConfigProperties.EXCEL_EXPORT_PROPERTY;
 
 public class ExcelExportVerticle extends FlowTask {
-    protected Logger LOG = LoggerFactory.getLogger(ExcelExportVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExcelExportVerticle.class);
 
     Map<String, CellStyle> cellStylesMap = new HashMap<>();
-    private final static String COMP_NAME_STYLE = "compNameStyle";
-    private final static String ERROR_COMP_NAME_STYLE = "errorCompNameStyle";
-    private final static String PROPERTY_STYLE = "propertyStyle";
+    private static final String COMP_NAME_STYLE = "compNameStyle";
+    private static final String ERROR_COMP_NAME_STYLE = "errorCompNameStyle";
+    private static final String PROPERTY_STYLE = "propertyStyle";
 
     public static Map<String, String> readablePropertyToFieldNameMap = Map.ofEntries(
         Map.entry("Owner", "owner"),
@@ -93,10 +99,10 @@ public class ExcelExportVerticle extends FlowTask {
             LOG.error("excelExport property is not set");
         }
         LOG.info("Scheduling blocking execution of ExcelExport process in a separate thread");
-        WorkerExecutor executor = vertx.createSharedWorkerExecutor("excel-export-worker-pool"
-                , 1
-                , 60
-                , TimeUnit.MINUTES);
+        WorkerExecutor executor = vertx.createSharedWorkerExecutor("excel-export-worker-pool",
+                1,
+                60,
+                TimeUnit.MINUTES);
         String finalExportPath = exportPath;
         executor.executeBlocking(() -> {
             try {
@@ -326,10 +332,10 @@ public class ExcelExportVerticle extends FlowTask {
                     Object obj = component.getJsonObject("details")
                             .getValue(readablePropertyToFieldNameMap.get(propertyName));
                     if (obj instanceof String) {
-                        return (String)obj;
+                        return (String) obj;
                     } else if (obj instanceof JsonArray) {
                         @SuppressWarnings("unchecked")
-                        String result = (String) ((JsonArray)obj).getList()
+                        String result = (String) ((JsonArray) obj).getList()
                                 .stream()
                                 .map(o -> o.toString())
                                 .collect(Collectors.joining(", "));

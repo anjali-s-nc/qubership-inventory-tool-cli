@@ -16,11 +16,10 @@
 
 package org.qubership.itool.modules.processor.matchers;
 
-import java.util.Set;
-
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.Graph;
 
-import io.vertx.core.json.JsonObject;
+import java.util.Set;
 
 /**
  * Strategy interface for extracting mocked field names from mock vertices.

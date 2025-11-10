@@ -18,10 +18,14 @@ package org.qubership.itool.modules.gremlin2;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.qubership.itool.modules.gremlin2.P.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.qubership.itool.modules.gremlin2.P.gt;
+import static org.qubership.itool.modules.gremlin2.P.gte;
+import static org.qubership.itool.modules.gremlin2.P.lt;
+import static org.qubership.itool.modules.gremlin2.P.lte;
 import static org.qubership.itool.modules.gremlin2.graph.__.out;
 
 public class TestComparators extends AbstractGremlinTest {
@@ -43,12 +47,14 @@ public class TestComparators extends AbstractGremlinTest {
         System.out.println(">>>>>> result = "
             + gte0.stream()
             .sorted(Comparator.comparing( (Map<Object, Object> m) -> (String)m.get("name")))
-            .map( (Map<Object, Object> m) -> "name=" + m.get("name") + ", c=" + m.get("c") + ":" + m.get("c").getClass().getName())
+            .map( (Map<Object, Object> m) -> "name=" + m.get("name") + ", c="
+                + m.get("c") + ":" + m.get("c").getClass().getName())
             .collect(Collectors.toList()));
         System.out.println(">>>>>> expected = "
             + gte0expected.stream()
             .sorted(Comparator.comparing( (Map<String, Object> m) -> (String)m.get("name")))
-            .map( (Map<String, Object> m) -> "name=" + m.get("name") + ", c=" + m.get("c") + ":" + m.get("c").getClass().getName())
+            .map( (Map<String, Object> m) -> "name=" + m.get("name") + ", c="
+                + m.get("c") + ":" + m.get("c").getClass().getName())
             .collect(Collectors.toList()));
         */
         assertEquals(gte0expected, gte0);

@@ -14,6 +14,7 @@
 
 package org.qubership.itool.cli;
 
+import io.vertx.core.Vertx;
 import org.qubership.itool.cli.spi.CommandProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,6 @@ import picocli.CommandLine.Command;
 
 import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
-import io.vertx.core.Vertx;
 
 /**
  * Main entry point for the inventory tool CLI application using Picocli.

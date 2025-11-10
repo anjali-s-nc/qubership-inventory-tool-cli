@@ -16,13 +16,11 @@
 
 package org.qubership.itool;
 
-import org.qubership.itool.modules.parsing.InventoryJsonParser;
-
 import io.vertx.core.json.JsonObject;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.qubership.itool.modules.parsing.InventoryJsonParser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +37,7 @@ public class TestParseInventoryFile {
 
         String inventorySource = null;
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream("inventory/t2_inventory.json");
-        try(InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8")) {
+        try (InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8")) {
             inventorySource = IOUtils.toString(reader);
         }
 

@@ -16,10 +16,13 @@
 
 package org.qubership.itool.gremlin;
 
-import org.qubership.itool.cli.query.CliQuery;
-
 import io.vertx.core.json.JsonObject;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.qubership.itool.cli.query.CliQuery;
 import org.qubership.itool.modules.graph.GraphImpl;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -42,7 +45,7 @@ public class TestCliQuery extends AbstractGremlinTest {
     @Test
     void testV() {
         String query = ".V(\"v1\").next();";
-        JsonObject result = (JsonObject)this.cli.executeGremlinQuery(query);
+        JsonObject result = (JsonObject) this.cli.executeGremlinQuery(query);
         Assertions.assertNotNull(result);
         Assertions.assertEquals("v1", result.getString("id"));
     }

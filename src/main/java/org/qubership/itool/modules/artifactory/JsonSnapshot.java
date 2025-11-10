@@ -20,7 +20,7 @@ import io.vertx.core.json.JsonObject;
 
 public class JsonSnapshot extends Snapshot {
 
-    transient private JsonObject data; // made transient to be skipped by toString()
+    private transient JsonObject data; // made transient to be skipped by toString()
 
 
     public JsonObject getData() {

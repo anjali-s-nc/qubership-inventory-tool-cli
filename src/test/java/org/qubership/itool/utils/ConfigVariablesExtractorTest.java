@@ -23,7 +23,7 @@ import org.junit.jupiter.api.TestInstance;
 import java.io.IOException;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ConfigVariablesExtractorTest {
@@ -39,7 +39,8 @@ class ConfigVariablesExtractorTest {
     void extractVariableNames() {
         Object yamlFileContents = null;
         try {
-            yamlFileContents = FSUtils.getYamlFileContents(getClass(), "classpath:/utils/variablesExtractor.yaml", parser);
+            yamlFileContents = FSUtils.getYamlFileContents(getClass(),
+                    "classpath:/utils/variablesExtractor.yaml", parser);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -47,16 +48,15 @@ class ConfigVariablesExtractorTest {
         Set<String> variableNames = ConfigVariablesExtractor.extractVariableNames(yamlFileContents);
 
         assertEquals(Set.of(
-                        "DEPLOYMENT_RESOURCE_NAME",
-                        "SERVICE_NAME",
-                        "HPA_AVG_CPU_UTILIZATION",
-                        "HPA_SCALING_DOWN_INTERVAL",
-                        "HPA_MIN_REPLICAS",
-                        "HPA_MAX_REPLICAS",
-                        "HPA_SCALING_UP_INTERVAL",
-                        "TEST_VARIABLE1",
-                        "TEST_VARIABLE2")
-                , variableNames
-        );
+                "DEPLOYMENT_RESOURCE_NAME",
+                "SERVICE_NAME",
+                "HPA_AVG_CPU_UTILIZATION",
+                "HPA_SCALING_DOWN_INTERVAL",
+                "HPA_MIN_REPLICAS",
+                "HPA_MAX_REPLICAS",
+                "HPA_SCALING_UP_INTERVAL",
+                "TEST_VARIABLE1",
+                "TEST_VARIABLE2"),
+                variableNames);
     }
 }

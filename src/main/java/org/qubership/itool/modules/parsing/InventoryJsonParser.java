@@ -19,27 +19,29 @@ package org.qubership.itool.modules.parsing;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.utils.JsonUtils;
 import org.qubership.itool.utils.LanguageUtils;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import static org.qubership.itool.modules.graph.Graph.F_DNS_NAME;
 import static org.qubership.itool.modules.graph.Graph.F_DNS_NAMES;
-import static org.qubership.itool.utils.JsonUtils.*;
+import static org.qubership.itool.utils.JsonUtils.convertListToFilteredString;
+import static org.qubership.itool.utils.JsonUtils.copyValueIfNotNull;
+import static org.qubership.itool.utils.JsonUtils.getOrCreateJsonObject;
+import static org.qubership.itool.utils.JsonUtils.putValueIfNotNull;
 
 public class InventoryJsonParser {
 
     GraphReport report;
 
     @Inject
-    public InventoryJsonParser (GraphReport report) {
+    public InventoryJsonParser(GraphReport report) {
         this.report = report;
     }
 

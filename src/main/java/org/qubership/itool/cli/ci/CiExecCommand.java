@@ -16,6 +16,17 @@
 
 package org.qubership.itool.cli.ci;
 
+import org.qubership.itool.cli.FlowMainVerticle;
+import org.qubership.itool.modules.graph.GraphDataConstants;
+import org.qubership.itool.utils.ConfigUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+
+import java.io.File;
+import java.util.Properties;
+
 import static org.qubership.itool.cli.ci.CiConstants.P_COMP_NAME;
 import static org.qubership.itool.cli.ci.CiConstants.P_COMP_VERSION;
 import static org.qubership.itool.cli.ci.CiConstants.P_DUMP_BY;
@@ -26,15 +37,6 @@ import static org.qubership.itool.cli.ci.CiConstants.P_REPOSITORY;
 import static org.qubership.itool.cli.ci.CiConstants.P_RUN_NAME;
 import static org.qubership.itool.utils.ConfigProperties.PROFILE_POINTER;
 import static org.qubership.itool.utils.ConfigProperties.RELEASE_POINTER;
-import java.io.File;
-import java.util.Properties;
-import org.qubership.itool.cli.FlowMainVerticle;
-import org.qubership.itool.modules.graph.GraphDataConstants;
-import org.qubership.itool.utils.ConfigUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 /**
  * A command for single-component run on CI.
@@ -88,8 +90,8 @@ public class CiExecCommand extends AbstractCiCommand {
     }
 
     @Option(names = {"--dumpResultsBy"},
-            description = "Strategy for automatic generation of output file name when it is not provided. " +
-                    "Choices: hash, id, repo")
+            description = "Strategy for automatic generation of output file name when it is not provided. "
+                    + "Choices: hash, id, repo")
     public void setDumpResultsBy(String dumpResults) {
         properties.put(P_DUMP_BY, dumpResults);
     }

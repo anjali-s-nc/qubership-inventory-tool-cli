@@ -16,13 +16,13 @@
 
 package org.qubership.itool.tasks;
 
-import org.qubership.itool.context.FlowContext;
-
-import io.vertx.core.*;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.qubership.itool.context.FlowContext;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversalSource;
@@ -31,12 +31,16 @@ import org.qubership.itool.utils.ConfigProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
-import static org.qubership.itool.utils.ConfigProperties.DISABLED_FEATURES_PROPERTY;
-import static org.qubership.itool.utils.ConfigProperties.LAST_STEP_PROPERTY;
 import java.io.File;
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Resource;
+
+import static org.qubership.itool.utils.ConfigProperties.DISABLED_FEATURES_PROPERTY;
+import static org.qubership.itool.utils.ConfigProperties.LAST_STEP_PROPERTY;
 
 /**
  * Abstract base class for all flow tasks in the inventory tool.
@@ -45,7 +49,7 @@ import java.util.*;
  */
 public abstract class FlowTask {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(FlowTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FlowTask.class);
 
     public static final String TASK_ADDRESS_PREFIX = "task.";
 
@@ -91,7 +95,7 @@ public abstract class FlowTask {
     public String toString() {
         return super.toString()
                 + "[fiid="
-                + (flowContext==null ? "<null>" : flowContext.getFlowInstanceId())
+                + (flowContext == null ? "<null>" : flowContext.getFlowInstanceId())
                 + "]";
     }
 
@@ -106,7 +110,7 @@ public abstract class FlowTask {
      * @param taskPromise the promise to complete when the task finishes
      * @throws Exception if an error occurs during task execution
      */
-    abstract protected void taskStart(Promise<?> taskPromise) throws Exception;
+    protected abstract void taskStart(Promise<?> taskPromise) throws Exception;
 
     public Future<?> startInFlow() {
         return Future.future(taskPromise -> startInFlow(taskPromise));
@@ -144,7 +148,8 @@ public abstract class FlowTask {
                     } catch (Throwable e) {
                         report.internalError("Failed to execute the task '" + taskAddress
                                 + "' [fiid=" + fiid + "], exception: " + ExceptionUtils.getStackTrace(e));
-// XXX Usually we prefer to continue the flow on failure. Implementations may fail the promise manually if needed.
+                        // XXX Usually we prefer to continue the flow on failure. Implementations
+                        // may fail the promise manually if needed.
                         taskCompleted(taskPromise);
                     }
                 });
@@ -168,6 +173,7 @@ public abstract class FlowTask {
 
     /**
      * Joins the futures as a composite future, handles exceptions within the futures.
+     *
      * @param futureList list of futures to be joined and handled
      * @return a future that will be completed when all the futures in the list are completed
      */

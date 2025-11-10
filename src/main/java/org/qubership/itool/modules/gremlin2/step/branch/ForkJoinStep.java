@@ -16,21 +16,20 @@
 
 package org.qubership.itool.modules.gremlin2.step.branch;
 
+import org.qubership.itool.modules.gremlin2.Traversal;
+import org.qubership.itool.modules.gremlin2.Traverser;
+import org.qubership.itool.utils.FutureUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.modules.gremlin2.Traversal;
-import org.qubership.itool.modules.gremlin2.Traverser;
-import org.qubership.itool.utils.FutureUtils;
-
 public class ForkJoinStep<S, E> extends LocalStep<S, E> {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ForkJoinStep.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForkJoinStep.class);
 
     protected ForkJoinPool pool;
 
@@ -42,7 +41,7 @@ public class ForkJoinStep<S, E> extends LocalStep<S, E> {
 
     protected void processAllPreviousTraversers(List<Traverser<S>> previousTraversers, List<Traverser<E>> result) {
         List<RecursiveTask<List<Traverser<E>>>> subtasks = new ArrayList<>();
-        for (Traverser<S> previousTraverser: previousTraversers) {
+        for (Traverser<S> previousTraverser : previousTraversers) {
             @SuppressWarnings("serial")
             RecursiveTask<List<Traverser<E>>> subtask = new RecursiveTask<List<Traverser<E>>>() {
                 @Override
@@ -58,7 +57,7 @@ public class ForkJoinStep<S, E> extends LocalStep<S, E> {
 
         LOG.info("Forking to {} tasks", subtasks.size());
         List<List<Traverser<E>>> subResults = FutureUtils.invokeAndJoin(subtasks, pool);
-        for (List<Traverser<E>> subResult: subResults) {
+        for (List<Traverser<E>> subResult : subResults) {
             result.addAll(subResult);
         }
     }

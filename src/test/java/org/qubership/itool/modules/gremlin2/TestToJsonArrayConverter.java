@@ -16,20 +16,18 @@
 
 package org.qubership.itool.modules.gremlin2;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphImpl;
 import org.qubership.itool.modules.query.QueryExecutor;
 import org.qubership.itool.modules.query.converter.ToJsonArrayConverter;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-
 import java.util.Map;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestToJsonArrayConverter {

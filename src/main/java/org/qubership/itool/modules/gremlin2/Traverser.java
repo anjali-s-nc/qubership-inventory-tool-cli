@@ -34,9 +34,15 @@ public interface Traverser<T> extends Cloneable, Comparable<Traverser<T>> {
     default int compareTo(final Traverser<T> other) throws ClassCastException {
         Object thisObj = (this.get() != null) ? this.get() : this.getSource();
         Object otherObj = (this.get() != null) ? other.get() : other.getSource();
-        if (thisObj == otherObj) return 0;
-        if (null == thisObj) return -1;
-        if (null == otherObj) return 1;
+        if (thisObj == otherObj) {
+            return 0;
+        }
+        if (null == thisObj) {
+            return -1;
+        }
+        if (null == otherObj) {
+            return 1;
+        }
         return ((Comparable) thisObj).compareTo(otherObj);
     }
 

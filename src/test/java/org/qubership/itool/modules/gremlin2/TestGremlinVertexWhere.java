@@ -17,13 +17,15 @@
 package org.qubership.itool.modules.gremlin2;
 
 import io.vertx.core.json.JsonObject;
-import org.junit.jupiter.api.*;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 
 import java.util.List;
 
-import static org.qubership.itool.modules.gremlin2.P.*;
+import static org.qubership.itool.modules.gremlin2.P.eq;
+import static org.qubership.itool.modules.gremlin2.P.neq;
 import static org.qubership.itool.modules.gremlin2.graph.__.outE;
 
 public class TestGremlinVertexWhere extends AbstractGremlinTest {
@@ -38,27 +40,27 @@ public class TestGremlinVertexWhere extends AbstractGremlinTest {
     void testPredicateNeq() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v1").as("a").out("created").in("created");
         Assertions.assertEquals(3, traversal.clone().toList().size());
-        Assertions.assertEquals("v1" , traversal.toList().get(0).getString("id"));
-        Assertions.assertEquals("v4" , traversal.toList().get(1).getString("id"));
-        Assertions.assertEquals("v6" , traversal.toList().get(2).getString("id"));
+        Assertions.assertEquals("v1", traversal.toList().get(0).getString("id"));
+        Assertions.assertEquals("v4", traversal.toList().get(1).getString("id"));
+        Assertions.assertEquals("v6", traversal.toList().get(2).getString("id"));
 
         traversal = traversal.clone().where(neq("a"));
         Assertions.assertEquals(2, traversal.toList().size());
-        Assertions.assertEquals("v4" , traversal.toList().get(0).getString("id"));
-        Assertions.assertEquals("v6" , traversal.toList().get(1).getString("id"));
+        Assertions.assertEquals("v4", traversal.toList().get(0).getString("id"));
+        Assertions.assertEquals("v6", traversal.toList().get(1).getString("id"));
     }
 
     @Test
     void testPredicateEq() {
         GraphTraversal<JsonObject, JsonObject> traversal = V("v1").as("a").out("created").in("created");
         Assertions.assertEquals(3, traversal.clone().toList().size());
-        Assertions.assertEquals("v1" , traversal.toList().get(0).getString("id"));
-        Assertions.assertEquals("v4" , traversal.toList().get(1).getString("id"));
-        Assertions.assertEquals("v6" , traversal.toList().get(2).getString("id"));
+        Assertions.assertEquals("v1", traversal.toList().get(0).getString("id"));
+        Assertions.assertEquals("v4", traversal.toList().get(1).getString("id"));
+        Assertions.assertEquals("v6", traversal.toList().get(2).getString("id"));
 
         traversal = traversal.where(eq("a"));
         Assertions.assertEquals(1, traversal.toList().size());
-        Assertions.assertEquals("v1" , traversal.toList().get(0).getString("id"));
+        Assertions.assertEquals("v1", traversal.toList().get(0).getString("id"));
     }
 
     @Test

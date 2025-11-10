@@ -16,9 +16,9 @@
 
 package org.qubership.itool.modules.processor.tasks;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.processor.InvalidGraphException;
-import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class PatchMockedComponentsNormalizationTask implements GraphProcessorTas
                 .out().has(F_MOCK_FLAG, eq(true))
                 .dedup()
                 .toList();
-        if (LOG.isDebugEnabled() && mockComponents.size()>0) {
+        if (LOG.isDebugEnabled() && mockComponents.size() > 0) {
             LOG.debug("Found {} mock components, checking if any of them are real components", mockComponents.size());
         }
         for (JsonObject component : mockComponents) {

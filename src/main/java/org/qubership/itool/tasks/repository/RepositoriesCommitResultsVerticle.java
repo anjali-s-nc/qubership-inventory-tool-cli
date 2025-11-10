@@ -16,27 +16,24 @@
 
 package org.qubership.itool.tasks.repository;
 
-import java.util.Collection;
-
-import javax.annotation.Nullable;
-import javax.annotation.Resource;
-
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
+import io.vertx.core.impl.future.SucceededFuture;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.qubership.itool.modules.git.GitAdapter;
+import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 import org.qubership.itool.utils.ConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
-
-import io.vertx.core.Future;
-import io.vertx.core.Promise;
-import io.vertx.core.impl.future.SucceededFuture;
+import java.util.Collection;
+import javax.annotation.Nullable;
+import javax.annotation.Resource;
 
 import static org.qubership.itool.utils.ConfigProperties.RELEASE_BRANCH_POINTER;
 
 public class RepositoriesCommitResultsVerticle extends AbstractAggregationTaskVerticle {
-    protected Logger LOGGER = LoggerFactory.getLogger(RepositoriesCommitResultsVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RepositoriesCommitResultsVerticle.class);
 
     @Resource
     @Nullable

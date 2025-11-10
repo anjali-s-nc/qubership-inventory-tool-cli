@@ -17,18 +17,26 @@
 package org.qubership.itool.modules.gremlin2;
 
 import io.vertx.core.json.JsonObject;
-import org.junit.jupiter.api.*;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 import org.qubership.itool.modules.gremlin2.structure.MapElement;
 import org.qubership.itool.modules.gremlin2.util.Order;
 import org.qubership.itool.utils.JsonUtils;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.qubership.itool.modules.gremlin2.P.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.qubership.itool.modules.gremlin2.P.containing;
+import static org.qubership.itool.modules.gremlin2.P.eq;
+import static org.qubership.itool.modules.gremlin2.P.notContaining;
+import static org.qubership.itool.modules.gremlin2.P.startingWith;
 import static org.qubership.itool.modules.gremlin2.graph.__.count;
 import static org.qubership.itool.modules.gremlin2.graph.__.has;
 import static org.qubership.itool.modules.gremlin2.graph.__.is;
@@ -118,7 +126,7 @@ public class TestGremlinValues extends AbstractGremlinTest {
         List<?> unfolded = V(newVertexId).value("structured").unfold().toList();
         assertEquals(1, unfolded.size());
         assertTrue(unfolded.get(0) instanceof Map);
-        assertTrue( ((Map)unfolded.get(0)).get("spec") instanceof Map);
+        assertTrue(((Map) unfolded.get(0)).get("spec") instanceof Map);
 
         assertEquals(List.of(100), V(newVertexId).value("structured").unfold()
             .value("spec").value("/template").value("spec").value("affinity").value("podAntiAffinity")
@@ -142,20 +150,20 @@ public class TestGremlinValues extends AbstractGremlinTest {
         // Scalars in List
         assertEquals(List.of("-jar", "/app/quarkus.jar"),
             V(newVertexId).value("structured").unfold()
-           .value("/spec/template/spec/containers").unfold()
-           .value("args").unfold().is(containing("jar")).toList());
+            .value("/spec/template/spec/containers").unfold()
+            .value("args").unfold().is(containing("jar")).toList());
 
         // Test value pointer "/" with scalars
         assertEquals(List.of("-jar", "/app/quarkus.jar"),
-             V(newVertexId).value("structured").unfold()
+            V(newVertexId).value("structured").unfold()
             .value("/spec/template/spec/containers").unfold()
             .value("args").unfold().has("/", containing("jar")).toList());
     }
 
     @Test
     public void testDedup() {
-       List<String> result = V().<String>value("lang").dedup().toList();
-       Assertions.assertEquals(List.of("java"), result);
+        List<String> result = V().<String>value("lang").dedup().toList();
+        Assertions.assertEquals(List.of("java"), result);
     }
 
     @Test
@@ -217,7 +225,7 @@ public class TestGremlinValues extends AbstractGremlinTest {
         Assertions.assertNotNull(map);
         Assertions.assertNull(map.get("id"));
         Assertions.assertEquals("marko", map.get("name"));
-        Assertions.assertEquals(78, ((JsonObject)map.get("details")).getInteger("weight"));
+        Assertions.assertEquals(78, ((JsonObject) map.get("details")).getInteger("weight"));
         Assertions.assertEquals(78, map.get("weight"));
         Assertions.assertEquals(78, map.get("w"));
     }
@@ -322,10 +330,10 @@ public class TestGremlinValues extends AbstractGremlinTest {
     @Test
     void testCountIs() {
         Long count = V().outE("created").count().is(2).next();
-        Assertions.assertEquals(2l, count);
+        Assertions.assertEquals(2L, count);
 
         count = V().outE("maintained").count().is(1).next();
-        Assertions.assertEquals(1l, count);
+        Assertions.assertEquals(1L, count);
     }
 
     @Test
@@ -335,9 +343,9 @@ public class TestGremlinValues extends AbstractGremlinTest {
             .select("person", "softName")
             .toList();
         Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals("v4", ((JsonObject)result.get(0).get("person")).getString("id"));
+        Assertions.assertEquals("v4", ((JsonObject) result.get(0).get("person")).getString("id"));
         Assertions.assertEquals("lop", result.get(0).get("softName"));
-        Assertions.assertEquals("v4", ((JsonObject)result.get(1).get("person")).getString("id"));
+        Assertions.assertEquals("v4", ((JsonObject) result.get(1).get("person")).getString("id"));
         Assertions.assertEquals("ripple", result.get(1).get("softName"));
     }
 
@@ -428,14 +436,15 @@ public class TestGremlinValues extends AbstractGremlinTest {
     @Test
     void testCompositeKeyGroupBy() {
         List<Map<Object, Object>> result = V().hasKey("lang", "type").group().by("lang", "type").toList();
-        Assertions.assertEquals(2, ((List)((Map)result.get(0)).get(result.get(0).keySet().iterator().next())).size());
+        Assertions.assertEquals(2, ((List) ((Map) result.get(0)).get(result.get(0).keySet().iterator().next())).size());
     }
 
     @SuppressWarnings("rawtypes")
     @Test
     void testCompositeKeyGroupByBy() {
-        List<Map<Object, Object>> result = V().hasKey("lang", "type").group().by("lang", "type").by("id", "name").toList();
-        Assertions.assertEquals(2, ((List)((Map)result.get(0)).get(result.get(0).keySet().iterator().next())).size());
+        List<Map<Object, Object>> result =
+                V().hasKey("lang", "type").group().by("lang", "type").by("id", "name").toList();
+        Assertions.assertEquals(2, ((List) ((Map) result.get(0)).get(result.get(0).keySet().iterator().next())).size());
     }
 
     @Test
@@ -487,7 +496,7 @@ public class TestGremlinValues extends AbstractGremlinTest {
             .select("V", "C")
             .values("map:/V/id/a", "json:/C/id", "x:/X")
             .toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(1, result.get(0).size());
         Assertions.assertEquals("v6", result.get(0).get("json"));
@@ -503,7 +512,7 @@ public class TestGremlinValues extends AbstractGremlinTest {
             .select("V", "C")
             .values("map:/V", "json:/C/id")
             .toList();
-//        print(result);
+        //print(result);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(2, result.get(0).size());
         Assertions.assertEquals("v6", result.get(0).get("json"));
@@ -526,10 +535,10 @@ public class TestGremlinValues extends AbstractGremlinTest {
         Assertions.assertEquals("korma", result);
     }
 
-}
-        /*
-        v1_marko -knows-> v4_josh -created->    v3_lop
-                                  -created->    v5_ripple
-                                  -maintained-> v6_linux
-         */
+    /*
+     * v1_marko -knows-> v4_josh -created->    v3_lop
+     *                           -created->    v5_ripple
+     *                           -maintained-> v6_linux
+     */
 
+}

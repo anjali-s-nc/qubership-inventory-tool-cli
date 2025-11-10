@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.qubership.itool.di;
 
+import com.google.inject.Key;
+import com.google.inject.Module;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import jakarta.inject.Provider;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,14 +38,13 @@ import org.qubership.itool.modules.processor.tasks.GraphProcessorTask;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.modules.report.GraphReportImpl;
 
-import com.google.inject.Key;
-import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith({VertxExtension.class, MockitoExtension.class})
 class ApplicationContextTest {
@@ -115,7 +118,7 @@ class ApplicationContextTest {
         // Verify that the report contains our modified record
         JsonArray records = graph.getReport().dumpRecords(false);
         assertTrue(records.stream()
-            .anyMatch(record -> ((JsonObject)record).getString("message").equals("[LOGGED] Test message")),
+            .anyMatch(record -> ((JsonObject) record).getString("message").equals("[LOGGED] Test message")),
             "Report should contain our modified record");
 
         testContext.completeNow();
@@ -152,7 +155,7 @@ class ApplicationContextTest {
 
         List<GraphProcessorTask> finalizationTasks = finalizationTasksProvider.get();
         List<GraphProcessorTask> finalizationTasks2 = finalizationTasksProvider.get();
-        assertFalse(finalizationTasks.get(0)==finalizationTasks2.get(0), "Should have different instances");
+        assertFalse(finalizationTasks.get(0) == finalizationTasks2.get(0), "Should have different instances");
 
         testContext.completeNow();
     }

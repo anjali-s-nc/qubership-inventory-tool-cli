@@ -23,7 +23,7 @@ import java.util.function.Function;
 
 public interface Profile {
 
-    default <S, E> void profileStep(AbstractStep<S,E> step, Function<AbstractStep<S, E>, List> function) {
+    default <S, E> void profileStep(AbstractStep<S, E> step, Function<AbstractStep<S, E>, List> function) {
         long startTime = System.currentTimeMillis();
         List result = function.apply(step);
         long endTime = System.currentTimeMillis();
@@ -46,7 +46,7 @@ public interface Profile {
         // do nothing
     }
 
-    default <S, E> void addInfo(long startTime, long endTime, AbstractStep<S,E> step, List result) {
+    default <S, E> void addInfo(long startTime, long endTime, AbstractStep<S, E> step, List result) {
         // do nothing
     }
 

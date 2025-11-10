@@ -18,21 +18,27 @@ package org.qubership.itool.tasks.ci;
 
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
-
-import java.io.File;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.tasks.FlowTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.qubership.itool.tasks.FlowTask;
+import java.io.File;
 
-import static org.qubership.itool.cli.ci.CiConstants.*;
+import static org.qubership.itool.cli.ci.CiConstants.DUMP_BY_HASH;
+import static org.qubership.itool.cli.ci.CiConstants.DUMP_BY_ID;
+import static org.qubership.itool.cli.ci.CiConstants.DUMP_BY_REPO;
+import static org.qubership.itool.cli.ci.CiConstants.P_DEFAULT_OUTPUT_DIRECTORY;
+import static org.qubership.itool.cli.ci.CiConstants.P_DUMP_BY;
+import static org.qubership.itool.cli.ci.CiConstants.P_OUTPUT_DIRECTORY;
+import static org.qubership.itool.cli.ci.CiConstants.P_OUTPUT_FILE;
+import static org.qubership.itool.cli.ci.CiConstants.P_REPOSITORY;
+import static org.qubership.itool.cli.ci.CiConstants.P_RUN_NAME;
 
 
 public class SaveSingleResultVerticle extends FlowTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(SaveSingleResultVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaveSingleResultVerticle.class);
 
     @Override
     protected String[] features() {
@@ -52,7 +58,7 @@ public class SaveSingleResultVerticle extends FlowTask {
             String dumpBy = config.getString(P_DUMP_BY, DUMP_BY_HASH);
             String name;
             switch (dumpBy) {
-//            case DUMP_BY_HASH:
+            //            case DUMP_BY_HASH:
             default:
                 name = DigestUtils.md5Hex(repository.getBytes());
                 break;
@@ -63,6 +69,7 @@ public class SaveSingleResultVerticle extends FlowTask {
                     break;
                 }
                 // Component not found by repository. Fall back to repo name
+                // fall through
             case DUMP_BY_REPO:
                 name = config.getString(P_RUN_NAME);
             }

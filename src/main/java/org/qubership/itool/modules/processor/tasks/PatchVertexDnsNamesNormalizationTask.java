@@ -16,10 +16,10 @@
 
 package org.qubership.itool.modules.processor.tasks;
 
-import org.qubership.itool.modules.graph.Graph;
-import org.qubership.itool.modules.processor.InvalidGraphException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.modules.processor.InvalidGraphException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,9 @@ public class PatchVertexDnsNamesNormalizationTask implements GraphProcessorTask 
     public void process(Graph graph) throws InvalidGraphException {
         // In version 2 we got multiple DNS names in components
         if (graph.getGraphVersion() >= 2) {
-            LOG.debug("Skipping task {}, because graph with version {} should support multiple DNS names", getClass().getSimpleName(), graph.getGraphVersion());
+            LOG.debug(
+                    "Skipping task {}, because graph with version {} should support multiple DNS names",
+                    getClass().getSimpleName(), graph.getGraphVersion());
             return;
         }
 
@@ -58,8 +60,9 @@ public class PatchVertexDnsNamesNormalizationTask implements GraphProcessorTask 
         LOG.debug("Starting task {}", getClass().getSimpleName());
 
         List<JsonObject> existingComponents = graph.traversal().V().hasKey(P_DETAILS_DNS_NAME).toList();
-        for (JsonObject component: existingComponents) {
-            // All components there have "/details/dnsNames" in them by the criteria in query, so no checks for null are required while accessing either of those values
+        for (JsonObject component : existingComponents) {
+            // All components there have "/details/dnsNames" in them by the criteria in query, so no
+            // checks for null are required while accessing either of those values
 
             // Update mock vertex
             if (Boolean.TRUE.equals(component.getValue(F_MOCK_FLAG))) {

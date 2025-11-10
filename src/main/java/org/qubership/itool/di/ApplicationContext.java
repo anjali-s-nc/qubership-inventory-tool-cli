@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.qubership.itool.di;
 
 import com.google.inject.Binding;
@@ -24,6 +25,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 
 /**
@@ -32,7 +34,7 @@ import java.util.Map;
  * Each instance of ApplicationContext is independent and should be passed to components that need it.
  */
 public class ApplicationContext {
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationContext.class);
     private final Injector injector;
     private final Vertx vertx;
     private final JsonObject config;
@@ -49,9 +51,9 @@ public class ApplicationContext {
         this.config = config;
 
         // Log the modules being installed
-        logger.info("Creating ApplicationContext with {} modules", modules.length);
+        LOGGER.info("Creating ApplicationContext with {} modules", modules.length);
         for (int i = 0; i < modules.length; i++) {
-            logger.info("Module {}: {}", i, modules[i].getClass().getSimpleName());
+            LOGGER.info("Module {}: {}", i, modules[i].getClass().getSimpleName());
         }
 
         // Add ConfigModule to provide application configuration
@@ -62,7 +64,7 @@ public class ApplicationContext {
         this.injector = Guice.createInjector(allModules);
 
         // Log successful creation
-        logger.info("ApplicationContext created successfully");
+        LOGGER.info("ApplicationContext created successfully");
 
         // Log all Guice bindings
         logBindings();
@@ -72,20 +74,20 @@ public class ApplicationContext {
      * Log all Guice bindings in this injector.
      */
     private void logBindings() {
-        logger.info("=== Guice Bindings ===");
+        LOGGER.info("=== Guice Bindings ===");
         try {
             Map<Key<?>, Binding<?>> bindings = injector.getAllBindings();
-            logger.info("Total bindings: {}", bindings.size());
+            LOGGER.info("Total bindings: {}", bindings.size());
             for (Map.Entry<Key<?>, Binding<?>> entry : bindings.entrySet()) {
                 String key = entry.getKey().toString();
                 String bindingType = entry.getValue().getClass().getSimpleName();
                 String source = entry.getValue().getSource().toString();
-                logger.info("  {} -> [{}] {}", key, bindingType, source);
+                LOGGER.info("  {} -> [{}] {}", key, bindingType, source);
             }
         } catch (Exception e) {
-            logger.warn("Could not log bindings: {}", e.getMessage());
+            LOGGER.warn("Could not log bindings: {}", e.getMessage());
         }
-        logger.info("=== End Guice Bindings ===");
+        LOGGER.info("=== End Guice Bindings ===");
     }
 
     /**

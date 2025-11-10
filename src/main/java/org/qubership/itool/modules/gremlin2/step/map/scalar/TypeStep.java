@@ -16,9 +16,9 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.scalar;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
-import io.vertx.core.json.JsonObject;
 
 public class TypeStep<S extends JsonObject> extends ScalarMapStep<S, String> {
 

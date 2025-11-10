@@ -62,8 +62,8 @@ public class GremlinQueryCommand extends AbstractCliCommand {
             context().setValue(LAST_EXECUTED_RESULT, result);
             return result;
 
-        } catch (GremlinException ge) {
-            System.out.println(ge.getMessage());
+        } catch (GremlinException ex) {
+            System.out.println(ex.getMessage());
         } catch (Exception e) {
             System.out.println("Unexpected exception: " + e.getMessage());
         }
@@ -89,10 +89,10 @@ public class GremlinQueryCommand extends AbstractCliCommand {
             list = (List) result;
 
         } else if (result instanceof GraphTraversal) {
-            list = ((GraphTraversal)result).toList();
+            list = ((GraphTraversal) result).toList();
 
         } else if (result instanceof Map) {
-            map = (Map)result;
+            map = (Map) result;
         }
 
         if (list != null) {
@@ -100,8 +100,8 @@ public class GremlinQueryCommand extends AbstractCliCommand {
                 if (obj instanceof Traverser) {
                     System.out.println(((Traverser<?>) obj).get());
 
-                } else if(obj instanceof Map) {
-                    printMap((Map)obj);
+                } else if (obj instanceof Map) {
+                    printMap((Map) obj);
 
                 } else {
                     System.out.println(obj);
@@ -130,14 +130,14 @@ public class GremlinQueryCommand extends AbstractCliCommand {
             System.out.println("map is null");
             return;
         }
-//        int index = 0;
-//        System.out.println("{");
-//        for (Object key : map.keySet()) {
-//            System.out.print((index == 0) ? "  " : ", ");
-//            System.out.println(key + " = " + map.get(key));
-//            index += 1;
-//        }
-//        System.out.println("}");
+        //        int index = 0;
+        //        System.out.println("{");
+        //        for (Object key : map.keySet()) {
+        //            System.out.print((index == 0) ? "  " : ", ");
+        //            System.out.println(key + " = " + map.get(key));
+        //            index += 1;
+        //        }
+        //        System.out.println("}");
 
         System.out.println(map);
     }

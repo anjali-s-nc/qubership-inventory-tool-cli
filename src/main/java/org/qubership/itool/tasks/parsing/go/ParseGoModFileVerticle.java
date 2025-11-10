@@ -16,10 +16,10 @@
 
 package org.qubership.itool.tasks.parsing.go;
 
-import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
+import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
 import org.qubership.itool.utils.FSUtils;
 import org.qubership.itool.utils.JsonUtils;
 import org.qubership.itool.utils.TechNormalizationHelper;
@@ -27,7 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -41,11 +46,11 @@ import static org.qubership.itool.utils.LanguageUtils.LANGUAGE_PATH_POINTER;
 public class ParseGoModFileVerticle extends AbstractParseFileTask {
 
     private static final Object GO_LANGUAGE_NAME = "GoLang";
-    protected Logger LOGGER = LoggerFactory.getLogger(ParseGoModFileVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParseGoModFileVerticle.class);
 
-    protected final Pattern MODULE_NAME_PATTERN = Pattern.compile("^module(\\s+).*$", CASE_INSENSITIVE);
-    protected final Pattern GO_VERSION_PATTERN = Pattern.compile("^go(\\s+).*$", CASE_INSENSITIVE);
-    protected final Pattern REQUIRE_PATTERN = Pattern.compile("^require(\\s+).*$", CASE_INSENSITIVE);
+    protected static final Pattern MODULE_NAME_PATTERN = Pattern.compile("^module(\\s+).*$", CASE_INSENSITIVE);
+    protected static final Pattern GO_VERSION_PATTERN = Pattern.compile("^go(\\s+).*$", CASE_INSENSITIVE);
+    protected static final Pattern REQUIRE_PATTERN = Pattern.compile("^require(\\s+).*$", CASE_INSENSITIVE);
 
     @Override
     protected String[] getFilePatterns() {
@@ -67,9 +72,8 @@ public class ParseGoModFileVerticle extends AbstractParseFileTask {
         String goVersion;
         while (linesIterator.hasNext()) {
             String line = linesIterator.next();
-            if (!moduleDetected  && !MODULE_NAME_PATTERN.matcher(line).matches() && !line.matches("require\\s*\\(") &&
-                    !GO_VERSION_PATTERN.matcher(line).matches())
-            {
+            if (!moduleDetected  && !MODULE_NAME_PATTERN.matcher(line).matches() && !line.matches("require\\s*\\(")
+                    && !GO_VERSION_PATTERN.matcher(line).matches()) {
                 linesBeforeModule.add(line);
                 continue;
             }
@@ -93,10 +97,12 @@ public class ParseGoModFileVerticle extends AbstractParseFileTask {
 
                     AtomicBoolean versionFound = new AtomicBoolean(false);
                     List<JsonObject> languageVersions = versions.stream()
-                            .map(version -> updateGoVersions(version, detectedVersion.getString(F_VERSION), versionFound))
+                            .map(version -> updateGoVersions(version,
+                                    detectedVersion.getString(F_VERSION), versionFound))
                             .collect(Collectors.toList());
                     if (!versionFound.get()) {
-                        getLogger().debug("{}: New language version was added: {}", component.getString(F_ID), detectedVersion.encode());
+                        getLogger().debug("{}: New language version was added: {}",
+                                component.getString(F_ID), detectedVersion.encode());
                         languageVersions.add(detectedVersion);
                     }
 
@@ -123,7 +129,7 @@ public class ParseGoModFileVerticle extends AbstractParseFileTask {
     private JsonObject addModule(String name, JsonObject component) {
         JsonObject module;
         String[] artifact = name.split("/");
-        String[] groupId = artifact[0].replaceAll("\\s","").split("\\.");
+        String[] groupId = artifact[0].replaceAll("\\s", "").split("\\.");
         String reversedResult = generateGroupId(groupId);
         String artifactId = name.replaceAll("^.+?/", "");
         module = new JsonObject()
@@ -147,8 +153,9 @@ public class ParseGoModFileVerticle extends AbstractParseFileTask {
         Set<String> goDependenciesSet = new HashSet<>();
         while (linesIterator.hasNext()) {
             String nextLine = linesIterator.next();
-            if (StringUtils.isBlank(nextLine))
+            if (StringUtils.isBlank(nextLine)) {
                 continue;
+            }
             if (nextLine.contains(")")) {
                 break;
             }
@@ -166,9 +173,8 @@ public class ParseGoModFileVerticle extends AbstractParseFileTask {
                 continue;
             } else if (goDependency.equals("require (")) {
                 continue;
-            }
-            else if (goDependency.matches("^require\\s+.+")){
-                directDependencies.add(processDependency(goDependency.replaceAll("^require\\s+","")));
+            } else if (goDependency.matches("^require\\s+.+")) {
+                directDependencies.add(processDependency(goDependency.replaceAll("^require\\s+", "")));
             }
             try {
                 directDependencies.add(processDependency(goDependency));
@@ -205,13 +211,13 @@ public class ParseGoModFileVerticle extends AbstractParseFileTask {
                 artifact = dependency.split(" ");
                 artifactId = dependency.replaceAll("\\s(.+)\\s.+", "$1");
             }
-            String[] url = artifact[0].replaceAll("\\s","").split("\\.");
+            String[] url = artifact[0].replaceAll("\\s", "").split("\\.");
             groupId = generateGroupId(url);
-            String version = dependency.replaceAll(".+\\s(.+)", "$1").replaceAll("v","");
+            String version = dependency.replaceAll(".+\\s(.+)", "$1").replaceAll("v", "");
             JsonObject dependencyNode =  new JsonObject()
                     .put("artifactId", artifactId)
                     .put("groupId", groupId)
-                    .put("package", "golang" )
+                    .put("package", "golang")
                     .put("version", version)
                     .put("type", "library");
             generateId(dependencyNode);
@@ -232,7 +238,7 @@ public class ParseGoModFileVerticle extends AbstractParseFileTask {
     }
 
 
-    private String generateGroupId(String [] url){
+    private String generateGroupId(String [] url) {
         StringBuilder reversedString = new StringBuilder();
 
         for (int i = url.length - 1; i >= 0; i--) {

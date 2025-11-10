@@ -16,15 +16,13 @@
 
 package org.qubership.itool.modules.git;
 
-import org.qubership.itool.modules.report.GraphReport;
-
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.jgit.api.Git;
+import org.qubership.itool.modules.report.GraphReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +34,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class GitFileRetrieverImpl implements GitFileRetriever {
-    protected static final Logger LOG = LoggerFactory.getLogger(GitFileRetrieverImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GitFileRetrieverImpl.class);
 
     private GitAdapter gitAdapter;
     private JsonObject config;
@@ -129,9 +127,9 @@ public class GitFileRetrieverImpl implements GitFileRetriever {
         return Path.of("output",  "diff", release, basePath.getFileName().toString());
     }
 
-    private Future<Map<Path,String>> getFilesFromRepository(List<Path> files, Git repo) {
+    private Future<Map<Path, String>> getFilesFromRepository(List<Path> files, Git repo) {
 
-        Future<Map<Path,String>> result;
+        Future<Map<Path, String>> result;
         result = Future.future(p -> {
             Map<Path, Future<String>> filesContents = new HashMap<>();
             Map<Path, String> endResult = new HashMap<>();
@@ -140,10 +138,10 @@ public class GitFileRetrieverImpl implements GitFileRetriever {
                 Future<String> futureFile = vertx.fileSystem().readFile(repoPath.resolve(path).toString())
                         .map(v -> v.toString());
                 filesContents.put(path, futureFile);
-            };
+            }
             Future.join(filesContents.values().stream().collect(Collectors.toList()))
                     .onComplete(r -> {
-                        for (Path path: filesContents.keySet()) {
+                        for (Path path : filesContents.keySet()) {
                             if (filesContents.get(path).succeeded()) {
                                 endResult.put(path, filesContents.get(path).result());
                             } else {

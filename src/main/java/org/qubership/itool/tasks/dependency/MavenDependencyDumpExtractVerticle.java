@@ -16,15 +16,19 @@
 
 package org.qubership.itool.tasks.dependency;
 
-import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.impl.cpu.CpuCoreSensor;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-import org.apache.maven.shared.invoker.*;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
 import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.tasks.AbstractAggregationTaskVerticle;
 import org.qubership.itool.utils.JsonUtils;
 import org.qubership.itool.utils.XmlParser;
 import org.slf4j.Logger;
@@ -33,10 +37,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -49,12 +49,16 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 /**
  * Run maven and collect dependency tree to "output/dependencies/${component.id}_dependency.txt"
  */
 public class MavenDependencyDumpExtractVerticle extends AbstractAggregationTaskVerticle {
-    protected Logger LOG = LoggerFactory.getLogger(MavenDependencyDumpExtractVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MavenDependencyDumpExtractVerticle.class);
 
     public static final String DEFAULT_PATH = "output/dependencies";
     private final XPathFactory xPathfactory = XPathFactory.newInstance();
@@ -71,10 +75,10 @@ public class MavenDependencyDumpExtractVerticle extends AbstractAggregationTaskV
     protected void taskStart(Promise<?> taskPromise) {
         int coresCount = CpuCoreSensor.availableProcessors();
         LOG.debug("Detected {} CPU cores, using all of them", coresCount);
-        executor = vertx.createSharedWorkerExecutor("maven-dependency-extraction-worker-pool"
-                , coresCount
-                , 60
-                , TimeUnit.MINUTES);
+        executor = vertx.createSharedWorkerExecutor("maven-dependency-extraction-worker-pool",
+                coresCount,
+                60,
+                TimeUnit.MINUTES);
         BiFunction<Graph, JsonObject, List<JsonObject>> componentExtractor =
                 AbstractAggregationTaskVerticle::getMavenDependencyComponents;
         List<Future<?>> futures = processGraph(this::aggregateDomainData,
@@ -148,7 +152,7 @@ public class MavenDependencyDumpExtractVerticle extends AbstractAggregationTaskV
         request.setPomFile(pomFile);
         request.setBatchMode(true);
         List<String> goals = new ArrayList<>();
-        String mavenGoals = (String)JsonPointer.from("/maven/dependency").queryJson(component);
+        String mavenGoals = (String) JsonPointer.from("/maven/dependency").queryJson(component);
         if (mavenGoals != null) {
             for (String g : mavenGoals.split(" ")) {
                 goals.add(g);

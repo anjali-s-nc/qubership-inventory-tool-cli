@@ -16,6 +16,11 @@
 
 package org.qubership.itool.utils;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,12 +31,6 @@ import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-
 public class FutureUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(FutureUtils.class);
@@ -39,6 +38,7 @@ public class FutureUtils {
 
     /** Block until completion, return raw result or rethrow resulting exception.
      * In case of interrupt, returns {@code null} and sets interrupted status of the current thread.
+     *
      * @param <T> Future type
      * @param future Future instance
      * @return Future result
@@ -63,6 +63,7 @@ public class FutureUtils {
 
     /** Block until completion, return {@link AsyncResult} indicating either success or failure.
      * In case of interrupt, returns {@code null} and sets interrupted status of the current thread.
+     *
      * @param <T> Future type
      * @param future Future instance
      * @return Future result
@@ -86,6 +87,7 @@ public class FutureUtils {
 
     /** Block until completion or timeout, return {@link AsyncResult}. In case of timeout, returns {@code null}.
      * In case of interrupt, returns {@code null} and sets interrupted status of the current thread.
+     *
      * @param <T> Future type
      * @param future Future instance
      * @param timeout Timeout value
@@ -116,7 +118,7 @@ public class FutureUtils {
         if (ar.failed()) {
             Throwable cause = ar.cause();
             if (cause instanceof RuntimeException) {
-                throw (RuntimeException)cause;
+                throw (RuntimeException) cause;
             }
             throw new RuntimeException(cause);
         }
@@ -185,7 +187,7 @@ public class FutureUtils {
         RecursiveTask<List<T>> composite = new RecursiveTask<>() {
             @Override
             protected List<T> compute() {
-                for (RecursiveTask<?> subtask: tasks) {
+                for (RecursiveTask<?> subtask : tasks) {
                     subtask.fork();
                 }
                 return tasks.stream()

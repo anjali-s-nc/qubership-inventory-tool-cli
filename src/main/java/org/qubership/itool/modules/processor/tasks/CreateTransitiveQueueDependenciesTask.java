@@ -16,18 +16,18 @@
 
 package org.qubership.itool.modules.processor.tasks;
 
+import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.graph.Graph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.modules.graph.Graph;
-
-import io.vertx.core.json.JsonObject;
-
-import static org.qubership.itool.modules.graph.Graph.*;
+import static org.qubership.itool.modules.graph.Graph.F_ID;
+import static org.qubership.itool.modules.graph.Graph.F_NAME;
+import static org.qubership.itool.modules.graph.Graph.F_TYPE;
 
 /**
  * <p>Create transitive queue dependencies:
@@ -53,15 +53,14 @@ public class CreateTransitiveQueueDependenciesTask implements GraphProcessorTask
                 .<JsonObject>select("MQ", "QE", "C1", "C2")
                 .toList();
 
-        for (Map<String, JsonObject> tuple: transitiveConsumers) {
+        for (Map<String, JsonObject> tuple : transitiveConsumers) {
             JsonObject mq = tuple.get("MQ");
             JsonObject queueEdge = tuple.get("QE");
             String queueName = queueEdge.getString(F_NAME);
             JsonObject transitiveConsumer = tuple.get("C2");
             List<JsonObject> connectingEdges = graph.getEdgesBetween(mq, transitiveConsumer);
             if (connectingEdges.stream().noneMatch(
-                    edge -> edge.getString(F_TYPE).equals("consumer") && edge.getString(F_NAME).equals(queueName)))
-            {
+                    edge -> edge.getString(F_TYPE).equals("consumer") && edge.getString(F_NAME).equals(queueName))) {
                 JsonObject newEdge = new JsonObject()
                         .put(F_TYPE, "consumer")
                         .put(F_NAME, queueName)
@@ -81,15 +80,14 @@ public class CreateTransitiveQueueDependenciesTask implements GraphProcessorTask
                 .<JsonObject>select("MQ", "QE", "C1", "C2")
                 .toList();
 
-        for (Map<String, JsonObject> tuple: transitiveProducers) {
+        for (Map<String, JsonObject> tuple : transitiveProducers) {
             JsonObject mq = tuple.get("MQ");
             JsonObject queueEdge = tuple.get("QE");
             String queueName = queueEdge.getString(F_NAME);
             JsonObject transitiveProducer = tuple.get("C2");
             List<JsonObject> connectingEdges = graph.getEdgesBetween(transitiveProducer, mq);
             if (connectingEdges.stream().noneMatch(
-                    edge -> edge.getString(F_TYPE).equals("producer") && edge.getString(F_NAME).equals(queueName)))
-            {
+                    edge -> edge.getString(F_TYPE).equals("producer") && edge.getString(F_NAME).equals(queueName))) {
                 JsonObject newEdge = new JsonObject()
                         .put(F_TYPE, "producer")
                         .put(F_NAME, queueName)
@@ -106,4 +104,3 @@ public class CreateTransitiveQueueDependenciesTask implements GraphProcessorTask
     }
 
 }
-

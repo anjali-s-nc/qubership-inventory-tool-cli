@@ -16,14 +16,16 @@
 
 package org.qubership.itool.modules.confluence;
 
-import org.qubership.itool.utils.ConfigProperties;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
+import org.qubership.itool.utils.ConfigProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.qubership.itool.utils.ConfigProperties.LOGIN_PROPERTY;
+
 import javax.annotation.Nullable;
+
+import static org.qubership.itool.utils.ConfigProperties.LOGIN_PROPERTY;
 
 public class ConfluenceClientBuilder {
 
@@ -44,7 +46,7 @@ public class ConfluenceClientBuilder {
         }
         String password = config.getString("password");
         String login = config.getString(LOGIN_PROPERTY);
-        if (login==null || password==null) {
+        if (login == null || password == null) {
             LOG.warn("No login or password provided, Confluence facilities will not be available");
             return null;
         }

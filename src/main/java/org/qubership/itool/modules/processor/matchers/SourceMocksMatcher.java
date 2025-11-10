@@ -16,21 +16,20 @@
 
 package org.qubership.itool.modules.processor.matchers;
 
-import org.qubership.itool.modules.graph.Graph;
-import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
-
+import com.google.inject.Inject;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
-import java.util.Set;
-
+import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.qubership.itool.modules.graph.Graph.*;
-import static org.qubership.itool.modules.gremlin2.P.*;
+import java.util.Set;
 
-import com.google.inject.Inject;
+import static org.qubership.itool.modules.graph.Graph.F_ID;
+import static org.qubership.itool.modules.graph.Graph.F_MOCK_FLAG;
+import static org.qubership.itool.modules.gremlin2.P.containing;
+import static org.qubership.itool.modules.gremlin2.P.eq;
 
 /**
  * <p>This class tries to match new vertices marked with keys <code>isMock: true</code>
@@ -65,7 +64,7 @@ public class SourceMocksMatcher implements VertexMatcher {
         }
 
         GraphTraversal<JsonObject, JsonObject> query = targetGraph.traversal().V().has(F_MOCK_FLAG, eq(false));
-        for (String mockedFor: mockedForSet) {
+        for (String mockedFor : mockedForSet) {
             query = query.has(mockedFor, containing(JsonPointer.from(mockedFor).queryJson(newVertex)));
         }
         JsonObject result = query.next();

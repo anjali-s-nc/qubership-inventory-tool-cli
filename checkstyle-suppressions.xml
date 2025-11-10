@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+    <!-- Exclude IToolCloneCommand.java and IToolSubmoduleAddCommand.java completely -->
+    <suppress checks=".*" files=".*IToolCloneCommand\.java$"/>
+    <suppress checks=".*" files=".*IToolSubmoduleAddCommand\.java$"/>
+
+    <!-- Suppress naming warnings for Gremlin DSL and test code -->
+    <!-- FlowTask.java - Gremlin DSL methods V() and E() -->
+    <suppress checks="MethodName" files=".*FlowTask\.java$" message="Method name 'V' must match pattern"/>
+    <suppress checks="MethodName" files=".*FlowTask\.java$" message="Method name 'E' must match pattern"/>
+
+    <!-- GraphTraversalSource.java - Gremlin DSL methods V() and E() -->
+    <suppress checks="MethodName" files=".*GraphTraversalSource\.java$" message="Method name 'V' must match pattern"/>
+    <suppress checks="MethodName" files=".*GraphTraversalSource\.java$" message="Method name 'E' must match pattern"/>
+
+    <!-- AbstractGremlinTest.java - Gremlin DSL methods V() and E() -->
+    <suppress checks="MethodName" files=".*(AbstractGremlinTest|TestLibrariesRel)\.java$" message="Method name 'V' must match pattern"/>
+    <suppress checks="MethodName" files=".*(AbstractGremlinTest|TestLibrariesRel)\.java$" message="Method name 'E' must match pattern"/>
+
+    <!-- Package naming for sideEffect and graphExtractor -->
+    <suppress checks="PackageName" files=".*sideEffect.*" message="Package name.*sideEffect.*must match pattern"/>
+    <suppress checks="PackageName" files=".*graphExtractor.*" message="Package name.*graphExtractor.*must match pattern"/>
+
+    <!-- Type name '__' in Gremlin DSL -->
+    <suppress checks="TypeName" files=".*__\.java$" message="Type name '__' must match pattern"/>
+
+    <!-- Test method names with underscores -->
+    <suppress checks="MethodName" files=".*Test.*\.java$" message="Method name '.*' must match pattern"/>
+
+    <!-- Test variable names with underscores -->
+    <suppress checks="LocalVariableName" files=".*Test.*\.java$" message="Local variable name '.*' must match pattern"/>
+</suppressions>

@@ -31,8 +31,8 @@ public class GraphClassifierImpl implements GraphClassifier {
     private List<String> applicationVersionIds;
 
     public GraphClassifierImpl(String id, boolean withReport, List<String> departmentIds,
-                               List<String> domainIds, List<String> releaseVersionIds,
-                               List<String> applicationVersionIds) {
+            List<String> domainIds, List<String> releaseVersionIds,
+            List<String> applicationVersionIds) {
         this.withReport = withReport;
         this.id = id;
         this.departmentIds = departmentIds;
@@ -85,7 +85,7 @@ public class GraphClassifierImpl implements GraphClassifier {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof GraphClassifier) {
-            return this.id.equals(((GraphClassifier)obj).getId());
+            return this.id.equals(((GraphClassifier) obj).getId());
         }
         return false;
     }

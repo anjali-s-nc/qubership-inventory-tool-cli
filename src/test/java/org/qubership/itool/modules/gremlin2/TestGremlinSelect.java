@@ -17,8 +17,8 @@
 package org.qubership.itool.modules.gremlin2;
 
 import io.vertx.core.json.JsonObject;
-import org.junit.jupiter.api.*;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.qubership.itool.modules.gremlin2.graph.GraphTraversal;
 
 import java.util.List;
@@ -31,9 +31,9 @@ public class TestGremlinSelect extends AbstractGremlinTest {
     @Test
     public void testSelect_out() {
         /*
-        v1_marko -knows-> v4_josh -created->    v3_lop (lang)
-                                  -created->    v5_ripple (lang)
-                                  -maintained-> v6_linux (os)
+         * v1_marko -knows-> v4_josh -created ->    v3_lop (lang)
+         *                           -created ->    v5_ripple (lang)
+         *                           -maintained -> v6_linux (os)
          */
         GraphTraversal<JsonObject, JsonObject> traversal = V().as("a").out().as("b").out().as("c").hasKey("lang");
         Assertions.assertEquals(2, traversal.toList().size());
@@ -55,9 +55,9 @@ public class TestGremlinSelect extends AbstractGremlinTest {
     @Test
     public void testSelect_in() {
         /*
-        v1_marko -knows-> v4_josh -created->    v3_lop (lang)
-                                  -created->    v5_ripple (lang)
-                                  -maintained-> v6_linux (os)
+         * v1_marko -knows-> v4_josh -created ->    v3_lop (lang)
+         *                           -created ->    v5_ripple (lang)
+         *                           -maintained -> v6_linux (os)
          */
         GraphTraversal<JsonObject, JsonObject> traversal = V().as("a").in("maintained").as("b").in().as("c");
         Assertions.assertEquals(1, traversal.toList().size());
@@ -129,7 +129,7 @@ public class TestGremlinSelect extends AbstractGremlinTest {
         // A is v1_marko, B is v4_josh, C is v6_linux
         // SelectScalarStep -> VertexStep
         List<Map<String, Object>> result =
-                 V().as("B").id().as("BI").in("knows").as("A").id().as("AI")
+                V().as("B").id().as("BI").in("knows").as("A").id().as("AI")
                 .select("B").out("maintained").as("C").id().as("CI")
                 .select("AI", "BI", "CI").toList();
         List<Map<String, Object>> expected = List.of(
@@ -148,7 +148,7 @@ public class TestGremlinSelect extends AbstractGremlinTest {
         // A is v1_marko, B is v4_josh, C is e4_maintained, D is v6_linux
         // SelectScalarStep -> EdgeStep
         List<Map<String, Object>> result =
-                 V().as("B").id().as("BI").in("knows").as("A").id().as("AI")
+                V().as("B").id().as("BI").in("knows").as("A").id().as("AI")
                 .select("B").outE("maintained").as("C").id().as("CI")
                 .inV().as("D").id().as("DI")
                 .select("AI", "BI", "CI", "DI").toList();
@@ -169,7 +169,7 @@ public class TestGremlinSelect extends AbstractGremlinTest {
         // A is v1_marko, B is e1_knows, C is v4_josh
         // SelectScalarStep -> EdgeVertexStep
         List<Map<String, Object>> result =
-                 E().as("B").hasType("knows").id().as("BI").outV().as("A").id().as("AI")
+                E().as("B").hasType("knows").id().as("BI").outV().as("A").id().as("AI")
                 .select("B").inV().as("C").id().as("CI")
                 .select("AI", "BI", "CI").toList();
         List<Map<String, Object>> expected = List.of(

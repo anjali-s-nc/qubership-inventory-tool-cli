@@ -17,16 +17,15 @@
 package org.qubership.itool.cli.ci;
 
 import org.qubership.itool.cli.AbstractCommand;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Option;
+
+import static org.qubership.itool.cli.ci.CiConstants.P_DEFAULT_OUTPUT_DIRECTORY;
 import static org.qubership.itool.cli.ci.CiConstants.P_INPUT_DIRECTORY;
 import static org.qubership.itool.cli.ci.CiConstants.P_OUTPUT_DIRECTORY;
 import static org.qubership.itool.utils.ConfigProperties.DOCKER_MODE_PROPERTY;
 import static org.qubership.itool.utils.ConfigProperties.OFFLINE_MODE_PROPERTY;
 import static org.qubership.itool.utils.ConfigProperties.PROFILE_POINTER;
 import static org.qubership.itool.utils.ConfigProperties.SAVE_PROGRESS_PROPERTY;
-import static org.qubership.itool.cli.ci.CiConstants.P_DEFAULT_OUTPUT_DIRECTORY;
 
 /**
  * Abstract command for CI commands. Extends ExecCommand to inherit the common functionality.

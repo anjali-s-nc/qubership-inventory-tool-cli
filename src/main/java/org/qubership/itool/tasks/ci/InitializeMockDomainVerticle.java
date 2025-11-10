@@ -16,19 +16,22 @@
 
 package org.qubership.itool.tasks.ci;
 
-import org.qubership.itool.tasks.FlowTask;
-
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.itool.modules.graph.GraphDataConstants;
 import org.qubership.itool.modules.processor.GraphMetaInfoSupport;
+import org.qubership.itool.tasks.FlowTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.qubership.itool.cli.ci.CiConstants.*;
+import static org.qubership.itool.cli.ci.CiConstants.P_COMP_NAME;
+import static org.qubership.itool.cli.ci.CiConstants.P_COMP_VERSION;
+import static org.qubership.itool.cli.ci.CiConstants.P_INPUT_DIRECTORY;
+import static org.qubership.itool.cli.ci.CiConstants.P_MOCK_DOMAIN;
+import static org.qubership.itool.cli.ci.CiConstants.P_REPOSITORY;
+import static org.qubership.itool.cli.ci.CiConstants.P_RUN_NAME;
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.modules.graph.Graph.F_MOCK_FLAG;
 import static org.qubership.itool.modules.graph.Graph.F_REPOSITORY;
@@ -39,7 +42,7 @@ import static org.qubership.itool.utils.ConfigProperties.RELEASE_BRANCH_POINTER;
 
 
 public class InitializeMockDomainVerticle extends FlowTask {
-    protected Logger LOGGER = LoggerFactory.getLogger(InitializeMockDomainVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InitializeMockDomainVerticle.class);
 
     @Override
     protected Logger getLogger() {
@@ -55,7 +58,8 @@ public class InitializeMockDomainVerticle extends FlowTask {
         String domainName = config.getString(P_MOCK_DOMAIN);
         String releaseBranch = (String) JsonPointer.from(RELEASE_BRANCH_POINTER)
                 .queryJson(config);
-        String componentId = findFirst(config.getString(P_COMP_NAME), config.getString(P_RUN_NAME), GraphDataConstants.UNKNOWN);
+        String componentId = findFirst(config.getString(P_COMP_NAME), config.getString(P_RUN_NAME),
+                GraphDataConstants.UNKNOWN);
         String componentName = findFirst(config.getString(P_COMP_NAME), GraphDataConstants.UNKNOWN);
         String componentVersion = findFirst(config.getString(P_COMP_VERSION), GraphDataConstants.UNKNOWN);
 
@@ -88,7 +92,7 @@ public class InitializeMockDomainVerticle extends FlowTask {
     }
 
     private static String findFirst(String... strings) {
-        for (String s: strings) {
+        for (String s : strings) {
             if (StringUtils.isNotBlank(s)) {
                 return s;
             }

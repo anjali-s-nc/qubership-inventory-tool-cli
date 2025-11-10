@@ -18,7 +18,11 @@ package org.qubership.itool.modules.report;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestReportHelper {
@@ -101,9 +105,9 @@ public class TestReportHelper {
 
         Assertions.assertEquals(1, report.size());
         Assertions.assertEquals("test:1", record.getString("component"));
-        Assertions.assertEquals("Component duplicated. Source [Id: test:1, Type: null, Name: test_1, " +
-            "Repository: null, Directory: null] Duplicate [Id: test:1, Type: null, Name: test_2, " +
-            "Repository: null, Directory: null]", record.getString("message"));
+        Assertions.assertEquals("Component duplicated. Source [Id: test:1, Type: null, Name: test_1, "
+            + "Repository: null, Directory: null] Duplicate [Id: test:1, Type: null, Name: test_2, "
+            + "Repository: null, Directory: null]", record.getString("message"));
     }
 
     @Test
@@ -116,8 +120,8 @@ public class TestReportHelper {
 
         Assertions.assertEquals(1, report.size());
         Assertions.assertEquals("test:1", record.getString("component"));
-        Assertions.assertEquals("Value does not match the convention. Value: 'Quarkus 1.4.*'. Pattern: " +
-            "[\\w+\\s+]+\\s+[\\d\\.]+$", record.getString("message"));
+        Assertions.assertEquals("Value does not match the convention. Value: 'Quarkus 1.4.*'. Pattern: "
+            + "[\\w+\\s+]+\\s+[\\d\\.]+$", record.getString("message"));
     }
 
     @Test
@@ -131,8 +135,8 @@ public class TestReportHelper {
         Assertions.assertEquals(1, report.size());
         Assertions.assertEquals("test:1", record.getString("component"));
         Assertions.assertTrue(record.getString("message")
-                .matches("Exception was thrown while handling 'test:1': Test Exception\\nStacktrace:\\n" +
-                    "\\[.*testExceptionThrown\\(TestReportHelper.java.*"));
+                .matches("Exception was thrown while handling 'test:1': Test Exception\\nStacktrace:\\n"
+                    + "\\[.*testExceptionThrown\\(TestReportHelper.java.*"));
     }
 
     @Test

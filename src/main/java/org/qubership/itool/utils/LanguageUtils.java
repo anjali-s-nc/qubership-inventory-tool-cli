@@ -16,24 +16,20 @@
 
 package org.qubership.itool.utils;
 
-import org.qubership.itool.modules.graph.BasicGraph;
-import org.qubership.itool.modules.graph.Graph;
-import org.qubership.itool.modules.graph.GraphDataConstants;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.qubership.itool.modules.graph.BasicGraph;
+import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.modules.graph.GraphDataConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -42,6 +38,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.modules.graph.Graph.F_NAME;
@@ -52,23 +52,23 @@ import static org.qubership.itool.modules.graph.Graph.P_DETAILS_LANGUAGE;
 public class LanguageUtils {
 
     public static final JsonPointer LANGUAGE_PATH_POINTER = JsonPointer.from(P_DETAILS_LANGUAGE);
-    private static final XPathFactory xPathfactory = XPathFactory.newInstance();
-    private static final XPath xpath = xPathfactory.newXPath();
-    private final static List<String> USAGES_LIST = List.of("source", "target", "release");
-    public final static String JAVA_LANGUAGE_NAME = "Java";
-    private final static String F_LANGUAGE_NAME = "name";
-    private final static String F_LANGUAGE_VERSION = "version";
-    private final static String F_LANGUAGE_USAGE = "usage";
+    private static final XPathFactory XPATH_FACTORY = XPathFactory.newInstance();
+    private static final XPath XPATH = XPATH_FACTORY.newXPath();
+    private static final List<String> USAGES_LIST = List.of("source", "target", "release");
+    public static final String JAVA_LANGUAGE_NAME = "Java";
+    private static final String F_LANGUAGE_NAME = "name";
+    private static final String F_LANGUAGE_VERSION = "version";
+    private static final String F_LANGUAGE_USAGE = "usage";
 
     public static JsonArray convertListToLanguages(Object value) {
         JsonArray languages = new JsonArray();
         if (value instanceof JsonArray) {
-            value = ((JsonArray)value).getList();
+            value = ((JsonArray) value).getList();
         } else if (value instanceof String) {
             value = List.of(((String) value).split("\\s*,\\s*"));
         }
         if (value instanceof List) {
-            ((List<Object>)value).stream()
+            ((List<Object>) value).stream()
                     .map(String::valueOf)
                     .filter(s -> ! GraphDataConstants.NOS_TO_RECOGNIZE.contains(s))
                     .map(TechNormalizationHelper::normalizeTechAsJson)
@@ -102,9 +102,11 @@ public class LanguageUtils {
     }
 
     /**
-     * Takes contents of pom.xml file from graph, parses it and stores the results of the parse in /details/language structure
-     * See <a href="https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-source-and-target.html">this article</a>
-     * for more details on setting java versions for maven compiler plugin
+     * Takes contents of pom.xml file from graph, parses it and stores the results of the parse in
+     * /details/language structure See <a href=
+     * "https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-source-and-target.html">this
+     * article</a> for more details on setting java versions for maven compiler plugin
+     *
      * @param graph graph
      * @param component component to be processed
      */
@@ -141,7 +143,8 @@ public class LanguageUtils {
                 for (String javaUsage : javaUsageVersions.keySet()) {
                     AtomicBoolean versionFound = new AtomicBoolean(false);
                     languageVersions = languageVersions.stream()
-                            .map(version -> updateJavaVersions(javaUsage, version, javaUsageVersions.get(javaUsage), versionFound))
+                            .map(version -> updateJavaVersions(javaUsage, version,
+                                    javaUsageVersions.get(javaUsage), versionFound))
                             .collect(Collectors.toList());
                     if (!versionFound.get()) {
                         languageVersions.add(new JsonObject()
@@ -159,18 +162,19 @@ public class LanguageUtils {
     }
 
     private static NodeList findMavenCompilerPlugin(Document document) throws XPathExpressionException {
-        NodeList mavenCompilerPlugin = (NodeList) xpath.compile(
+        NodeList mavenCompilerPlugin = (NodeList) XPATH.compile(
                         "/project/build/pluginManagement/plugins/plugin[artifactId='maven-compiler-plugin']")
                 .evaluate(document, XPathConstants.NODESET);
         if (mavenCompilerPlugin != null && mavenCompilerPlugin.getLength() > 0) {
             return mavenCompilerPlugin;
         }
         // /project/build/plugins is a valid path too
-        return (NodeList) xpath.compile("/project/build/plugins/plugin[artifactId='maven-compiler-plugin']")
+        return (NodeList) XPATH.compile("/project/build/plugins/plugin[artifactId='maven-compiler-plugin']")
                 .evaluate(document, XPathConstants.NODESET);
     }
 
-    private static JsonObject updateJavaVersions(String javaUsage, JsonObject version, String javaUsageVersion, AtomicBoolean versionFound) {
+    private static JsonObject updateJavaVersions(String javaUsage, JsonObject version,
+            String javaUsageVersion, AtomicBoolean versionFound) {
         if (JAVA_LANGUAGE_NAME.equals(version.getString(F_LANGUAGE_NAME))) {
             String languageVersion = version.getString(F_LANGUAGE_VERSION);
             if (languageVersion == null) {
@@ -199,8 +203,7 @@ public class LanguageUtils {
     }
 
     private static String getVersion(NodeList mavenCompilerPlugin, Map<String, String> properties, String versionType)
-            throws Exception
-    {
+            throws Exception {
         // Search in properties first
         String version = properties.get("maven.compiler." + versionType);
         version = getValueFromVariable(properties, version);
@@ -209,7 +212,7 @@ public class LanguageUtils {
         }
 
         if (mavenCompilerPlugin != null && mavenCompilerPlugin.getLength() > 0) {
-            version = (String) xpath.compile("configuration/" + versionType)
+            version = (String) XPATH.compile("configuration/" + versionType)
                     .evaluate(mavenCompilerPlugin.item(0), XPathConstants.STRING);
             version = getValueFromVariable(properties, version);
         }
@@ -233,14 +236,14 @@ public class LanguageUtils {
     }
 
     private static Map<String, String> extractProperties(Document document) throws Exception {
-        NodeList props = (NodeList) xpath.compile("/project/properties/*").evaluate(document, XPathConstants.NODESET);
+        NodeList props = (NodeList) XPATH.compile("/project/properties/*").evaluate(document, XPathConstants.NODESET);
         Map<String, String> properties = new LinkedHashMap<>(props.getLength());
         for (int i = 0; i < props.getLength(); i++) {
             Element item = (Element) props.item(i);
             String key = item.getTagName();
             Node child0 = item.getChildNodes().item(0);
             if (child0 instanceof Text) {
-                String value = ((Text)child0).getWholeText();
+                String value = ((Text) child0).getWholeText();
                 properties.put(key, value);
             }
         }

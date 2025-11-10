@@ -18,7 +18,6 @@ package org.qubership.itool.modules.gremlin2;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
 import org.qubership.itool.modules.gremlin2.step.util.Profile;
 
 public class TestGremlinProfile extends AbstractGremlinTest {

@@ -16,10 +16,10 @@
 
 package org.qubership.itool.modules.artifactory;
 
-import java.util.Objects;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
+import java.util.Objects;
 
 public class AppVersionDescriptor {
 
@@ -72,12 +72,15 @@ public class AppVersionDescriptor {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         AppVersionDescriptor other = (AppVersionDescriptor) obj;
         return Objects.equals(appName, other.appName) && Objects.equals(appVersion, other.appVersion)
                 /* && Objects.equals(id, other.id) */;
@@ -85,8 +88,9 @@ public class AppVersionDescriptor {
 
     @Override
     public String toString() {
-//        return ToStringBuilder.reflectionToString(this);
-        return "AppVersionDescriptor" + ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE, false);
+        //        return ToStringBuilder.reflectionToString(this);
+        return "AppVersionDescriptor" + ToStringBuilder.reflectionToString(this,
+                ToStringStyle.NO_CLASS_NAME_STYLE, false);
     }
 
 }

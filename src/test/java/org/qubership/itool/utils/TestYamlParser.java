@@ -16,19 +16,21 @@
 
 package org.qubership.itool.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import io.vertx.core.json.JsonArray;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import io.vertx.core.json.JsonArray;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestYamlParser {
@@ -44,12 +46,12 @@ public class TestYamlParser {
     @Test
     public void multiSection() throws IOException {
         String yaml =
-            "---\n" +
-                "a: b\n" +
-                "\n" +
-                "---\n" +
-                "- c\n" +
-                "- d\n";
+            "---\n"
+                + "a: b\n"
+                + "\n"
+                + "---\n"
+                + "- c\n"
+                + "- d\n";
         List<Object> data = parser.parseYamlData(yaml, "<generated>");
         assertEquals(2, data.size());
         assertTrue(data.get(0) instanceof Map);
@@ -214,11 +216,11 @@ public class TestYamlParser {
 
         // Test case 3: More complex YAML document with nested quotes
         String yaml3 =
-            "apiVersion: v1\n" +
-            "kind: ConfigMap\n" +
-            "data:\n" +
-            "  value1: \"{{ index (regexSplit \",\" $.Values.LIST -1) 0 }}\"\n" +
-            "  value2: '{{ printf 'test' }}'\n";
+            "apiVersion: v1\n"
+            + "kind: ConfigMap\n"
+            + "data:\n"
+            + "  value1: \"{{ index (regexSplit \",\" $.Values.LIST -1) 0 }}\"\n"
+            + "  value2: '{{ printf 'test' }}'\n";
 
         List<Object> parsed3 = parser.parseYamlData(yaml3, "<test3>");
         assertNotNull(parsed3);

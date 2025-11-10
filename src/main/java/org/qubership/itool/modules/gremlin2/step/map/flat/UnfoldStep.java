@@ -16,14 +16,17 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.flat;
 
+import io.vertx.core.json.JsonArray;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.step.AbstractStep;
 import org.qubership.itool.modules.gremlin2.step.ByModulating;
 import org.qubership.itool.modules.gremlin2.structure.MapElement;
-import io.vertx.core.json.JsonArray;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class UnfoldStep<S, E> extends FlatMapStep<S, E> implements ByModulating {
 
@@ -33,8 +36,8 @@ public class UnfoldStep<S, E> extends FlatMapStep<S, E> implements ByModulating 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "("
-            + (modulateByProperty == null ? "": modulateByProperty)
-            + (modulateBy == null ? "": modulateBy)
+            + (modulateByProperty == null ? "" : modulateByProperty)
+            + (modulateBy == null ? "" : modulateBy)
             + ")";
     }
 
@@ -49,7 +52,7 @@ public class UnfoldStep<S, E> extends FlatMapStep<S, E> implements ByModulating 
         List<E> result = new ArrayList<>();
 
         if (source instanceof Map) {
-            Map map = (Map)source;
+            Map map = (Map) source;
             if (this.modulateByProperty != null) {
                 Object tmp = map.get(this.modulateByProperty);
                 if (tmp == null) {
@@ -58,11 +61,12 @@ public class UnfoldStep<S, E> extends FlatMapStep<S, E> implements ByModulating 
 
                 List list;
                 if (tmp instanceof List) {
-                    list = (List)tmp;
+                    list = (List) tmp;
                 } else if (tmp instanceof JsonArray) {
-                    list = ((JsonArray)tmp).getList();
+                    list = ((JsonArray) tmp).getList();
                 } else {
-                    throw new UnsupportedOperationException("UnfoldStep with .by(String) support only List or JsonArray property");
+                    throw new UnsupportedOperationException(
+                            "UnfoldStep with .by(String) support only List or JsonArray property");
                 }
 
                 for (Object obj : list) {
@@ -71,7 +75,7 @@ public class UnfoldStep<S, E> extends FlatMapStep<S, E> implements ByModulating 
                         clone.put(key, map.get(key));
                     }
                     clone.put(this.modulateByProperty, obj);
-                    result.add((E)clone);
+                    result.add((E) clone);
                 }
                 return result;
 
@@ -79,13 +83,13 @@ public class UnfoldStep<S, E> extends FlatMapStep<S, E> implements ByModulating 
                 switch (this.modulateBy) {
                     case key:
                         for (Object key : map.keySet()) {
-                            source = (S)key;
+                            source = (S) key;
                             processTraverserObject(source, result);
                         }
                         break;
                     case value:
                         for (Object value : map.values()) {
-                            source = (S)value;
+                            source = (S) value;
                             processTraverserObject(source, result);
                         }
                         break;
@@ -94,8 +98,8 @@ public class UnfoldStep<S, E> extends FlatMapStep<S, E> implements ByModulating 
                             Map tmpMap = new HashMap();
                             tmpMap.put(key, map.get(key));
                             result.add((E) tmpMap);
-//                            processTraverserObject((S)key, result);
-//                            processTraverserObject((S)map.get(key), result);
+                            // processTraverserObject((S) key, result);
+                            // processTraverserObject((S) map.get(key), result);
                         }
                 }
             }
@@ -108,10 +112,10 @@ public class UnfoldStep<S, E> extends FlatMapStep<S, E> implements ByModulating 
 
     private void processTraverserObject(S source, List<E> result) {
         if (source instanceof List) {
-            List<S> sourceList = (List)source;
+            List<S> sourceList = (List) source;
             for (S item : sourceList) {
                 if (item != null) {
-                    result.add((E)item);
+                    result.add((E) item);
                 }
             }
 
@@ -119,13 +123,13 @@ public class UnfoldStep<S, E> extends FlatMapStep<S, E> implements ByModulating 
             JsonArray jsonArray = (JsonArray) source;
             for (Object item : jsonArray.getList()) {
                 if (item != null) {
-                    result.add((E)item);
+                    result.add((E) item);
                 }
             }
 
         } else {
             if (source != null) {
-                result.add((E)source);
+                result.add((E) source);
             }
         }
     }

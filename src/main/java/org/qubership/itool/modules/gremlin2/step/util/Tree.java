@@ -52,12 +52,12 @@ public class Tree<T> extends HashMap<T, Tree<T>> {
     }
 
     private String objectToString(T key) {
-//        if (key instanceof JsonObject) {
-//            String id = ((JsonObject)key).getString("id");
-//            if (id != null) {
-//                return "[" + id + "]";
-//            }
-//        }
+        //        if (key instanceof JsonObject) {
+        //            String id = ((JsonObject)key).getString("id");
+        //            if (id != null) {
+        //                return "[" + id + "]";
+        //            }
+        //        }
         return key.toString();
     }
 

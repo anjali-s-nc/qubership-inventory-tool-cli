@@ -16,23 +16,23 @@
 
 package org.qubership.itool.modules.processor.tasks;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-
+import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDataConstants;
 import org.qubership.itool.modules.processor.InvalidGraphException;
 import org.qubership.itool.modules.report.GraphReport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import io.vertx.core.json.JsonObject;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.qubership.itool.modules.processor.MergerApi.*;
-import static org.qubership.itool.modules.graph.Graph.*;
+import static org.qubership.itool.modules.graph.Graph.F_ID;
+import static org.qubership.itool.modules.processor.MergerApi.P_APP_NAME;
+import static org.qubership.itool.modules.processor.MergerApi.P_APP_VERSION;
+import static org.qubership.itool.modules.processor.MergerApi.P_IS_APPLICATION;
 
 /**
  * <p>Patch Application vertex if its version has been changed (usually from unknown to some known).
@@ -64,11 +64,10 @@ public class PatchAppVertexTask implements GraphProcessorTask {
         this.appName = desc.getString(P_APP_NAME);
         this.appVersion = desc.getString(P_APP_VERSION);
 
-        if (   ! desc.getBoolean(P_IS_APPLICATION, false)
+        if (!desc.getBoolean(P_IS_APPLICATION, false)
             || StringUtils.isEmpty(appVersion)
             || GraphDataConstants.UNKNOWN.equals(appVersion)
-            || StringUtils.isEmpty(appName))
-        {
+            || StringUtils.isEmpty(appName)) {
             disabled = true;
         }
     }
@@ -88,7 +87,7 @@ public class PatchAppVertexTask implements GraphProcessorTask {
         List<String> otherAppNames = new ArrayList<>();
         String appVertexId = String.join(":", "application", appName, appVersion);
 
-        for (JsonObject existingApp: existingApps) {
+        for (JsonObject existingApp : existingApps) {
             String existingAppId = existingApp.getString(F_ID);
             String existingAppName = existingApp.getString(Graph.F_NAME);
             if (appName.equals(existingAppName)) {
@@ -114,7 +113,8 @@ public class PatchAppVertexTask implements GraphProcessorTask {
             if (report != null) {
                 JsonObject info = new JsonObject();
                 info.put("id", appVertexId);
-                report.mergingError(desc, "Application name '" + appName + "' expected, found: " + otherAppNames.toString());
+                report.mergingError(desc, "Application name '" + appName + "' expected, found: "
+                        + otherAppNames.toString());
             }
         }
 

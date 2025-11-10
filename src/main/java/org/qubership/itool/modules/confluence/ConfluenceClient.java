@@ -21,7 +21,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public interface ConfluenceClient {
-    Future<JsonObject> updateConfluencePage(String spaceKey, String title, String parentTitle, String filePath, String release);
+    Future<JsonObject> updateConfluencePage(String spaceKey, String title, String parentTitle,
+            String filePath, String release);
 
     Future<JsonObject> updateConfluencePage(JsonObject page, String release);
 
@@ -31,6 +32,8 @@ public interface ConfluenceClient {
 
     Future<JsonObject> getConfluencePageInfo(String spaceKey, String title, String release);
 
+    Future<JsonObject> getConfluencePageInfo(String pageId);
+
     Future<JsonObject> createConfluencePage(String spaceKey, String title, String parentId, String release);
 
     Future<JsonArray> getChildPages(String spaceKey, String pageId);
@@ -38,8 +41,6 @@ public interface ConfluenceClient {
     Future<JsonObject> moveConfluencePage(JsonObject page, String parentId, String release);
 
     Future<String> convertWikiToStorage(String wikiContent, String title);
-
-    Future<JsonObject> getConfluencePageInfo(String pageId);
 
     Future<JsonObject> uploadConfluencePageAsStorage(JsonObject page, String parentId, String storageContent);
 }

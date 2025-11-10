@@ -18,15 +18,15 @@ package org.qubership.itool.modules.graphExtractor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.jackson.DatabindCodec;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDumpSupport;
 import org.qubership.itool.utils.JsonArrayDeserializer;
 import org.qubership.itool.utils.JsonObjectDeserializer;
 import org.qubership.itool.utils.JsonUtils;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.jackson.DatabindCodec;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,18 +41,19 @@ public abstract class AbstractGraphDataExtractor implements GraphDataExtractor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGraphDataExtractor.class);
 
-    private static final ObjectMapper mapper;
+    private static final ObjectMapper MAPPER;
+
     static {
-        mapper = DatabindCodec.mapper().copy();
+        MAPPER = DatabindCodec.mapper().copy();
 
         SimpleModule module = new SimpleModule();
         module.addDeserializer(JsonObject.class, new JsonObjectDeserializer());
         module.addDeserializer(JsonArray.class, new JsonArrayDeserializer());
-        mapper.registerModule(module);
+        MAPPER.registerModule(module);
     }
 
     @Override
-    abstract public JsonObject getDataFromGraph(Graph graph);
+    public abstract JsonObject getDataFromGraph(Graph graph);
 
     @Override
     public JsonObject extractGraphData(InputStream inputStream, Charset charset) {
@@ -62,7 +63,7 @@ public abstract class AbstractGraphDataExtractor implements GraphDataExtractor {
         Reader reader = new InputStreamReader(inputStream, charset);
         JsonObject graphDump = null;
         try {
-            graphDump = mapper.readValue(reader, JsonObject.class);
+            graphDump = MAPPER.readValue(reader, JsonObject.class);
         } catch (IOException e) {
             getLogger().error("Failed to load graph from input stream: {}", ExceptionUtils.getStackTrace(e));
         }
@@ -81,7 +82,8 @@ public abstract class AbstractGraphDataExtractor implements GraphDataExtractor {
             JsonObject dumpFile = JsonUtils.readJsonFile(graphFile.toAbsolutePath().toString());
             graph = GraphDumpSupport.restoreFromJson(dumpFile);
         } catch (Exception e) {
-            getLogger().error("Failed to load graph resource using path {}: {}", graphFile, ExceptionUtils.getStackTrace(e));
+            getLogger().error("Failed to load graph resource using path {}: {}", graphFile,
+                    ExceptionUtils.getStackTrace(e));
         }
         return getDataFromGraph(graph);
     }

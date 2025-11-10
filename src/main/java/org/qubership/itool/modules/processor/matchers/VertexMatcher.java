@@ -16,9 +16,8 @@
 
 package org.qubership.itool.modules.processor.matchers;
 
-import org.qubership.itool.modules.graph.Graph;
-
 import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.graph.Graph;
 
 public interface VertexMatcher {
 

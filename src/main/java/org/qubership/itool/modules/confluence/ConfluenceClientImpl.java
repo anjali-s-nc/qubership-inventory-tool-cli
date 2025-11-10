@@ -28,8 +28,10 @@ import io.vertx.ext.web.client.WebClientSession;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.qubership.itool.utils.ConfigProperties.LOGIN_PROPERTY;
+
 import java.nio.file.Path;
+
+import static org.qubership.itool.utils.ConfigProperties.LOGIN_PROPERTY;
 
 public class ConfluenceClientImpl implements ConfluenceClient {
 
@@ -108,12 +110,6 @@ public class ConfluenceClientImpl implements ConfluenceClient {
         return futureResponse;
     }
 
-    private String buildStorageFileName(String path) {
-        Path fullPath = Path.of(path);
-        String fileName = fullPath.getFileName().toString().replaceFirst("\\.\\w+", "") + "_storage.xml";
-        return fullPath.subpath(0, fullPath.getNameCount()-1).resolve(fileName).toString();
-    }
-
     @Override
     public Future<JsonObject> updateConfluencePage(JsonObject page, String release) {
         String spaceKey = page.getString("space");
@@ -121,6 +117,13 @@ public class ConfluenceClientImpl implements ConfluenceClient {
         String parentTitle = page.getString("parentTitle");
         String onDiskPath = page.getString("onDiskPath");
         return updateConfluencePage(spaceKey, title, parentTitle, onDiskPath, release);
+    }
+
+    private String buildStorageFileName(String path) {
+        Path fullPath = Path.of(path);
+        String fileName =
+                fullPath.getFileName().toString().replaceFirst("\\.\\w+", "") + "_storage.xml";
+        return fullPath.subpath(0, fullPath.getNameCount() - 1).resolve(fileName).toString();
     }
 
     @Override
@@ -155,7 +158,7 @@ public class ConfluenceClientImpl implements ConfluenceClient {
     public Future<JsonArray> getChildPages(String spaceKey, String pageId) {
         LOG.debug("Getting child pages for page with id={}", pageId);
         Future<JsonArray> future = getChunkedList(spaceKey, "/rest/api/content/" + pageId + "/child/page");
-//                    LOG.trace("Found {} child pages retrieval for id={} finished", children.size(), pageId);
+        // LOG.trace("Found {} child pages retrieval for id={} finished", children.size(), pageId);
         return future;
     }
 
@@ -258,7 +261,7 @@ public class ConfluenceClientImpl implements ConfluenceClient {
                 .authentication(credentials)
                 .sendJsonObject(request)
 
-                .compose( rsp -> {
+                .compose(rsp -> {
                     LOG.trace("Conversion of page '{}' finished", title);
                     if (200 != rsp.statusCode()) {
                         return Future.failedFuture("Can't convert wiki page '" + title
@@ -342,7 +345,7 @@ public class ConfluenceClientImpl implements ConfluenceClient {
                 .followRedirects(true)
                 .sendJsonObject(requestBody)
 
-                .compose( rsp -> {
+                .compose(rsp -> {
                     if (200 != rsp.statusCode()) {
                         return Future.failedFuture(("Page update failed for page '" + page.getString("title") + "': "
                                 + rsp.bodyAsString()));

@@ -35,7 +35,7 @@ public class ValueStep<S, E> extends ScalarMapStep<S, E> {
     @Override
     protected E map(Traverser.Admin<S> traverser) {
         Object obj = traverser.get();
-        return (E)ValueHelper.getObjectValue(this.valueKey, obj);
+        return (E) ValueHelper.getObjectValue(this.valueKey, obj);
     }
 
     @Override

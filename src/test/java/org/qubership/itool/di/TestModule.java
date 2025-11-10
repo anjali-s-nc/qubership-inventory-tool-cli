@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.qubership.itool.di;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import io.vertx.core.Vertx;
-import jakarta.inject.Provider;
-
 import org.qubership.itool.context.FlowContext;
 import org.qubership.itool.modules.processor.GraphMerger;
 import org.qubership.itool.modules.report.GraphReport;
@@ -35,8 +34,8 @@ public class TestModule extends AbstractModule {
     private final GraphReport customGraphReport;
 
     public TestModule(GraphMerger mockGraphMerger,
-                     FlowContext mockFlowContext,
-                     GraphReport customGraphReport) {
+            FlowContext mockFlowContext,
+            GraphReport customGraphReport) {
         this.mockGraphMerger = mockGraphMerger;
         this.mockFlowContext = mockFlowContext;
         this.customGraphReport = customGraphReport;
@@ -52,18 +51,18 @@ public class TestModule extends AbstractModule {
 
     /**
      * Create a module that overrides the base CLI module with test implementations.
-     * 
+     *
      * @param vertx The Vertx instance
      * @param mockGraphMerger The mock GraphMerger
      * @param mockFlowContext The mock FlowContext
      * @param customGraphReport Custom GraphReport implementation
      * @return A module that can be used with ApplicationContext
      */
-    public static Module createOverrideModule(Vertx vertx, 
-                                            GraphMerger mockGraphMerger,
-                                            FlowContext mockFlowContext,
-                                            GraphReport customGraphReport) {
+    public static Module createOverrideModule(Vertx vertx,
+            GraphMerger mockGraphMerger,
+            FlowContext mockFlowContext,
+            GraphReport customGraphReport) {
         return Modules.override(new QubershipModule(vertx))
-                     .with(new TestModule(mockGraphMerger, mockFlowContext, customGraphReport));
+                .with(new TestModule(mockGraphMerger, mockFlowContext, customGraphReport));
     }
-} 
+}

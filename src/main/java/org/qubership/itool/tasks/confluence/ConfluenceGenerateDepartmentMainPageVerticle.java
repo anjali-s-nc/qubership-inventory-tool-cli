@@ -17,18 +17,17 @@
 package org.qubership.itool.tasks.confluence;
 
 import freemarker.template.TemplateMethodModelEx;
+import jakarta.inject.Provider;
 import org.qubership.itool.modules.diagram.DiagramService;
 import org.qubership.itool.modules.template.ConfluencePage;
 import org.qubership.itool.modules.template.DiagramGeneralDomainMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Provider;
-
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Resource;
 
 import static org.qubership.itool.modules.gremlin2.P.eq;
 import static org.qubership.itool.modules.gremlin2.graph.__.count;
@@ -36,8 +35,10 @@ import static org.qubership.itool.modules.gremlin2.graph.__.has;
 import static org.qubership.itool.modules.gremlin2.graph.__.in;
 import static org.qubership.itool.modules.gremlin2.graph.__.out;
 
-public class ConfluenceGenerateDepartmentMainPageVerticle extends AbstractConfluenceGenerationPageVerticle {
-    protected Logger LOG = LoggerFactory.getLogger(ConfluenceGenerateDepartmentMainPageVerticle.class);
+public class ConfluenceGenerateDepartmentMainPageVerticle
+        extends AbstractConfluenceGenerationPageVerticle {
+    private static final Logger LOG =
+            LoggerFactory.getLogger(ConfluenceGenerateDepartmentMainPageVerticle.class);
 
     @Resource
     protected DiagramService diagramService;

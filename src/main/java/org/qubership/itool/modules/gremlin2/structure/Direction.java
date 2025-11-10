@@ -19,10 +19,10 @@ package org.qubership.itool.modules.gremlin2.structure;
 public enum Direction {
     OUT, IN, BOTH;
 
-//    public static final Direction[] proper = new Direction[]{OUT, IN};
+    //    public static final Direction[] proper = new Direction[]{OUT, IN};
 
     public Direction opposite() {
-        switch(this) {
+        switch (this) {
         case OUT:
             return IN;
         case IN:

@@ -16,11 +16,10 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.scalar;
 
-import org.qubership.itool.modules.gremlin2.Traversal;
-import org.qubership.itool.modules.gremlin2.Traverser;
-
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.gremlin2.Traversal;
+import org.qubership.itool.modules.gremlin2.Traverser;
 
 import java.util.Iterator;
 import java.util.List;
@@ -39,13 +38,13 @@ public class SizeStep<S> extends ScalarMapStep<S, Integer> {
         S obj = traverser.get();
 
         if (obj instanceof List) {
-            size = ((List)obj).size();
+            size = ((List) obj).size();
         } else if (obj instanceof JsonArray) {
-            size = ((JsonArray)obj).size();
+            size = ((JsonArray) obj).size();
         } else if (obj instanceof Map) {
-            size = ((Map)obj).size();
+            size = ((Map) obj).size();
         } else if (obj instanceof JsonObject) {
-            size = ((JsonObject)obj).size();
+            size = ((JsonObject) obj).size();
         } else if (obj instanceof Iterable) {
             Iterator iter = ((Iterable) obj).iterator();
             while (iter.hasNext()) {
@@ -53,7 +52,7 @@ public class SizeStep<S> extends ScalarMapStep<S, Integer> {
                 size++;
             }
         } else if (obj instanceof String) {
-            size = ((String)obj).length();
+            size = ((String) obj).length();
         }
         return size;
     }

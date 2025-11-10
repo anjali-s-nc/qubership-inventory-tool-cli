@@ -16,20 +16,20 @@
 
 package org.qubership.itool.modules.processor.tasks;
 
-import java.time.Duration;
-import java.util.List;
-
+import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDataConstants;
 import org.qubership.itool.modules.processor.InvalidGraphException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import io.vertx.core.json.JsonObject;
+import java.time.Duration;
+import java.util.List;
 
-import static org.qubership.itool.modules.processor.MergerApi.*;
+import static org.qubership.itool.modules.processor.MergerApi.P_APP_NAME;
+import static org.qubership.itool.modules.processor.MergerApi.P_APP_VERSION;
+import static org.qubership.itool.modules.processor.MergerApi.P_IS_APPLICATION;
 
 /**
  * <p>Create Application vertex. May be applied to source graphs before merging
@@ -76,7 +76,7 @@ public class CreateAppVertexTask implements GraphProcessorTask {
         LOG.info("Starting task");
 
         List<JsonObject> existingApps = graph.traversal().V().hasType(Graph.V_APPLICATION).toList();
-        for (JsonObject existingApp: existingApps) {
+        for (JsonObject existingApp : existingApps) {
             LOG.warn("Source graph already contain app vertex {} when trying to assemble an app graph: {}:{}",
                     existingApp.getValue(Graph.F_ID), appName, appVersion);
         }

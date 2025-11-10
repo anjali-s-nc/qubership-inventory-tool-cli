@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024-2025 NetCracker Technology Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.qubership.itool.modules.diagram.providers;
 
 import io.vertx.core.json.JsonObject;
@@ -32,16 +48,19 @@ public class GeneralApplicationDiagramProvider extends AbstractDiagramProvider {
         @SuppressWarnings("unchecked")
         List<Map<Object, String>> dependencyList = traversal
                 .union(
-                        out().in().hasType(V_APPLICATION).hasId(diagram.getDefaultDomainLevelEntity()).id().as("srcApp").out()
+                        out().in().hasType(V_APPLICATION).hasId(
+                                diagram.getDefaultDomainLevelEntity()).id().as("srcApp").out()
                                 .outE().as("E")
                                 .inV().in().hasType(V_APPLICATION).id().as("destApp")
-                                .where(neq("srcApp"))
-                        , out().in().hasType(V_APPLICATION).hasId(diagram.getDefaultDomainLevelEntity()).id().as("destApp").out()
+                                .where(neq("srcApp")),
+                        out().in().hasType(V_APPLICATION).hasId(
+                                diagram.getDefaultDomainLevelEntity()).id().as("destApp").out()
                                 .inE().as("E")
                                 .outV().in().hasType(V_APPLICATION).id().as("srcApp")
-                                .where(neq("destApp"))
-                        , out().in().hasType(V_APPLICATION).hasId(diagram.getDefaultDomainLevelEntity()).id().as("srcApp").out()
-                                .outE("implements","defines").as("E")
+                                .where(neq("destApp")),
+                        out().in().hasType(V_APPLICATION).hasId(
+                                diagram.getDefaultDomainLevelEntity()).id().as("srcApp").out()
+                                .outE("implements", "defines").as("E")
                                 .inV().out("includes").out().in()
                                 .hasType(V_APPLICATION).id().as("destApp")
                                 .where(neq("srcApp"))

@@ -16,34 +16,7 @@
 
 package org.qubership.itool.tasks.parsing.configuration;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.reflect.MethodUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.qubership.itool.modules.graph.Graph;
-import org.qubership.itool.modules.gremlin2.P;
-import org.qubership.itool.modules.processor.GraphMetaInfoSupport;
-import org.qubership.itool.utils.FutureUtils;
-import org.qubership.itool.utils.JsonUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.cli.ci.CiConstants;
-import org.qubership.itool.context.FlowContext;
-import org.qubership.itool.di.ApplicationContext;
-import org.qubership.itool.di.QubershipModule;
-import org.qubership.itool.tasks.dependency.SetEdgesBetweenComponentsVerticle;
-import org.qubership.itool.tasks.init.InitializeDomainsVerticle;
 import com.google.inject.Module;
-
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -52,15 +25,44 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.jackson.DatabindCodec;
 import io.vertx.core.json.pointer.JsonPointer;
 import io.vertx.junit5.VertxExtension;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.qubership.itool.cli.ci.CiConstants;
+import org.qubership.itool.context.FlowContext;
+import org.qubership.itool.di.ApplicationContext;
+import org.qubership.itool.di.QubershipModule;
+import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.modules.gremlin2.P;
+import org.qubership.itool.modules.processor.GraphMetaInfoSupport;
+import org.qubership.itool.tasks.dependency.SetEdgesBetweenComponentsVerticle;
+import org.qubership.itool.tasks.init.InitializeDomainsVerticle;
+import org.qubership.itool.utils.FutureUtils;
+import org.qubership.itool.utils.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.qubership.itool.modules.graph.Graph.P_DETAILS_DNS_NAME;
 
 
 @ExtendWith(VertxExtension.class)
 public class ParseApplicationInventoryFileTaskTest {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ParseApplicationInventoryFileTaskTest.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(ParseApplicationInventoryFileTaskTest.class);
 
     private static final String REPO_ADDR = "https://git.host.name/test.git";
     private static final long TIMEOUT = 60;
@@ -83,7 +85,8 @@ public class ParseApplicationInventoryFileTaskTest {
         config.put(CiConstants.P_REPOSITORY, REPO_ADDR);
 
         vertx = Vertx.vertx();
-        ApplicationContext appContext = new ApplicationContext(vertx, config, new Module[] {new QubershipModule(vertx)});
+        ApplicationContext appContext =
+                new ApplicationContext(vertx, config, new Module[] {new QubershipModule(vertx)});
         FlowContext flowContext = appContext.getInstance(FlowContext.class);
         flowContext.initialize(vertx, config);
         graph = flowContext.getGraph();
@@ -111,7 +114,8 @@ public class ParseApplicationInventoryFileTaskTest {
         LOG.info("Contents of {} : {}", location, new File(location).listFiles());
 
         // Emulate partial flow
-        JsonObject infraDomain = JsonUtils.readJsonFile("./inventory-tool/default/config/domains/internal_infra_domain.json");
+        JsonObject infraDomain = JsonUtils
+                .readJsonFile("./inventory-tool/default/config/domains/internal_infra_domain.json");
         //task0.addDomainToGraph(infraDomain);
         MethodUtils.invokeMethod(task0, true, "addDomainToGraph", infraDomain);
         Future<?> flow = task1.startInFlow()

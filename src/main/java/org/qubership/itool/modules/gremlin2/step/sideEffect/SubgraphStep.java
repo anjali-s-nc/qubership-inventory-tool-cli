@@ -16,17 +16,17 @@
 
 package org.qubership.itool.modules.gremlin2.step.sideEffect;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.BasicGraph;
 import org.qubership.itool.modules.graph.SubGraph;
 import org.qubership.itool.modules.gremlin2.GremlinException;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.step.AbstractStep;
-import io.vertx.core.json.JsonObject;
-
-import static org.qubership.itool.modules.graph.Graph.F_ID;
 
 import java.util.ArrayList;
+
+import static org.qubership.itool.modules.graph.Graph.F_ID;
 
 public class SubgraphStep extends SideEffectStep<JsonObject> {
 

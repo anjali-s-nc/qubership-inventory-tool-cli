@@ -40,12 +40,13 @@ public class LocalStep<S, E> extends AbstractStep<S, E> {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     protected void processPreviousTraverser(Traverser.Admin<S> previousTraverser, List<Traverser<E>> result) {
-        Traversal.Admin<?, E> cloneTraversal = prepareInnerTraversal((Traversal.Admin<?, E>) innerTraversal, previousTraverser);
+        Traversal.Admin<?, E> cloneTraversal =
+                prepareInnerTraversal((Traversal.Admin<?, E>) innerTraversal, previousTraverser);
         List<Traverser<E>> cloneResultList = cloneTraversal.getEndStep().getTraversers();
 
         for (Traverser<E> cloneResult : cloneResultList) {
             Traverser<E> newTraverser = previousTraverser.split(
-                previousTraverser.getSource(), cloneResult.get(), (Step)cloneTraversal.getEndStep());
+                previousTraverser.getSource(), cloneResult.get(), (Step) cloneTraversal.getEndStep());
             result.add(newTraverser);
         }
     }

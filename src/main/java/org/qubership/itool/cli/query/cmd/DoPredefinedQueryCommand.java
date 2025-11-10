@@ -51,7 +51,7 @@ public class DoPredefinedQueryCommand extends AbstractCliCommand {
         List<QueryItem> queryItems = getQueryItems();
 
         String method = command.trim().substring("do ".length());
-        method = method.substring(0, method.length()-1);
+        method = method.substring(0, method.length() - 1);
         Pattern pattern = Pattern.compile("^\\((\\d+)\\)$");
         Matcher matcher = pattern.matcher(method);
         if (matcher.matches()) {
@@ -94,7 +94,7 @@ public class DoPredefinedQueryCommand extends AbstractCliCommand {
     }
 
     private List<QueryItem> getQueryItems() {
-        return (List<QueryItem>)this.context.getValue(ListPredefinedQueriesCommand.QUERY_ITEMS);
+        return (List<QueryItem>) this.context.getValue(ListPredefinedQueriesCommand.QUERY_ITEMS);
     }
 
 }

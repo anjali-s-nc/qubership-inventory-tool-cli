@@ -16,16 +16,20 @@
 
 package org.qubership.itool.tasks.parsing.other;
 
-import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
 import io.vertx.core.json.JsonObject;
 import org.commonmark.Extension;
-import org.commonmark.ext.gfm.tables.*;
+import org.commonmark.ext.gfm.tables.TableBody;
+import org.commonmark.ext.gfm.tables.TableCell;
+import org.commonmark.ext.gfm.tables.TableHead;
+import org.commonmark.ext.gfm.tables.TableRow;
+import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.Emphasis;
 import org.commonmark.node.Node;
 import org.commonmark.node.Paragraph;
 import org.commonmark.node.Text;
 import org.commonmark.parser.Parser;
 import org.qubership.itool.modules.graph.Graph;
+import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
 import org.qubership.itool.utils.FSUtils;
 import org.qubership.itool.utils.GitUtils;
 import org.slf4j.Logger;
@@ -37,15 +41,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.qubership.itool.modules.parsing.MdParserUtils.*;
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.modules.graph.Graph.F_NAME;
 import static org.qubership.itool.modules.graph.Graph.F_TYPE;
 import static org.qubership.itool.modules.graph.Graph.V_ERROR_CODE;
+import static org.qubership.itool.modules.parsing.MdParserUtils.LOWERCASE_EXTRACTOR;
+import static org.qubership.itool.modules.parsing.MdParserUtils.collectCells;
+import static org.qubership.itool.modules.parsing.MdParserUtils.collectParagraphs;
+import static org.qubership.itool.modules.parsing.MdParserUtils.collectRows;
+import static org.qubership.itool.modules.parsing.MdParserUtils.collectSiblings;
+import static org.qubership.itool.modules.parsing.MdParserUtils.findColumnIdxByText;
+import static org.qubership.itool.modules.parsing.MdParserUtils.findHeading;
+import static org.qubership.itool.modules.parsing.MdParserUtils.findTableBody;
+import static org.qubership.itool.modules.parsing.MdParserUtils.findTableHead;
 
 public class ParseErrorCodesVerticle extends AbstractParseFileTask {
 
-    protected Logger LOGGER = LoggerFactory.getLogger(ParseErrorCodesVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParseErrorCodesVerticle.class);
 
     private final Parser parser;
 
@@ -57,7 +69,7 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
     @Override
     protected String[] getFilePatterns() {
         return new String[]{
-//            "docs/troubleshooting-guide.md",
+                //            "docs/troubleshooting-guide.md",
                 "docs/**/troubleshooting-guide.md",
                 "docs/troubleshooting/errors/*.md",
                 "documents/troubleshooting/errors/*.md",
@@ -79,19 +91,23 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
         }
     }
 
-    private void parseTroubleshootingGuide(JsonObject domain, JsonObject component, String fileName) throws IOException {
+    private void parseTroubleshootingGuide(JsonObject domain, JsonObject component, String fileName)
+            throws IOException {
         String data = FSUtils.readFileSafe(fileName);
         Node doc = parser.parse(data);
 
         Node pointer = doc.getFirstChild();
         while (pointer != null) {
             TableHead head = findTableHead(pointer);
-            if (head == null)   // no more tables
+            // no more tables
+            if (head == null) {
                 break;
+            }
             TableBody body = findTableBody(head);
             List<TableCell> headCells = collectCells(head.getFirstChild().getFirstChild());
             Integer errorCodeIdx = findColumnIdxByText(headCells, "Error Code");
-            Integer messageIdx = findColumnIdxByText(headCells, "Error Message", "Message Text (English)", "Message Text");
+            Integer messageIdx = findColumnIdxByText(headCells, "Error Message",
+                    "Message Text (English)", "Message Text");
             Integer scenarioIdx = findColumnIdxByText(headCells, "Scenario");
             Integer reasonIdx = findColumnIdxByText(headCells, "Reason");
             Integer solutionIdx = findColumnIdxByText(headCells, "Solution");
@@ -184,13 +200,14 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
 
     private String getTextOfParagraph(Node textHeading) {
         List<Paragraph> paras = collectParagraphs(textHeading.getNext());
-        return paras.isEmpty() ? null :
-                paras.stream()
+        return paras.isEmpty() ? null
+                : paras.stream()
                         .map(para -> ((Text) para.getFirstChild()).getLiteral())
                         .collect(Collectors.joining("\n"));
     }
 
-    private void addErrorCode(JsonObject component, String fileName, String code, String messageText, String scenarioText, String reasonText, String solutionText) {
+    private void addErrorCode(JsonObject component, String fileName, String code,
+            String messageText, String scenarioText, String reasonText, String solutionText) {
         JsonObject details = new JsonObject()
                 .put("describedIn", GitUtils.buildRepositoryLink(component, fileName, config()));
         if (messageText != null) {

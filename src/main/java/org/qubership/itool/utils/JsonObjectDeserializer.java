@@ -16,21 +16,21 @@
 
 package org.qubership.itool.utils;
 
-import java.io.IOException;
-import java.util.Map;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-
 import io.vertx.core.json.JsonObject;
+
+import java.io.IOException;
+import java.util.Map;
 
 public class JsonObjectDeserializer extends JsonDeserializer<JsonObject> {
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public JsonObject deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public JsonObject deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException {
         Map map = p.readValueAs(Map.class);
         return new JsonObject(map);
     }

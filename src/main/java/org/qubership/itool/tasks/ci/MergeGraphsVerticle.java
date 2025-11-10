@@ -19,15 +19,13 @@ package org.qubership.itool.tasks.ci;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Provider;
-
+import org.qubership.itool.cli.ci.CiConstants;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDataConstants;
 import org.qubership.itool.modules.processor.MergerApi;
+import org.qubership.itool.tasks.FlowTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.cli.ci.CiConstants;
-import org.qubership.itool.tasks.FlowTask;
 
 import java.nio.file.Path;
 import javax.annotation.Resource;
@@ -64,7 +62,7 @@ public class MergeGraphsVerticle extends FlowTask {
 
             } catch (Exception e) {
                 report.exceptionThrown(new JsonObject().put(Graph.F_ID, "inventory-tool"), e);
-//                promise.tryFail(e);  // XXX Shall we fail the entire flow?
+                //                promise.tryFail(e);  // XXX Shall we fail the entire flow?
             }
             return null;
         }).onComplete(res -> taskCompleted(taskPromise));

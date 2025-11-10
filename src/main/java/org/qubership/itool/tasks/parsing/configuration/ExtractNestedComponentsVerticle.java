@@ -16,12 +16,12 @@
 
 package org.qubership.itool.tasks.parsing.configuration;
 
-import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.report.GraphReport;
+import org.qubership.itool.tasks.parsing.AbstractParseFileTask;
 import org.qubership.itool.utils.ConfigUtils;
 import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
@@ -47,7 +47,8 @@ import static org.qubership.itool.modules.graph.Graph.V_UNKNOWN;
  */
 public class ExtractNestedComponentsVerticle extends AbstractParseFileTask {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ExtractNestedComponentsVerticle.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(ExtractNestedComponentsVerticle.class);
 
     @Override
     protected Logger getLogger() {
@@ -84,8 +85,10 @@ public class ExtractNestedComponentsVerticle extends AbstractParseFileTask {
 
             // Relocate initial top component if provided ID in inventory file doesn't match the initial ID
             if (!topComponentDescriptions.getString(F_ID).equals(topComponent.getString(F_ID))) {
-                LOG.info("Initial top component ID ({}) didn't match the ID of the top component in inventory-componentns " +
-                        "file, relocating it to new id {}", topComponent.getString(F_ID), topComponentDescriptions.getString(F_ID));
+                LOG.info(
+                        "Initial top component ID ({}) didn't match the ID of the top component in "
+                                + "inventory-componentns file, relocating it to new id {}",
+                        topComponent.getString(F_ID), topComponentDescriptions.getString(F_ID));
                 graph.relocateVertex(topComponent, topComponentDescriptions.getString(F_ID));
             }
 
@@ -101,7 +104,7 @@ public class ExtractNestedComponentsVerticle extends AbstractParseFileTask {
         }
 
         // Go through remaining components
-        for (Object descriptionObject: componentDescriptions) {
+        for (Object descriptionObject : componentDescriptions) {
             JsonObject componentDescription = (JsonObject) descriptionObject;
             String id = componentDescription.getString("id");
 
@@ -160,21 +163,24 @@ public class ExtractNestedComponentsVerticle extends AbstractParseFileTask {
         return null;
     }
 
-    private void processNewComponent(JsonObject topComponent, Graph graph, JsonObject newComponent, JsonObject newDomain) {
+    private void processNewComponent(JsonObject topComponent, Graph graph, JsonObject newComponent,
+            JsonObject newDomain) {
         String id = newComponent.getString(F_ID);
         if (graph.getVertex(id) == null) {
             getLogger().info("Adding new component placeholder ({}) to graph", newComponent.getString(F_ID));
             boolean isAdded = graph.addVertex(newDomain, newComponent);
             if (!isAdded) {
-                report.addMessage(GraphReport.ERROR, topComponent, "Failed to add component '" + newComponent + "' from multi-component repository");
+                report.addMessage(GraphReport.ERROR, topComponent, "Failed to add component '"
+                        + newComponent + "' from multi-component repository");
             }
         } else {
-            report.addMessage(GraphReport.CONF_ERROR, newComponent, "The component with same ID is already " +
-                        "present in multi-component repository");
+            report.addMessage(GraphReport.CONF_ERROR, newComponent, "The component with same ID is already "
+                        + "present in multi-component repository");
         }
     }
 
-    private void processTopComponent(JsonObject topComponent, JsonObject componentDescription, String domainFromInventory) {
+    private void processTopComponent(JsonObject topComponent, JsonObject componentDescription,
+            String domainFromInventory) {
         getLogger().info("Processing top component '{}'", topComponent.getString(F_ID));
         JsonObject topDetails = JsonUtils.getOrCreateJsonObject(topComponent, "details");
         topDetails.put("abbreviation", componentDescription.getString("id"));

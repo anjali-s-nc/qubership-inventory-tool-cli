@@ -16,22 +16,21 @@
 
 package org.qubership.itool.modules.processor.tasks;
 
+import com.google.inject.Inject;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import jakarta.inject.Provider;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.graph.GraphDataConstants;
 import org.qubership.itool.modules.processor.InvalidGraphException;
 import org.qubership.itool.modules.report.GraphReport;
 import org.qubership.itool.utils.JsonUtils;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import jakarta.inject.Provider;
-import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 
@@ -40,7 +39,7 @@ public class RecreateDomainsStructureTask implements GraphProcessorTask {
     private GraphReport graphReport;
 
     @Inject
-    public RecreateDomainsStructureTask(Provider<GraphReport> graphReportProvider){
+    public RecreateDomainsStructureTask(Provider<GraphReport> graphReportProvider) {
         this.graphReport = graphReportProvider.get();
     }
 

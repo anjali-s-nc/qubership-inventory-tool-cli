@@ -67,7 +67,7 @@ public class SaveResultCommand extends AbstractCliCommand {
 
     private String convertResult(Object result, String fileFormat) {
         if ("txt".equals(fileFormat.toLowerCase())) {
-
+            // TODO: Implement text format conversion
         }
         return null;
     }

@@ -97,7 +97,7 @@ public class DefaultPath implements Path {
 
         int size = this.labels.size();
         List<Set<String>> cLabels = new ArrayList<>(size * 3);
-        for (int i=0 ; i<size ; i++) {
+        for (int i = 0; i < size; i++) {
             Set<String> labelSet = this.labels.get(i);
             Set<String> cLabelSet = new HashSet<>(labelSet);
             cLabels.add(cLabelSet);
@@ -111,8 +111,8 @@ public class DefaultPath implements Path {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("Path{\n");
-        for (int i=0 ; i<this.objects.size() ; i++) {
-            builder.append(i+1).append(") ");
+        for (int i = 0; i < this.objects.size(); i++) {
+            builder.append(i + 1).append(") ");
             builder.append(this.labels.get(i)).append(" : ");
             builder.append(this.objects.get(i)).append("\n");
         }

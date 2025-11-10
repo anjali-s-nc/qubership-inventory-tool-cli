@@ -16,24 +16,21 @@
 
 package org.qubership.itool.modules.git;
 
-import javax.annotation.Nullable;
-
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
+import org.qubership.itool.modules.report.GraphReport;
+import org.qubership.itool.utils.ConfigProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.qubership.itool.modules.report.GraphReport;
-import org.qubership.itool.utils.ConfigProperties;
-
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
+import javax.annotation.Nullable;
 
 public class GitFileRetrieverBuilder {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(GitFileRetrieverBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GitFileRetrieverBuilder.class);
 
     @Nullable
-    public static GitFileRetriever create(GitAdapter gitAdapter, JsonObject config, Vertx vertx, GraphReport report)
-    {
+    public static GitFileRetriever create(GitAdapter gitAdapter, JsonObject config, Vertx vertx, GraphReport report) {
         boolean offlineMode = gitAdapter == null
                 || Boolean.parseBoolean(config.getString(ConfigProperties.OFFLINE_MODE_PROPERTY));
         if (offlineMode) {

@@ -16,15 +16,13 @@
 
 package org.qubership.itool.modules.graph;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.modules.report.GraphReport;
-import org.qubership.itool.modules.report.GraphReportImpl;
-
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import org.qubership.itool.modules.report.GraphReport;
+import org.qubership.itool.modules.report.GraphReportImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Support dumping/restoring graph data with all associated stuff.
@@ -50,8 +48,8 @@ public class GraphDumpSupport {
      *
      * @param graph A graph to dump
      * @param deepCopy Set to false to minimize efforts and footprint; this option may
-     * be used if neither dump data nor graph data may be modified directly or indirectly
-     * while other one is used.
+     *     be used if neither dump data nor graph data may be modified directly or indirectly
+     *     while other one is used.
      * @return A dump
      */
     public static JsonObject dumpToJson(Graph graph, boolean deepCopy) {
@@ -104,8 +102,7 @@ public class GraphDumpSupport {
                         .put("records", rawReportDump);
             } else if (modelVersion != null
                     && modelVersion.intValue() == CURRENT_CONTAINER_MODEL_VERSION
-                    && rawReportDump instanceof JsonObject)
-            {
+                    && rawReportDump instanceof JsonObject) {
                 reportDump = (JsonObject) rawReportDump;
             } else {
                 LOG.error("Invalid or unsupported report format, skipping");
@@ -131,6 +128,7 @@ public class GraphDumpSupport {
     }
 
     /** Get a dump model version of given dump.
+     *
      * @param dump A dump
      * @return modelVersion, or {@link #LEGACY_CONTAINER_MODEL_VERSION} for older dumps
      */
@@ -151,8 +149,8 @@ public class GraphDumpSupport {
         int graphModelVersion = GraphDumpSupport.getGraphModelVersion(dump);
 
         return (dumpModelVersion == CURRENT_CONTAINER_MODEL_VERSION
-               || dumpModelVersion == LEGACY_CONTAINER_MODEL_VERSION)
-           && (graphModelVersion <= Graph.CURRENT_GRAPH_MODEL_VERSION);
+                || dumpModelVersion == LEGACY_CONTAINER_MODEL_VERSION)
+                && (graphModelVersion <= Graph.CURRENT_GRAPH_MODEL_VERSION);
     }
 
     public static int getErrorReportModelVersion(JsonObject dump) {
@@ -163,12 +161,14 @@ public class GraphDumpSupport {
                 if (report != null) {
                     return LEGACY_REPORT_MODEL_VERSION;
                 }
+                break;
             }
             case GraphDumpSupport.CURRENT_CONTAINER_MODEL_VERSION: {
                 JsonObject report = dump.getJsonObject("report");
                 if (report != null) {
                     return report.getInteger("modelVersion", LEGACY_REPORT_MODEL_VERSION);
                 }
+                break;
             }
         }
         return NO_REPORT_MODEL_VERSION;

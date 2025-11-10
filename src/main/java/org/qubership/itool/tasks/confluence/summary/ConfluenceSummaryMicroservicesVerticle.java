@@ -16,32 +16,37 @@
 
 package org.qubership.itool.tasks.confluence.summary;
 
-import org.qubership.itool.modules.template.ConfluencePage;
-import org.qubership.itool.tasks.confluence.AbstractConfluenceGenerationPageVerticle;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import jakarta.inject.Provider;
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.itool.modules.gremlin2.P;
+import org.qubership.itool.modules.template.ConfluencePage;
+import org.qubership.itool.tasks.confluence.AbstractConfluenceGenerationPageVerticle;
 import org.qubership.itool.utils.JsonUtils;
 import org.qubership.itool.utils.LanguageUtils;
 import org.qubership.itool.utils.TechNormalizationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Provider;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.Resource;
-
-import java.util.*;
 
 import static org.qubership.itool.modules.graph.Graph.F_MICROSERVICE_FLAG;
 import static org.qubership.itool.modules.graph.Graph.F_VERSION;
 import static org.qubership.itool.modules.graph.Graph.V_DOMAIN;
 import static org.qubership.itool.modules.graph.Graph.V_ROOT;
-import static org.qubership.itool.modules.gremlin2.graph.__.*;
+import static org.qubership.itool.modules.gremlin2.graph.__.hasType;
+import static org.qubership.itool.modules.gremlin2.graph.__.in;
+import static org.qubership.itool.modules.gremlin2.graph.__.not;
+import static org.qubership.itool.modules.gremlin2.graph.__.outE;
 
-public class ConfluenceSummaryMicroservicesVerticle extends AbstractConfluenceGenerationPageVerticle {
-    protected Logger LOG = LoggerFactory.getLogger(ConfluenceSummaryMicroservicesVerticle.class);
+public class ConfluenceSummaryMicroservicesVerticle
+        extends AbstractConfluenceGenerationPageVerticle {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfluenceSummaryMicroservicesVerticle.class);
 
     @Resource
     protected Provider<ConfluencePage> confluencePageProvider;
@@ -113,7 +118,9 @@ public class ConfluenceSummaryMicroservicesVerticle extends AbstractConfluenceGe
         page.addDataModel("microservicesList", microservicesList);
         return confluencePageList;
     }
-    private static void updateUsages(Map<String, String> languageVersion, List<String> languageUsages, List<String> usageContainer, String usage) {
+
+    private static void updateUsages(Map<String, String> languageVersion,
+            List<String> languageUsages, List<String> usageContainer, String usage) {
         if (languageUsages.contains(usage)) {
             String version = languageVersion.get(F_VERSION);
             if (version != null) {

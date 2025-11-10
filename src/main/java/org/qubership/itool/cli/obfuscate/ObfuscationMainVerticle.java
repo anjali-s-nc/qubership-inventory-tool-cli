@@ -17,21 +17,20 @@
 package org.qubership.itool.cli.obfuscate;
 
 import io.vertx.core.json.JsonObject;
+import org.qubership.itool.cli.FlowMainVerticle;
+import org.qubership.itool.utils.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.qubership.itool.utils.JsonUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.cli.FlowMainVerticle;
-
-import static org.qubership.itool.cli.ci.CiConstants.*;
+import static org.qubership.itool.cli.ci.CiConstants.P_INPUT_DIRECTORY;
+import static org.qubership.itool.cli.ci.CiConstants.P_INPUT_FILE;
 
 public class ObfuscationMainVerticle extends FlowMainVerticle {
-    protected static final Logger LOG = LoggerFactory.getLogger(ObfuscationMainVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ObfuscationMainVerticle.class);
 
     protected Logger getLogger() {
         return LOG;

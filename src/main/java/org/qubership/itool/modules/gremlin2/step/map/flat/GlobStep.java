@@ -16,14 +16,13 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.flat;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.graph.BasicGraph;
 import org.qubership.itool.modules.gremlin2.DefaultTraverser;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
 import org.qubership.itool.modules.gremlin2.step.AbstractStep;
 import org.qubership.itool.modules.gremlin2.step.ByModulating;
-
-import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,7 @@ public class GlobStep extends FlatMapStep<JsonObject, JsonObject> implements ByM
 
         String[] rawPatternArray = this.pattern.split(GLOB_DELIMETER);
         patternList = new ArrayList<>(rawPatternArray.length);
-        for (String patternElement: rawPatternArray) {
+        for (String patternElement : rawPatternArray) {
             if (patternElement.isEmpty()) {
                 // Ignore initial slash, trailing slash, double slash
             } else if ("**".equals(patternElement)) {
@@ -84,9 +83,11 @@ public class GlobStep extends FlatMapStep<JsonObject, JsonObject> implements ByM
         return result;
     }
 
-    private void patternMatching(JsonObject source, List<JsonObject> result, List<Object> patterns, boolean letDoubleWildcard) {
+    private void patternMatching(JsonObject source, List<JsonObject> result, List<Object> patterns,
+            boolean letDoubleWildcard) {
 
-        if (patterns.isEmpty()) {   // Nothing matches empty pattern
+        // Nothing matches empty pattern
+        if (patterns.isEmpty()) {
             return;
         }
 
@@ -101,11 +102,13 @@ public class GlobStep extends FlatMapStep<JsonObject, JsonObject> implements ByM
 
         if ("**".equals(patternElement)) {
             if (letDoubleWildcard) {
-                addVertexIfLast(source, result, patterns);    // "**" -> add this
-                patternMatching(source, result, patternsTail, true);    // "**/a/b" -> check this against "a/b"
+                // "**" -> add this
+                addVertexIfLast(source, result, patterns);
+                // "**/a/b" -> check this against "a/b"
+                patternMatching(source, result, patternsTail, true);
             }
             List<JsonObject> successors = fetchSuccessors(source);
-            for (JsonObject successor: successors) {
+            for (JsonObject successor : successors) {
                 // 1) "**/a/b" -> check successors against "**/a/b", not allowing them to match
                 // themselves against starting "**", but still allowing to match their successors against **.
                 // Otherwise, successors are matched against "a/b" twice and may duplicate results.
@@ -117,17 +120,21 @@ public class GlobStep extends FlatMapStep<JsonObject, JsonObject> implements ByM
         } else if (patternElement instanceof Pattern) {
             Pattern regexPattern = (Pattern) patternElement;
             if (regexPattern.matcher(value.toString()).matches()) {
-                addVertexIfLast(source, result, patterns);          // "*" -> add this
+                // "*" -> add this
+                addVertexIfLast(source, result, patterns);
                 List<JsonObject> successors = fetchSuccessors(source);
-                for (JsonObject successor: successors) {
-                    patternMatching(successor, result, patternsTail, true); // "*/a/b" -> check successors against "a/b"
+                for (JsonObject successor : successors) {
+                    // "*/a/b" -> check successors against "a/b"
+                    patternMatching(successor, result, patternsTail, true);
                 }
             }
         } else if (patternElement.equals(value)) {
-            addVertexIfLast(source, result, patterns);          // this matches "a" -> add this
+            // this matches "a" -> add this
+            addVertexIfLast(source, result, patterns);
             List<JsonObject> successors = fetchSuccessors(source);
-            for (JsonObject successor: successors) {
-                patternMatching(successor, result, patternsTail, true); // "a/b/c", this matches "a" -> check successors against "b/c"
+            for (JsonObject successor : successors) {
+                // "a/b/c", this matches "a" -> check successors against "b/c"
+                patternMatching(successor, result, patternsTail, true);
             }
         }
     }
@@ -143,7 +150,7 @@ public class GlobStep extends FlatMapStep<JsonObject, JsonObject> implements ByM
         if (this.byTraversal != null) {
             List<Traverser.Admin<JsonObject>> trList = new ArrayList<>();
             trList.add(new DefaultTraverser<>(sourceVertex, sourceVertex));
-            Traversal.Admin cloneTraversal = prepareInnerTraversal((Traversal.Admin)this.byTraversal, trList);
+            Traversal.Admin cloneTraversal = prepareInnerTraversal((Traversal.Admin) this.byTraversal, trList);
             return cloneTraversal.toList();
         }
         BasicGraph graph = this.traversal.getGraph();
@@ -164,12 +171,12 @@ public class GlobStep extends FlatMapStep<JsonObject, JsonObject> implements ByM
     @SuppressWarnings("rawtypes")
     @Override
     public void clear() {
-        clearTraversal((Traversal.Admin)this.byTraversal);
+        clearTraversal((Traversal.Admin) this.byTraversal);
     }
 
     @Override
     public AbstractStep<JsonObject, JsonObject> clone() {
-        GlobStep clone = (GlobStep)super.clone();
+        GlobStep clone = (GlobStep) super.clone();
         clone.pattern = this.pattern;
         clone.byProperty = this.byProperty;
         clone.byTraversal = this.byTraversal;

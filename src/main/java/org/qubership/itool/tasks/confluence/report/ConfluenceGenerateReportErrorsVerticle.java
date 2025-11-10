@@ -16,20 +16,19 @@
 
 package org.qubership.itool.tasks.confluence.report;
 
+import jakarta.inject.Provider;
 import org.qubership.itool.modules.template.ConfluencePage;
 import org.qubership.itool.tasks.confluence.AbstractConfluenceGenerationPageVerticle;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Provider;
-
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Resource;
 
-public class ConfluenceGenerateReportErrorsVerticle extends AbstractConfluenceGenerationPageVerticle {
-    protected Logger LOG = LoggerFactory.getLogger(ConfluenceGenerateReportErrorsVerticle.class);
+public class ConfluenceGenerateReportErrorsVerticle
+        extends AbstractConfluenceGenerationPageVerticle {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfluenceGenerateReportErrorsVerticle.class);
 
     @Resource
     protected Provider<ConfluencePage> confluencePageProvider;

@@ -18,6 +18,7 @@ package org.qubership.itool.tasks.confluence;
 
 import freemarker.template.TemplateMethodModelEx;
 import io.vertx.core.json.JsonObject;
+import jakarta.inject.Provider;
 import org.qubership.itool.modules.diagram.DiagramService;
 import org.qubership.itool.modules.template.ConfluencePage;
 import org.qubership.itool.modules.template.DiagramDomainMethod;
@@ -25,12 +26,10 @@ import org.qubership.itool.modules.template.DiagramGeneralDomainMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Provider;
-
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Resource;
 
 import static org.qubership.itool.modules.graph.Graph.F_ID;
 import static org.qubership.itool.modules.gremlin2.P.eq;
@@ -41,9 +40,9 @@ import static org.qubership.itool.modules.gremlin2.graph.__.in;
 import static org.qubership.itool.modules.gremlin2.graph.__.not;
 import static org.qubership.itool.modules.gremlin2.graph.__.out;
 
-
-public class ConfluenceGenerateDomainPagesVerticle extends AbstractConfluenceGenerationPageVerticle {
-    protected Logger LOG = LoggerFactory.getLogger(ConfluenceGenerateDomainPagesVerticle.class);
+public class ConfluenceGenerateDomainPagesVerticle
+        extends AbstractConfluenceGenerationPageVerticle {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfluenceGenerateDomainPagesVerticle.class);
 
     @Resource
     protected DiagramService diagramService;
@@ -80,7 +79,8 @@ public class ConfluenceGenerateDomainPagesVerticle extends AbstractConfluenceGen
 
             // techStack ======================================================
             List<String> techStack =
-                    V(domainId).out().out().where(in().hasId("Infra", "Info")).not(has("type", "gateway")).name().dedup().order().toList();
+                    V(domainId).out().out().where(in().hasId("Infra", "Info"))
+                            .not(has("type", "gateway")).name().dedup().order().toList();
             page.addDataModel("techStack", techStack);
 
             // techStackByService =============================================
@@ -89,7 +89,8 @@ public class ConfluenceGenerateDomainPagesVerticle extends AbstractConfluenceGen
                             out().where(in().hasId("Infra", "Info")).not(has("type", "gateway")).name().dedup().fold()
                     ).as("T")
                     .select("C", "T")
-                    .values("abbreviation:/C/details/abbreviation", "name:/C/name", "apiSpec:/C/details/api/apiSpecPublished", "usedTech:/T")
+                    .values("abbreviation:/C/details/abbreviation", "name:/C/name",
+                            "apiSpec:/C/details/api/apiSpecPublished", "usedTech:/T")
                     .order().by("name")
                     .toList();
             page.addDataModel("techStackByService", techStackByService);
@@ -114,9 +115,12 @@ public class ConfluenceGenerateDomainPagesVerticle extends AbstractConfluenceGen
                     V(domainId).out().values("id", "name", "/details/abbreviation", "/features/faultTolerance").as("C")
                             .value("faultTolerance")
                             .union(
-                                    has("errorCodes", within("not required", "no")).key().is(eq("errorCodes")).as("T")
-                                    , has("httpRetryPolicy", within("not required", "no")).key().is(eq("httpRetryPolicy")).as("T")
-                                    , has("customHealthProbes", within("not required", "no")).key().is(eq("customHealthProbes")).as("T")
+                                    has("errorCodes", within("not required", "no")).key()
+                                            .is(eq("errorCodes")).as("T"),
+                                    has("httpRetryPolicy", within("not required", "no")).key()
+                                            .is(eq("httpRetryPolicy")).as("T"),
+                                    has("customHealthProbes", within("not required", "no")).key()
+                                            .is(eq("customHealthProbes")).as("T")
                             )
                             .select("C", "T")
                             .group().by("C").by("T")

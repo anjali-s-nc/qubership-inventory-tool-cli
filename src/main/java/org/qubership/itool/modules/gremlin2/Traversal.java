@@ -20,7 +20,11 @@ import org.qubership.itool.modules.graph.BasicGraph;
 import org.qubership.itool.modules.gremlin2.step.EmptyStep;
 import org.qubership.itool.modules.gremlin2.step.util.Profile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public interface Traversal<S, E> extends  Cloneable {
 
@@ -128,6 +132,7 @@ public interface Traversal<S, E> extends  Cloneable {
         void setPreviousTraversal(Traversal.Admin<S, E> traversal);
 
         BasicGraph getGraph();
+
         void setGraph(BasicGraph graph);
 
         void applyStrategies() throws IllegalStateException;

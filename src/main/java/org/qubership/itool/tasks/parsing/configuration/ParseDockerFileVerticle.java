@@ -16,21 +16,21 @@
 
 package org.qubership.itool.tasks.parsing.configuration;
 
-import org.qubership.itool.tasks.parsing.AbstractParseFileDataTask;
-
 import io.vertx.core.json.JsonObject;
-
+import org.qubership.itool.tasks.parsing.AbstractParseFileDataTask;
 import org.qubership.itool.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
 public class ParseDockerFileVerticle extends AbstractParseFileDataTask {
 
-    protected Logger LOGGER = LoggerFactory.getLogger(ParseDockerFileVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParseDockerFileVerticle.class);
 
     @Override
     protected List<Map<String, JsonObject>> getTuples() {
@@ -64,15 +64,17 @@ public class ParseDockerFileVerticle extends AbstractParseFileDataTask {
     private String readFrom(BufferedReader reader) throws IOException {
         for (;;) {
             String from = reader.readLine();
-            if (from == null)
+            if (from == null) {
                 return null;
+            }
             from = from.trim();
             if (from.startsWith("#")) {
                 continue;
             }
             // The first non-comment line found
-            if (! from.startsWith("FROM "))
+            if (!from.startsWith("FROM ")) {
                 return null;
+            }
             return from.replace("FROM ", "");
         }
     }

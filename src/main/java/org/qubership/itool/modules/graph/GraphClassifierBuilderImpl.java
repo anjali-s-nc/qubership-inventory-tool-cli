@@ -69,6 +69,7 @@ public class GraphClassifierBuilderImpl implements GraphClassifierBuilder {
         this.applicationVersionIds = applicationVersionIds;
         return this;
     }
+
     public GraphClassifierBuilder addDepartment(String departmentId) {
         this.departmentIds.add(departmentId);
         return this;

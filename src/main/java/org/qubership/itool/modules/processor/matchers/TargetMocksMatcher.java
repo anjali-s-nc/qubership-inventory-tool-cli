@@ -16,22 +16,22 @@
 
 package org.qubership.itool.modules.processor.matchers;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.qubership.itool.modules.graph.Graph;
-
+import com.google.inject.Inject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import org.qubership.itool.modules.graph.Graph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.qubership.itool.modules.graph.Graph.*;
-import static org.qubership.itool.modules.gremlin2.P.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import com.google.inject.Inject;
+import static org.qubership.itool.modules.graph.Graph.F_ID;
+import static org.qubership.itool.modules.graph.Graph.F_MOCKED_FOR;
+import static org.qubership.itool.modules.graph.Graph.F_MOCK_FLAG;
+import static org.qubership.itool.modules.gremlin2.P.eq;
 
 /**
  * <p>This class pre-compiles matchers for already existing vertices
@@ -99,11 +99,11 @@ public class TargetMocksMatcher implements VertexMatcher {
 
         // New vertex must match all the attributes of the example
         return (srcGraph, newVertex, tgtGraph) -> {
-            for (JsonPointer ptr: mockPtrs) {
+            for (JsonPointer ptr : mockPtrs) {
                 Object realVertexValue = ptr.queryJson(newVertex);
                 Object mockedVertexValue = ptr.queryJson(mock);
                 if (realVertexValue instanceof JsonArray) {
-                    if (!((JsonArray)realVertexValue).contains(mockedVertexValue)) {
+                    if (!((JsonArray) realVertexValue).contains(mockedVertexValue)) {
                         return null;
                     }
                 } else if (! Objects.equals(mockedVertexValue, realVertexValue)) {

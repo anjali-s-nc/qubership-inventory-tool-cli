@@ -16,10 +16,9 @@
 
 package org.qubership.itool.modules.artifactory;
 
-import org.qubership.itool.utils.ConfigProperties;
-
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import org.qubership.itool.utils.ConfigProperties;
 
 public class ArtifactoryConfig {
 

@@ -16,14 +16,13 @@
 
 package org.qubership.itool.modules.processor.tasks;
 
-import java.util.function.Function;
-
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import org.qubership.itool.modules.graph.Graph;
 import org.qubership.itool.modules.processor.GraphMerger;
 import org.qubership.itool.modules.processor.InvalidGraphException;
 
-import io.vertx.core.Future;
-import io.vertx.core.Vertx;
+import java.util.function.Function;
 
 /**
  * Functionality similar to CLI flow tasks. Needed to perform some maintenance of graph integrity

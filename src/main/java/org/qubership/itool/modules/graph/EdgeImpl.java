@@ -63,12 +63,12 @@ public class EdgeImpl implements Edge {
 
     @Override
     public String toString() {
-        return "Edge{" +
-            "id=" + id +
-            ", from=" + sourceVertexId +
-            ", to=" + destinationVertexId +
-            ", value=" + value +
-            '}';
+        return "Edge{"
+            + "id=" + id
+            + ", from=" + sourceVertexId
+            + ", to=" + destinationVertexId
+            + ", value=" + value
+            + '}';
     }
 
 }

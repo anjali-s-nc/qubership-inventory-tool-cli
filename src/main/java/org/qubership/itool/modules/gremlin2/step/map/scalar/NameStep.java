@@ -16,9 +16,9 @@
 
 package org.qubership.itool.modules.gremlin2.step.map.scalar;
 
+import io.vertx.core.json.JsonObject;
 import org.qubership.itool.modules.gremlin2.Traversal;
 import org.qubership.itool.modules.gremlin2.Traverser;
-import io.vertx.core.json.JsonObject;
 
 import java.util.Map;
 
@@ -37,9 +37,9 @@ public class NameStep<S> extends ScalarMapStep<S, String>  {
     protected String map(Traverser.Admin<S> traverser) {
         Object obj = traverser.get();
         if (obj instanceof JsonObject) {
-            return ((JsonObject)obj).getString("name");
+            return ((JsonObject) obj).getString("name");
         } else if (obj instanceof Map) {
-            return(String) ((Map)obj).get("name");
+            return (String) ((Map) obj).get("name");
         }
         throw new UnsupportedOperationException("NameStep only applicable to JsonObject or Map");
     }
