@@ -89,7 +89,7 @@ public class GraphMerger implements MergerApi {
     private final Provider<CompoundVertexMatcher> compoundMatcherProvider;
 
     @Inject
-    public GraphMerger(Vertx vertx, Provider<Graph> graphProvider,
+    public GraphMerger(Vertx vertx, @Named("prototype") Provider<Graph> graphProvider,
             @Named("normalization.tasks") Provider<List<GraphProcessorTask>> normalizationTasks,
             @Named("finalization.tasks") Provider<List<GraphProcessorTask>> finalizationTasks,
             Function<JsonObject, CreateAppVertexTask> createAppVertexTaskFactory,

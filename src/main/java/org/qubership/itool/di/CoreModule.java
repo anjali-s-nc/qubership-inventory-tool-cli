@@ -18,6 +18,7 @@ package org.qubership.itool.di;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import io.vertx.core.Vertx;
@@ -61,7 +62,7 @@ public class CoreModule extends AbstractModule {
     @Override
     protected void configure() {
         // Bind core factories
-        bind(GraphReport.class).to(GraphReportImpl.class).asEagerSingleton();
+        bind(GraphReport.class).to(GraphReportImpl.class).in(Scopes.SINGLETON);
         bind(Vertx.class).toInstance(vertx);
     }
 
@@ -71,6 +72,34 @@ public class CoreModule extends AbstractModule {
         Graph graph = new GraphImpl();
         graph.setReport(graphReportProvider.get());
         return graph;
+    }
+
+    /**
+     * Provides prototype instances of Graph.
+     * Each call to this provider will return a new Graph instance.
+     * Uses prototype GraphReport instance.
+     *
+     * @param graphReportProvider Provider for prototype GraphReport instance
+     * @return A new Graph instance
+     */
+    @Provides
+    @Named("prototype")
+    public Graph providePrototypeGraph(@Named("prototype") Provider<GraphReport> graphReportProvider) {
+        Graph graph = new GraphImpl();
+        graph.setReport(graphReportProvider.get());
+        return graph;
+    }
+
+    /**
+     * Provides prototype instances of GraphReport.
+     * Each call to this provider will return a new GraphReport instance.
+     *
+     * @return A new GraphReport instance
+     */
+    @Provides
+    @Named("prototype")
+    public GraphReport providePrototypeGraphReport() {
+        return new GraphReportImpl();
     }
 
     /**
