@@ -19,6 +19,7 @@ package org.qubership.itool.modules.graph;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GraphClassifierBuilderImpl implements GraphClassifierBuilder {
@@ -105,12 +106,22 @@ public class GraphClassifierBuilderImpl implements GraphClassifierBuilder {
     }
 
     private String generateMD5Checksum() {
-        // TODO order of ids matter
+        // Sort lists to ensure deterministic hash generation regardless of insertion order
+        List<String> sortedDepartmentIds = new ArrayList<>(this.departmentIds);
+        List<String> sortedDomainIds = new ArrayList<>(this.domainIds);
+        List<String> sortedReleaseVersionIds = new ArrayList<>(this.releaseVersionIds);
+        List<String> sortedApplicationVersionIds = new ArrayList<>(this.applicationVersionIds);
+
+        Collections.sort(sortedDepartmentIds);
+        Collections.sort(sortedDomainIds);
+        Collections.sort(sortedReleaseVersionIds);
+        Collections.sort(sortedApplicationVersionIds);
+
         StringBuilder source = new StringBuilder();
-        source.append("departmentIds: ").append(this.departmentIds);
-        source.append(", domainsIds: ").append(this.domainIds);
-        source.append(", releaseVersionIds: ").append(this.releaseVersionIds);
-        source.append(", applicationVersionIds: ").append(this.applicationVersionIds);
+        source.append("departmentIds: ").append(sortedDepartmentIds);
+        source.append(", domainsIds: ").append(sortedDomainIds);
+        source.append(", releaseVersionIds: ").append(sortedReleaseVersionIds);
+        source.append(", applicationVersionIds: ").append(sortedApplicationVersionIds);
         String md5 = DigestUtils.md5Hex(source.toString());
         return md5;
     }
