@@ -12,7 +12,7 @@ mkdir -p ./tmp/target ./tmp/docker
 # Gather exactly as written in Dockerfile:
 
 # ADD target/inventory-tool /app/inventory-tool
-cp -r ../target/inventory-tool  ./tmp/target/
+cp -r ../target/inventory-tool ./tmp/target/
 # ADD target/qubership-inventory-tool-cli-*-fat.jar /app/inventory-tool.jar
 cp ../target/qubership-inventory-tool-cli-*-fat.jar ./tmp/target/
 
@@ -21,8 +21,8 @@ cp ../target/qubership-inventory-tool-cli-*-fat.jar ./tmp/target/
 # ADD docker/ci-exec.sh      /usr/local/bin/ci-exec
 # ADD docker/ci-assembly.sh  /usr/local/bin/ci-assembly
 # ADD docker/ci-obfuscate.sh /usr/local/bin/ci-obfuscate
-cp ci.properties ci-*.sh logback.xml  ./tmp/docker/
+cp ci.properties ci-*.sh logback.xml ./tmp/docker/
 
 echo Docker build
-cd tmp
+cd tmp || exit 1
 docker build . -f ../../Dockerfile --tag itool
