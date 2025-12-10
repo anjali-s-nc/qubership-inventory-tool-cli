@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -67,18 +66,18 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
     private final Parser parser;
 
     public ParseErrorCodesVerticle() {
-        List<Extension> extensions = Arrays.asList(TablesExtension.create());
+        List<Extension> extensions = List.of(TablesExtension.create());
         this.parser = Parser.builder().extensions(extensions).build();
     }
 
     @Override
     protected String[] getFilePatterns() {
         return new String[]{
-                //            "docs/troubleshooting-guide.md",
-                "docs/**/troubleshooting-guide.md",
-                "docs/troubleshooting/errors/*.md",
-                "documents/troubleshooting/errors/*.md",
-                "documents/**/troubleshooting-guide.md",
+            //            "docs/troubleshooting-guide.md",
+            "docs/**/troubleshooting-guide.md",
+            "docs/troubleshooting/errors/*.md",
+            "documents/troubleshooting/errors/*.md",
+            "documents/**/troubleshooting-guide.md",
         };
     }
 
@@ -97,7 +96,7 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
     }
 
     private void parseTroubleshootingGuide(JsonObject domain, JsonObject component, String fileName)
-            throws IOException {
+        throws IOException {
         String data = FSUtils.readFileSafe(fileName);
         Node doc = parser.parse(data);
 
@@ -112,7 +111,7 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
             List<TableCell> headCells = collectCells(head.getFirstChild().getFirstChild());
             Integer errorCodeIdx = findColumnIdxByText(headCells, "Error Code");
             Integer messageIdx = findColumnIdxByText(headCells, "Error Message",
-                    "Message Text (English)", "Message Text");
+                "Message Text (English)", "Message Text");
             Integer scenarioIdx = findColumnIdxByText(headCells, "Scenario");
             Integer reasonIdx = findColumnIdxByText(headCells, "Reason");
             Integer solutionIdx = findColumnIdxByText(headCells, "Solution");
@@ -124,10 +123,10 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
 
                     // Handle crazy cells in "Error Code" column like "ABC-0001<br/>ABCDEF-0001"
                     List<String> errorCodes = collectSiblings(cells.get(errorCodeIdx).getFirstChild())
-                            .stream()
-                            .filter(node -> node instanceof Text)
-                            .map(text -> ((Text) text).getLiteral())
-                            .collect(Collectors.toList());
+                        .stream()
+                        .filter(node -> node instanceof Text)
+                        .map(text -> ((Text) text).getLiteral())
+                        .collect(Collectors.toList());
 
                     String errorMessage = getContentsofCell(cells, messageIdx);
 
@@ -172,50 +171,76 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
 
     private void parseSingleError(JsonObject domain, JsonObject component, String fileName) throws IOException {
         String code = Path.of(fileName).getFileName().toString().replaceFirst("\\.md$", "");
-
         String data = FSUtils.readFileSafe(fileName);
         Node doc = parser.parse(data);
+
+        JsonArray issues = new JsonArray();
+
+        //Try exact heading
+        Node nameHeading = findHeading(doc.getFirstChild(), 2, code);
+
+        if (nameHeading == null) {
+
+            JsonObject processingError = new ProcessingIssueBuilder(PARSING, "No matching header")
+                .source("ParseErrorCodesVerticle", "")
+                .timestamp(Instant.now())
+                .details(d -> {
+                    d.put("file", fileName);
+                    d.put("code", code);
+                })
+                .build();
+
+            issues.add(processingError);
+            nameHeading = doc.getFirstChild();
+            report.mandatoryValueMissed(component, "/errorCode/" + code + ": No matching header found");
+        }
+
+        // proceed with existing heading parsing if we have one
         String messageText = null;
         String scenarioText = null;
         String reasonText = null;
         String solutionText = null;
 
-        Node nameHeading = findHeading(doc.getFirstChild(), 2, code);
-        Node textHeading = findHeading(nameHeading, 3, "message text", LOWERCASE_EXTRACTOR);
-        Node textHeadingScenario = findHeading(nameHeading, 3, "scenario", LOWERCASE_EXTRACTOR);
-        Node textHeadingReason = findHeading(nameHeading, 3, "reason", LOWERCASE_EXTRACTOR);
-        Node textHeadingSolution = findHeading(nameHeading, 3, "solution", LOWERCASE_EXTRACTOR);
-        if (textHeading != null) {
-            messageText = getTextOfParagraph(textHeading);
-        }
-        if (textHeadingScenario != null) {
-            scenarioText = getTextOfParagraph(textHeadingScenario);
+        if (nameHeading != null) {
+            Node textHeading = findHeading(nameHeading, 3, "message text", LOWERCASE_EXTRACTOR);
+            Node textHeadingScenario = findHeading(nameHeading, 3, "scenario", LOWERCASE_EXTRACTOR);
+            Node textHeadingReason = findHeading(nameHeading, 3, "reason", LOWERCASE_EXTRACTOR);
+            Node textHeadingSolution = findHeading(nameHeading, 3, "solution", LOWERCASE_EXTRACTOR);
+
+            if (textHeading != null) {
+                messageText = getTextOfParagraph(textHeading);
+            }
+            if (textHeadingScenario != null) {
+                scenarioText = getTextOfParagraph(textHeadingScenario);
+            }
+            if (textHeadingReason != null) {
+                reasonText = getTextOfParagraph(textHeadingReason);
+            }
+            if (textHeadingSolution != null) {
+                solutionText = getTextOfParagraph(textHeadingSolution);
+            }
         }
 
-        if (textHeadingReason != null) {
-            reasonText = getTextOfParagraph(textHeadingReason);
-        }
+        JsonObject vertex = addErrorCode(component, fileName, code, messageText, scenarioText, reasonText, solutionText);
 
-        if (textHeadingSolution != null) {
-            solutionText = getTextOfParagraph(textHeadingSolution);
+        if (!issues.isEmpty()) {
+            ProcessingIssueBuilder.ensureIssuesArray(vertex).addAll(issues);
         }
-
-        addErrorCode(component, fileName, code, messageText, scenarioText, reasonText, solutionText);
     }
 
     private String getTextOfParagraph(Node textHeading) {
         List<Paragraph> paras = collectParagraphs(textHeading.getNext());
         return paras.isEmpty() ? null
-                : paras.stream()
-                        .map(para -> ((Text) para.getFirstChild()).getLiteral())
-                        .collect(Collectors.joining("\n"));
+            : paras.stream()
+            .map(para -> ((Text) para.getFirstChild()).getLiteral())
+            .collect(Collectors.joining("\n"));
     }
 
     /**
      * Generates a unique vertex ID for an error code by combining the error code
      * with a hash of the component identifier to ensure uniqueness per component.
      *
-     * @param code error code identifier
+     * @param code        error code identifier
      * @param componentId component identifier
      * @return unique vertex ID in format: code-hash
      */
@@ -224,12 +249,12 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
         return code + "-" + Integer.toHexString(hash);
     }
 
-    private void addErrorCode(JsonObject component, String fileName, String code,
-            String messageText, String scenarioText, String reasonText, String solutionText) {
+    private JsonObject addErrorCode(JsonObject component, String fileName, String code,
+                                    String messageText, String scenarioText, String reasonText, String solutionText) {
         String componentId = component.getString(F_ID);
         String errorCodeVertexId = generateErrorCodeVertexId(code, componentId);
         JsonObject details = new JsonObject()
-                .put("describedIn", GitUtils.buildRepositoryLink(component, fileName, config()));
+            .put("describedIn", GitUtils.buildRepositoryLink(component, fileName, config()));
         JsonArray processingErrors = new JsonArray();
         if (messageText != null) {
             details.put("messageText", messageText);
@@ -256,17 +281,18 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
         }
         Graph graph = this.graph;
         JsonObject errorCode = new JsonObject()
-                .put(F_ID, errorCodeVertexId)
-                .put(F_TYPE, V_ERROR_CODE)
-                .put(F_NAME, code)
-                .put("details", details);
+            .put(F_ID, errorCodeVertexId)
+            .put(F_TYPE, V_ERROR_CODE)
+            .put(F_NAME, code)
+            .put("details", details);
         if (!processingErrors.isEmpty()) {
             ProcessingIssueBuilder.ensureIssuesArray(errorCode).addAll(processingErrors);
         }
         JsonObject edge = new JsonObject()
-                .put(F_TYPE, V_ERROR_CODE);
+            .put(F_TYPE, V_ERROR_CODE);
 
         graph.addEdge(component, errorCode, edge);
+        return errorCode;
     }
 
 }
