@@ -73,11 +73,11 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
     @Override
     protected String[] getFilePatterns() {
         return new String[]{
-            //            "docs/troubleshooting-guide.md",
-            "docs/**/troubleshooting-guide.md",
-            "docs/troubleshooting/errors/*.md",
-            "documents/troubleshooting/errors/*.md",
-            "documents/**/troubleshooting-guide.md",
+                //            "docs/troubleshooting-guide.md",
+                "docs/**/troubleshooting-guide.md",
+                "docs/troubleshooting/errors/*.md",
+                "documents/troubleshooting/errors/*.md",
+                "documents/**/troubleshooting-guide.md",
         };
     }
 
@@ -96,7 +96,7 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
     }
 
     private void parseTroubleshootingGuide(JsonObject domain, JsonObject component, String fileName)
-        throws IOException {
+            throws IOException {
         String data = FSUtils.readFileSafe(fileName);
         Node doc = parser.parse(data);
 
@@ -111,7 +111,7 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
             List<TableCell> headCells = collectCells(head.getFirstChild().getFirstChild());
             Integer errorCodeIdx = findColumnIdxByText(headCells, "Error Code");
             Integer messageIdx = findColumnIdxByText(headCells, "Error Message",
-                "Message Text (English)", "Message Text");
+                    "Message Text (English)", "Message Text");
             Integer scenarioIdx = findColumnIdxByText(headCells, "Scenario");
             Integer reasonIdx = findColumnIdxByText(headCells, "Reason");
             Integer solutionIdx = findColumnIdxByText(headCells, "Solution");
@@ -123,10 +123,10 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
 
                     // Handle crazy cells in "Error Code" column like "ABC-0001<br/>ABCDEF-0001"
                     List<String> errorCodes = collectSiblings(cells.get(errorCodeIdx).getFirstChild())
-                        .stream()
-                        .filter(node -> node instanceof Text)
-                        .map(text -> ((Text) text).getLiteral())
-                        .collect(Collectors.toList());
+                            .stream()
+                            .filter(node -> node instanceof Text)
+                            .map(text -> ((Text) text).getLiteral())
+                            .collect(Collectors.toList());
 
                     String errorMessage = getContentsofCell(cells, messageIdx);
 
@@ -182,13 +182,13 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
         if (nameHeading == null) {
 
             JsonObject processingError = new ProcessingIssueBuilder(PARSING, "No matching header")
-                .source("ParseErrorCodesVerticle", "")
-                .timestamp(Instant.now())
-                .details(d -> {
-                    d.put("file", fileName);
-                    d.put("code", code);
-                })
-                .build();
+                    .source("ParseErrorCodesVerticle", "")
+                    .timestamp(Instant.now())
+                    .details(d -> {
+                        d.put("file", fileName);
+                        d.put("code", code);
+                    })
+                    .build();
 
             issues.add(processingError);
             nameHeading = doc.getFirstChild();
@@ -221,7 +221,8 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
             }
         }
 
-        JsonObject vertex = addErrorCode(component, fileName, code, messageText, scenarioText, reasonText, solutionText);
+        JsonObject vertex =
+                addErrorCode(component, fileName, code, messageText, scenarioText, reasonText, solutionText);
 
         if (!issues.isEmpty()) {
             ProcessingIssueBuilder.ensureIssuesArray(vertex).addAll(issues);
@@ -231,9 +232,9 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
     private String getTextOfParagraph(Node textHeading) {
         List<Paragraph> paras = collectParagraphs(textHeading.getNext());
         return paras.isEmpty() ? null
-            : paras.stream()
-            .map(para -> ((Text) para.getFirstChild()).getLiteral())
-            .collect(Collectors.joining("\n"));
+                : paras.stream()
+                .map(para -> ((Text) para.getFirstChild()).getLiteral())
+                .collect(Collectors.joining("\n"));
     }
 
     /**
@@ -254,20 +255,20 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
         String componentId = component.getString(F_ID);
         String errorCodeVertexId = generateErrorCodeVertexId(code, componentId);
         JsonObject details = new JsonObject()
-            .put("describedIn", GitUtils.buildRepositoryLink(component, fileName, config()));
+                .put("describedIn", GitUtils.buildRepositoryLink(component, fileName, config()));
         JsonArray processingErrors = new JsonArray();
         if (messageText != null) {
             details.put("messageText", messageText);
         } else {
             report.mandatoryValueMissed(component, "/errorCode/" + code + "/messageText");
             JsonObject processingError = new ProcessingIssueBuilder(PARSING, "Message text is missing")
-                .source("ParseErrorCodesVerticle", "")
-                .timestamp(Instant.now())
-                .details(d -> {
-                    d.put("file", fileName);
-                    d.put("code", code);
-                })
-                .build();
+                    .source("ParseErrorCodesVerticle", "")
+                    .timestamp(Instant.now())
+                    .details(d -> {
+                        d.put("file", fileName);
+                        d.put("code", code);
+                    })
+                    .build();
             processingErrors.add(processingError);
         }
         if (scenarioText != null) {
@@ -281,15 +282,15 @@ public class ParseErrorCodesVerticle extends AbstractParseFileTask {
         }
         Graph graph = this.graph;
         JsonObject errorCode = new JsonObject()
-            .put(F_ID, errorCodeVertexId)
-            .put(F_TYPE, V_ERROR_CODE)
-            .put(F_NAME, code)
-            .put("details", details);
+                .put(F_ID, errorCodeVertexId)
+                .put(F_TYPE, V_ERROR_CODE)
+                .put(F_NAME, code)
+                .put("details", details);
         if (!processingErrors.isEmpty()) {
             ProcessingIssueBuilder.ensureIssuesArray(errorCode).addAll(processingErrors);
         }
         JsonObject edge = new JsonObject()
-            .put(F_TYPE, V_ERROR_CODE);
+                .put(F_TYPE, V_ERROR_CODE);
 
         graph.addEdge(component, errorCode, edge);
         return errorCode;
