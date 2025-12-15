@@ -55,6 +55,13 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      - name: "Prepare app token"
+        uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.GH_BUMP_VERSION_APP_ID }}
+          private-key: ${{ secrets.GH_BUMP_VERSION_APP_KEY }}
+
       - name: Release Maven Artifact
         uses: netcracker/qubership-workflow-hub/actions/maven-release@3e428f45132119ce49d90f3770a45d4fe1d1078d # v2.0.4
         with:
@@ -66,7 +73,7 @@ jobs:
           profile: ${{ github.event.inputs.profile }}
           dry-run: ${{ github.event.inputs.dry-run }}
           maven-args: ${{ github.event.inputs.dry-run == 'true' && '-DskipTests=true -Dmaven.javadoc.skip=true -B -Dgpg.skip=true -DskipPublishing=true' || '-DskipTests=true -Dmaven.javadoc.skip=true -B' }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           gpg-passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
           maven-user: ${{ secrets.MAVEN_USER }}
